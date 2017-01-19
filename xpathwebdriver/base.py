@@ -104,8 +104,8 @@ class CommandBase(SmoothTestBase):
 
     def _process_common_args(self, args):
         # Specific settings
-        if args.smoothtest_settings:
-            register_settings(args.smoothtest_settings.pop())
+        if args.xpathwebdriver_settings:
+            register_settings(args.xpathwebdriver_settings.pop())
 
 
 def smoke_test_module():
