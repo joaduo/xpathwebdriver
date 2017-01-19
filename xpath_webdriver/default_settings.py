@@ -6,16 +6,7 @@ Copyright (c) 2014 Juju. Inc
 Code Licensed under MIT License. See LICENSE file.
 '''
 import logging
-#from xpath_webdriver.WebdriverManager import TEST_ROUND_LIFE
-
-# Webdriver life level
-#GOD_LIFE = 7 # Browser survives across universes (WIP)
-#AI_LIFE = 6 # Browser survives across reboots and becomes agent smith (WIP)
-#INMORTAL_LIFE = 5 # Browser survives across processes
-#PROCESS_LIFE = 4 # Browser is alive as long as the smoothtest process is running
-#TEST_RUNNER_LIFE = 3 # Browser is alive as long as the TestRunner process is running (new test runner process means new browser) 
-#TEST_ROUND_LIFE = 2 # Browser is alive for a single test round
-#SINGLE_TEST_LIFE = 1 # Start 1 new browser per test ran
+from xpath_webdriver.test_levels import TEST_ROUND_LIFE
 
 class DefaultSettings(object):
     # Signal that we are working on production. To disable write tests
@@ -40,7 +31,7 @@ class DefaultSettings(object):
     webdriver_enabled = True # Whether or not automatically create the browser
     webdriver_browser = 'Chrome' 
     #'PhantomJS' # Which browser we would like to use webdriver with: Firefox, Chrome, PhantomJs, etc...
-#    webdriver_browser_life = TEST_ROUND_LIFE # Level of life of the webdriver browser
+    webdriver_browser_life = TEST_ROUND_LIFE # Level of life of the webdriver browser
     webdriver_pool_size = 1
     webdriver_keep_open = False # Keep latest browser open after a smoothtest process finished (for debugging/testing)
 
