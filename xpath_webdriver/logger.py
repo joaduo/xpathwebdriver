@@ -36,7 +36,7 @@ class Logger(object):
                 output = logging.getLogger(name)
         self.output = output
         self.color = color
-        if not logging.root.handlers or name:
+        if not logging.root.handlers:
             self._config_handler()
             self.set_fmt()
             self.setLevel(level)
