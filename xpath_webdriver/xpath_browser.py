@@ -160,9 +160,10 @@ class XpathBrowser(object):
             url = '//' + url
         url = Url(url)
         if not url.parts.netloc or not is_valid_netloc(url.parts.netloc):
-            self.log.e('No domain or invalid domain in %r. '
-                       'Provide scheme to avoid this check', orig)
-            raise ValueError('Invalid url %r' % orig)
+            msg = ('No domain or invalid domain in %r. '
+                   'Provide scheme to avoid this check', orig)
+            self.log.e(msg)
+            raise ValueError(msg)
         if not url.parts.scheme:
             url = url.replace(scheme='http')
         return str(url)
