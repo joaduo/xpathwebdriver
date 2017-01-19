@@ -4,7 +4,7 @@ if ! pandoc --from=markdown --to=rst --output=README README.md ; then
     exit 1
 fi
 
-app="xpath_webdriver"
+app="xpathwebdriver"
 
 rm dist/$app\-*.tar.gz
 

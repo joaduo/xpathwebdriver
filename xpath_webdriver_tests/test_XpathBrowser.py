@@ -6,16 +6,16 @@ Copyright (c) 2015 Juju. Inc
 Code Licensed under MIT License. See LICENSE file.
 '''
 from selenium.common.exceptions import UnexpectedAlertPresentException
-from xpath_webdriver.Logger import Logger
-from xpath_webdriver.xpath_browser import XpathBrowser
+from xpathwebdriver.Logger import Logger
+from xpathwebdriver.xpath_browser import XpathBrowser
 from contextlib import contextmanager
 from selenium.webdriver.remote.webdriver import WebDriver
 import tempfile
 import shutil
 import unittest
 import os
-from xpath_webdriver.webdriver_manager import WebdriverManager
-from xpath_webdriver.levels import SINGLE_TEST_LIFE
+from xpathwebdriver.webdriver_manager import WebdriverManager
+from xpathwebdriver.levels import SINGLE_TEST_LIFE
 
 
 class WebUnitTestBase(unittest.TestCase):

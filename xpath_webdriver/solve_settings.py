@@ -42,7 +42,7 @@ def solve_settings():
         try:
             from xpathwebdriver_settings import Settings
         except ImportError:
-            from xpath_webdriver.default_settings import DefaultSettings as Settings
+            from xpathwebdriver.default_settings import DefaultSettings as Settings
         global_settings = SettingsWrapper(Settings())
         return global_settings
 

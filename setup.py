@@ -1,7 +1,7 @@
 
 from setuptools import setup, find_packages
 
-name = 'xpath_webdriver'
+name = 'xpathwebdriver'
 
 reqs = '''importlib
 ipython
@@ -26,6 +26,6 @@ setup(
   keywords = ['testing', 'automation', 'web', 'unittest', 'webdriver', 'selenium'],
   install_requires=reqs,
   scripts=[
-           'xpath_webdriver/commands/xpathshell',
+           'xpathwebdriver/commands/xpathshell',
            ],
 )

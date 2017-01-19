@@ -12,7 +12,7 @@ from functools import wraps
 from selenium.common.exceptions import UnexpectedAlertPresentException
 from .base import SmoothTestBase, singleton_decorator
 from .solve_settings import solve_settings
-from xpath_webdriver.levels import INMORTAL_LIFE, TEST_ROUND_LIFE
+from xpathwebdriver.levels import INMORTAL_LIFE, TEST_ROUND_LIFE
 
 
 def synchronized(lock):

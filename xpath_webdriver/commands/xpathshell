@@ -3,7 +3,7 @@
 '''
 Code Licensed under MIT License. See LICENSE file.
 '''
-from xpath_webdriver.simple_shell import main
+from xpathwebdriver.simple_shell import main
 
 if __name__ == "__main__":
     main()
