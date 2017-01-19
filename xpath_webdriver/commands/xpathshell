@@ -1,0 +1,9 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+'''
+Code Licensed under MIT License. See LICENSE file.
+'''
+from xpath_webdriver.simple_shell import main
+
+if __name__ == "__main__":
+    main()
