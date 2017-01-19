@@ -12,6 +12,11 @@ from argparse import ArgumentParser
 
 logger = Logger()
 
+class ShellXpathBrowser(SimpleXpathBrowser):
+    def get_url(self, url, condition=None):
+        SimpleXpathBrowser.get_url(self, url, condition=condition)
+        self.log.i(" Current url: %s" % self.current_url())
+
 def embed(url):
     """Call this to embed IPython at the current point in your program.
     """
@@ -19,10 +24,11 @@ def embed(url):
                    ' shell. Exception: %r')
     ipdb_msg = ('Could not embed ipdb, falling back to pdb'
                 ' shell. Exception: %r')
-    b = browser = SimpleXpathBrowser()
+    b = browser = ShellXpathBrowser()
     if url:
         b.get(url)
-    display_banner = "XpathBrowser in 'b' or 'browser' variables"
+    display_banner = ("XpathBrowser in 'b' or 'browser' variables\n"
+                      " Current url: %s" % b.current_url())
     try:
         from IPython.terminal.embed import InteractiveShellEmbed
         # Now create the IPython shell instance. Put ipshell() anywhere in your code
@@ -53,7 +59,7 @@ class XpathShellCommand(object):
 
 
 def smoke_test_module():
-    c = XpathShellCommand()
+    XpathShellCommand()
 
 
 def main(argv=None):
