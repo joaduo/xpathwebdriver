@@ -3,6 +3,8 @@
 '''
 import re
 
+localhost = re.compile('localhost')
+
 pattern = re.compile(
     r'^(([a-zA-Z]{1})|([a-zA-Z]{1}[a-zA-Z]{1})|'
     r'([a-zA-Z]{1}[0-9]{1})|([0-9]{1}[a-zA-Z]{1})|'
@@ -29,7 +31,8 @@ def is_valid_netloc(value):
         value = value.split(':')[0]
     return (pattern.match(value) 
             or ip_pattern.match(value) 
-            or ip6_pattern.match(value))
+            or ip6_pattern.match(value)
+            or localhost.match(value))
 
 
 def smoke_test_module():
