@@ -6,7 +6,7 @@ Copyright (c) 2014 Juju. Inc
 Code Licensed under MIT License. See LICENSE file.
 '''
 import logging
-from xpath_webdriver.test_levels import TEST_ROUND_LIFE
+from .levels import TEST_ROUND_LIFE
 
 class DefaultSettings(object):
     # Signal that we are working on production. To disable write tests
