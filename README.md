@@ -30,6 +30,13 @@ class SearchEnginesDemo(unittest.TestCase):
 ```
 pip install xpathwebdriver
 ```
+The selenium package requires you to download drivers
+
+* Firefox: https://github.com/mozilla/geckodriver/releases
+* Chrome: https://sites.google.com/a/chromium.org/chromedriver/downloads
+* PhantomJs: http://phantomjs.org/download.html
+
+Decompressed executables should be in yor PATH.
 
 ## Running the interactive shell
 
