@@ -524,7 +524,7 @@ return eslist;
 
 
 def smoke_test_module():
-    from .WebdriverManager import WebdriverManager
+    from .webdriver_manager import WebdriverManager
     from .Logger import log_test
     mngr = WebdriverManager()
 #    mngr.setup_display()

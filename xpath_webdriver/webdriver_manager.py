@@ -4,6 +4,7 @@ Copyright (c) 2014 Juju. Inc
 Code Licensed under MIT License. See LICENSE file.
 '''
 import rel_imp; rel_imp.init()
+
 from selenium import webdriver
 from pyvirtualdisplay import Display
 from threading import RLock
@@ -11,7 +12,7 @@ from functools import wraps
 from selenium.common.exceptions import UnexpectedAlertPresentException
 from .base import SmoothTestBase, singleton_decorator
 from .solve_settings import solve_settings
-from .levels import INMORTAL_LIFE, TEST_ROUND_LIFE
+from xpath_webdriver.levels import INMORTAL_LIFE, TEST_ROUND_LIFE
 
 
 def synchronized(lock):

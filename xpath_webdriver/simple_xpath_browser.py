@@ -6,8 +6,9 @@ Copyright (c) 2015 Juju. Inc
 Code Licensed under MIT License. See LICENSE file.
 '''
 import rel_imp; rel_imp.init()
-from .WebdriverManager import WebdriverManager, SINGLE_TEST_LIFE
+from .webdriver_manager import WebdriverManager
 from .xpath_browser import XpathBrowser
+from .levels import SINGLE_TEST_LIFE
 
 
 class SimpleXpathBrowser(XpathBrowser):
