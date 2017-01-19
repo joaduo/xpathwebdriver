@@ -5,6 +5,7 @@ Copyright (c) 2014 Juju. Inc
 
 Code Licensed under MIT License. See LICENSE file.
 '''
+import imp
 
 # TODO: support .cfg files
 class SettingsWrapper(object):
@@ -28,6 +29,22 @@ class SettingsWrapper(object):
 
 
 global_settings = None
+def register_settings(settings_path):
+    '''
+    Register settings given specific module path.
+    :param settings_path:
+    '''
+    # TODO:Py3
+    # http://stackoverflow.com/questions/67631/how-to-import-a-module-given-the-full-path
+    mod = imp.load_source('specific_smoothtest_settings', settings_path)
+    global global_settings
+    global_settings = SettingsWrapper(mod.Settings())
+    # Set the level of the root logger
+    # import here due chicke-egg problem
+    from .base import SmoothTestBase
+    from .logger import Logger
+    Logger.default_level = global_settings.get('log_level_default')
+    SmoothTestBase.log.setLevel(global_settings.get('log_level_default'))
 
 
 def solve_settings():

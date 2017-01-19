@@ -5,14 +5,14 @@ Smoothtest
 Copyright (c) 2014, Juju inc.
 Copyright (c) 2011-2013, Joaquin G. Duo
 '''
-import rel_imp
+import rel_imp; rel_imp.init()
 from collections import namedtuple
-rel_imp.init()
+import logging
 import re
 import os
 import traceback
 from .logger import Logger
-from .solve_settings import solve_settings
+from .solve_settings import solve_settings, register_settings
 
 
 TestException = namedtuple('TestException', 'msg repr traceback')
@@ -73,6 +73,39 @@ class SmoothTestBase(object):
         if print_:
             traceback.print_exc()
         return TestException(str(e), repr(e), traceback.format_exc())
+
+
+def is_valid_file(path):
+    '''
+    Validate if a passed argument is a existing file (used by argsparse)
+    or its a python module namespace path (example.foo.bar.baz)
+    '''
+    # TODO: should it always validate module string?
+    abspath = os.path.abspath(path)
+    mod_re = r'^{mod}(?:\.{mod})*$'.format(mod=r'(?:[a-zA-Z_][a-zA-Z_0-9]*)')
+    if not (os.path.exists(abspath)
+            and os.path.isfile(abspath)
+            or re.match(mod_re, path)):
+        logging.warn('File %r does not exist.' % path)
+    return path
+
+
+class CommandBase(SmoothTestBase):
+
+    def _add_smoothtest_common_args(self, parser):
+        parser.add_argument(
+            '-S',
+            '--xpathwebdriver-settings',
+            type=is_valid_file,
+            help='Specific xpathwebdriver_settings module path '
+            '(useful if xpathwebdriver_settings module is not in PYTHONPATH).',
+            default=None,
+            nargs=1)
+
+    def _process_common_args(self, args):
+        # Specific settings
+        if args.smoothtest_settings:
+            register_settings(args.smoothtest_settings.pop())
 
 
 def smoke_test_module():

@@ -6,9 +6,10 @@ Copyright (c) 2015 Juju. Inc
 Code Licensed under MIT License. See LICENSE file.
 '''
 import rel_imp; rel_imp.init()
+from argparse import ArgumentParser
 from .logger import Logger
 from .simple_xpath_browser import SimpleXpathBrowser
-from argparse import ArgumentParser
+from .base import CommandBase
 
 logger = Logger(color=True)
 
@@ -35,6 +36,8 @@ def embed(url):
         # where you want it to open.
         ipshell = InteractiveShellEmbed(banner2=display_banner)
         ipshell()
+        del b
+        del browser
     except Exception as e:
         logger.w(iptyhon_msg % e)
         try:
@@ -46,15 +49,16 @@ def embed(url):
             pdb.set_trace()
 
 
-class XpathShellCommand(object):
+class XpathShellCommand(CommandBase):
     def get_parser(self):
         parser = ArgumentParser(description='Test XPaths via Selenium.')
         parser.add_argument('url', nargs='?')
-#        self._add_smoothtest_common_args(parser)
+        self._add_smoothtest_common_args(parser)
         return parser
 
     def main(self, argv=None):
         args = self.get_parser().parse_args(argv)
+        self._process_common_args(args)
         embed(args.url)
 
 

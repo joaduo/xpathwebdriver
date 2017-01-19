@@ -23,7 +23,7 @@ class SearchEnginesDemo(unittest.TestCase):
         # Load a local page for the demo
         self.browser.get_url('https://duckduckgo.com/')
         # Type smoothtest and press enter
-        self.browser.fill(".//*[@id='search_form_input_homepage']", 'smoothtest\n')
+        self.browser.fill(".//*[@id='search_form_input_homepage']", 'xpathwebdriver\n')
 ```
 
 ## Install
