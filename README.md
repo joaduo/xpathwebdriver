@@ -1,13 +1,14 @@
 # Xpathwebdriver
-Simpler webdriver API through a wrapper
 
-## Better API for accessing Selenium
+Python wrapper for interacting with Selenium through XPath paths.
+
+## Example
 
 Nicer tests for web sites.
 
 ```python
 import unittest
-from xpath_webdriver.simple_xpath_browser import SimpleXpathBrowser
+from xpathwebdriver.simple_xpath_browser import SimpleXpathBrowser
 
 class SearchEnginesDemo(unittest.TestCase):
     def setUp(self):
@@ -32,10 +33,26 @@ pip install xpathwebdriver
 
 ## Running the interactive shell
 
-Once installed run `xpathshell` in command line or:
-
+Once installed run in command line:
+```
+xpathshell
+```
+Or:
 ```
 xpathshell github.com/joaduo/xpathwebdriver
 ```
-
 To open https://github.com/joaduo/xpathwebdriver
+
+You will get an IPython interactive shell like:
+```
+XpathBrowser in 'b' or 'browser' variables
+ Current url: https://github.com/joaduo/xpathwebdriver
+In [1]:
+```
+
+## Useful links for working with XPath
+
+* https://addons.mozilla.org/es/firefox/addon/firebug/
+* https://addons.mozilla.org/es/firefox/addon/firepath/
+* http://ricostacruz.com/cheatsheets/xpath.html
+* http://xpath.alephzarro.com/content/cheatsheet.html
