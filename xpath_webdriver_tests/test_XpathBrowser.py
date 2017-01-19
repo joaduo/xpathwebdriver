@@ -14,7 +14,7 @@ import tempfile
 import shutil
 import unittest
 import os
-from xpath_webdriver.WebdriverManager import WebdriverManager
+from xpath_webdriver.webdriver_manager import WebdriverManager
 from xpath_webdriver.levels import SINGLE_TEST_LIFE
 
 
