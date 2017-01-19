@@ -10,7 +10,7 @@ from .logger import Logger
 from .simple_xpath_browser import SimpleXpathBrowser
 from argparse import ArgumentParser
 
-logger = Logger()
+logger = Logger(color=True)
 
 class ShellXpathBrowser(SimpleXpathBrowser):
     def get_url(self, url, condition=None):
@@ -24,7 +24,7 @@ def embed(url):
                    ' shell. Exception: %r')
     ipdb_msg = ('Could not embed ipdb, falling back to pdb'
                 ' shell. Exception: %r')
-    b = browser = ShellXpathBrowser()
+    b = browser = ShellXpathBrowser(logger=logger)
     if url:
         b.get(url)
     display_banner = ("XpathBrowser in 'b' or 'browser' variables\n"
@@ -60,6 +60,8 @@ class XpathShellCommand(object):
 
 def smoke_test_module():
     XpathShellCommand()
+    b = ShellXpathBrowser()
+    b.get('http://localhost')
 
 
 def main(argv=None):
