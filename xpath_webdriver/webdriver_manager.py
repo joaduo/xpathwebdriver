@@ -323,7 +323,7 @@ class WebdriverLevelManager(SmoothTestBase):
         return self.webdriver
 
     def get_xpathbrowser(self, base_url=None, name=''):
-        from .Logger import Logger
+        from .logger import Logger
         from .xpath_browser import XpathBrowser
         base_url = base_url or self.base_url or self.global_settings.get('base_url')
         name = name or self.name
@@ -342,7 +342,7 @@ class WebdriverLevelManager(SmoothTestBase):
 
 
 def smoke_test_module():
-    from .Logger import log_test
+    from .logger import log_test
     mngr = WebdriverManager()
 #    import ipdb; ipdb.set_trace()
     lvl = mngr.enter_level(level=TEST_ROUND_LIFE)

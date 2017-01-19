@@ -12,7 +12,7 @@ rel_imp.init()
 import re
 import os
 import traceback
-from .Logger import Logger
+from .logger import Logger
 from .solve_settings import solve_settings
 
 

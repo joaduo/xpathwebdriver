@@ -15,7 +15,7 @@ from selenium.common.exceptions import WebDriverException,\
     TimeoutException
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions
-from .Logger import Logger
+from .logger import Logger
 from .validators import is_valid_netloc
 
 
@@ -525,7 +525,7 @@ return eslist;
 
 def smoke_test_module():
     from .webdriver_manager import WebdriverManager
-    from .Logger import log_test
+    from .logger import log_test
     mngr = WebdriverManager()
 #    mngr.setup_display()
 #    webdriver = mngr.new_webdriver()
