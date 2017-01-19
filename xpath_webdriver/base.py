@@ -4,7 +4,6 @@ Smoothtest
 
 Copyright (c) 2014, Juju inc.
 Copyright (c) 2011-2013, Joaquin G. Duo
-
 '''
 import rel_imp
 from collections import namedtuple
@@ -76,89 +75,9 @@ class SmoothTestBase(object):
         return TestException(str(e), repr(e), traceback.format_exc())
 
 
-#def get_module_regex():
-#    def rpl(str_, local_vars):
-#        # replace locals vars in the string
-#        return str_.format(**local_vars)
-#    mod = r'(?:[a-zA-Z_][a-zA-Z_0-9]*)'
-#    mod_path = rpl(r'^{mod}(?:\.{mod})*$', locals())
-#    return mod_path
-#
-#
-#def is_valid_file(path):
-#    '''
-#    Validate if a passed argument is a existing file (used by argsparse)
-#    or its a python module namespace path (example.foo.bar.baz)
-#    '''
-#    # TODO: should it always validate module string?
-#    abspath = os.path.abspath(path)
-#    if not (os.path.exists(abspath)
-#            and os.path.isfile(abspath)
-#            or re.match(get_module_regex(), path)):
-#        logging.warn('File %r does not exist.' % path)
-#    return path
-#
-#
-#def is_file_or_dir(path):
-#    '''
-#    Validate if a passed argument is a existing file (used by argsparse)
-#    '''
-#    # TODO: should it always validate module string?
-#    abspath = os.path.abspath(path)
-#    if not (os.path.exists(abspath)
-#            and (os.path.isfile(abspath) or os.path.isdir(abspath))
-#            or re.match(get_module_regex(), path)
-#            ):
-#        logging.warn('File or dir %r does not exist.' % path)
-#    return path
-
-
-#class CommandBase(SmoothTestBase):
-#
-#    def _add_smoothtest_common_args(self, parser):
-#        parser.add_argument(
-#            '-S',
-#            '--smoothtest-settings',
-#            type=is_valid_file,
-#            help='Specific smoothtest_settings module path '
-#            '(useful if smoothtest_settings module is not in PYTHONPATH).',
-#            default=None,
-#            nargs=1)
-#
-#    def _process_common_args(self, args):
-#        # Specific settings
-#        if args.smoothtest_settings:
-#            register_settings(args.smoothtest_settings.pop())
-#
-#
-#class TestRunnerBase(object):
-#
-#    def __init_values(self):
-#        if not hasattr(self, '_already_setup'):
-#            self._already_setup = {}
-#
-#    def _setup_process(self, test, test_path, argv):
-#        self.__init_values()
-#        if (hasattr(test, 'setUpProcess')
-#                and test_path not in self._already_setup):
-#            test.setUpProcess(argv)
-#            self._already_setup[test_path] = (test, argv)
-#
-#    def _tear_down_process(self):
-#        self.__init_values()
-#        for test, argv in self._already_setup.values():
-#            if hasattr(test, 'tearDownProcess'):
-#                self.log.d('Tearing down process for %r' % test)
-#                test.tearDownProcess(argv)
-#        self._already_setup.clear()
-
-
 def smoke_test_module():
     s = SmoothTestBase()
     s.log.i(__file__)
-#    trb = TestRunnerBase()
-#    trb._setup_process(None, 'path.to.test', [])
-#    trb._tear_down_process()
 
 
 if __name__ == "__main__":
