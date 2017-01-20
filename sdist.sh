@@ -22,5 +22,6 @@ if [ "$1" == "venv" ] ;  then
 	#rm venv -Rf
 fi
 
+pkg=`ls dist/$app\-*.tar.gz`
 echo 
-echo "upload with: python setup.py sdist upload -r pypi"
+echo "upload with: twine upload $pkg"
