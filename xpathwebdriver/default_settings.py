@@ -8,7 +8,7 @@ Code Licensed under MIT License. See LICENSE file.
 import logging
 from .levels import TEST_ROUND_LIFE
 
-class DefaultSettings(object):
+class Settings(object):
     # Signal that we are working on production. To disable write tests
     production = False
 
@@ -53,7 +53,7 @@ class DefaultSettings(object):
 
 
 def smoke_test_module():
-    DefaultSettings()
+    Settings()
 
 if __name__ == "__main__":
     smoke_test_module()
