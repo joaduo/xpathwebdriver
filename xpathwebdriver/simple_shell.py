@@ -9,7 +9,7 @@ import rel_imp; rel_imp.init()
 from argparse import ArgumentParser
 from .logger import Logger
 from .simple_xpath_browser import SimpleXpathBrowser
-from .base import CommandBase
+from .base import CommandMixin
 
 logger = Logger(color=True)
 
@@ -49,11 +49,11 @@ def embed(url):
             pdb.set_trace()
 
 
-class XpathShellCommand(CommandBase):
+class XpathShellCommand(CommandMixin):
     def get_parser(self):
         parser = ArgumentParser(description='Test XPaths via Selenium.')
         parser.add_argument('url', nargs='?')
-        self._add_smoothtest_common_args(parser)
+        self._add_common_args(parser)
         return parser
 
     def main(self, argv=None):

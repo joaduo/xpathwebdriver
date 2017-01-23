@@ -50,9 +50,9 @@ def _register_settings_module(mod):
 def set_log_level():
     # Set the level of the root logger
     # import here due chicke-egg problem
-    from .base import SmoothTestBase
+    from .base import XpathWdBase
     from .logger import Logger
-    _set_log_level(SmoothTestBase, Logger)
+    _set_log_level(XpathWdBase, Logger)
 
 
 def _set_log_level(base_cls, logger_cls):

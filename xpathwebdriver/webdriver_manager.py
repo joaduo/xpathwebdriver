@@ -10,7 +10,7 @@ from pyvirtualdisplay import Display
 from threading import RLock
 from functools import wraps
 from selenium.common.exceptions import UnexpectedAlertPresentException
-from .base import SmoothTestBase, singleton_decorator
+from .base import XpathWdBase, singleton_decorator
 from .solve_settings import solve_settings
 from xpathwebdriver.levels import INMORTAL_LIFE, TEST_ROUND_LIFE
 
@@ -31,7 +31,7 @@ def synchronized(lock):
 
 
 @singleton_decorator
-class WebdriverManager(SmoothTestBase):
+class WebdriverManager(XpathWdBase):
     '''
     This is a "Context Manager" for the Webdriver's instances available. (used
     for running tests in general)
@@ -299,7 +299,7 @@ class WebdriverManager(SmoothTestBase):
         return char_browser.get(char)
 
 
-class WebdriverLevelManager(SmoothTestBase):
+class WebdriverLevelManager(XpathWdBase):
     def __init__(self, parent, level, base_url=None, name=''):
         self.parent = parent
         self.level = level
