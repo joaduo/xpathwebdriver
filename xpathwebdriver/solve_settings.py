@@ -34,17 +34,24 @@ def register_settings(settings_path):
     Register settings given specific module path.
     :param settings_path:
     '''
-    # TODO:Py3
-    # http://stackoverflow.com/questions/67631/how-to-import-a-module-given-the-full-path
-    mod = imp.load_source('specific_smoothtest_settings', settings_path)
-    _register_settings_module(mod)
+    if isinstance(settings_path, basestring):
+        # TODO:Py3
+        # http://stackoverflow.com/questions/67631/how-to-import-a-module-given-the-full-path
+        mod = imp.load_source('specific_smoothtest_settings', settings_path)
+        _register_settings_module(mod)
+    else:
+        _register_settings_instance(settings_path)
     set_log_level()
 
 
-global_settings = None
 def _register_settings_module(mod):
+    _register_settings_instance(mod.Settings())
+
+
+global_settings = None
+def _register_settings_instance(settings):
     global global_settings
-    global_settings = SettingsWrapper(mod.Settings())
+    global_settings = SettingsWrapper(settings)
 
 
 def set_log_level():
