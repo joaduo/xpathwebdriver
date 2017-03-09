@@ -16,7 +16,7 @@ class SearchEnginesDemo(unittest.TestCase):
         self.browser = SimpleXpathBrowser()
 
     def tearDown(self):
-        # Make sure we quit those webdrivers created in this specific level of life
+        # Make sure we quit those webdrivers created in this specific "level of life"
         del self.browser
 
     def test_duckduckgo(self):
@@ -34,9 +34,11 @@ The selenium package requires you to download drivers
 
 * Firefox: https://github.com/mozilla/geckodriver/releases
 * Chrome: https://sites.google.com/a/chromium.org/chromedriver/downloads
-* PhantomJs: http://phantomjs.org/download.html
+* PhantomJs: http://phantomjs.org/download.html (has the driver embedded)
 
 Decompressed executables should be in yor PATH.
+
+If you update python's `webdriver` package make sure you update browsers and drivers.
 
 ## Running the interactive shell
 
