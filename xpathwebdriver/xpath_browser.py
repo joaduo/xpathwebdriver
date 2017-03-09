@@ -471,12 +471,22 @@ return eslist;
         self.log.i('Saving screenshot to: %r' % filename)
         self.save_screenshot(path)
 
-    def save_screenshot(self, path):
+    def save_screenshot(self, path, width=None, height=None, windowHandle='current'):
         '''
         Take a screenshot and save it to the path specified in filename
         :param filename: path to save the screenshot file to
         '''
-        self.get_driver().save_screenshot(path)
+        previous = None
+        try:
+            if width or height:
+                previous = self._driver.get_window_size(windowHandle)
+                width = width or previous['width']
+                height = height or previous['height']
+                self._driver.set_window_size(width, height, windowHandle)
+            self.get_driver().save_screenshot(path)
+        finally:
+            if previous:
+                self._driver.set_window_size(windowHandle=windowHandle, **previous)
 
     def execute_script(self, script, *args):
         '''
