@@ -486,7 +486,8 @@ return eslist;
             self.get_driver().save_screenshot(path)
         finally:
             if previous:
-                self._driver.set_window_size(windowHandle=windowHandle, **previous)
+                self._driver.set_window_size(previous['width'],
+                            previous['height'], windowHandle=windowHandle)
 
     def execute_script(self, script, *args):
         '''
