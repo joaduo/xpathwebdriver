@@ -13,6 +13,7 @@ from selenium.common.exceptions import UnexpectedAlertPresentException
 from .base import XpathWdBase, singleton_decorator
 from .solve_settings import solve_settings
 from xpathwebdriver.levels import INMORTAL_LIFE, TEST_ROUND_LIFE
+import os
 
 
 def synchronized(lock):
@@ -171,14 +172,24 @@ class WebdriverManager(XpathWdBase):
         browser = self.expand_browser_name(browser)
         # Setup display before creating the browser
         self.setup_display()
+        def append_service_arg(arg):
+            service_args = kwargs.get('service_args', [])
+            service_args.append(arg)
+            kwargs['service_args'] = service_args
         if browser == 'PhantomJS':
-            kwargs.update(service_args=['--ignore-ssl-errors=true'])
+            append_service_arg('--ignore-ssl-errors=true')
         if (browser == 'Firefox'
         and self.global_settings.get('webdriver_firefox_profile')
         and not args and not kwargs.has_key('firefox_profile')):
             # Update with profile specified from config
             fp = webdriver.FirefoxProfile(self.global_settings.get('webdriver_firefox_profile'))
             kwargs['firefox_profile'] = fp
+        if (browser == 'Chrome' and os.name == 'posix' and os.geteuid() == 0):
+            self.log.w('Passing --no-sandbox flag to Chrome (running as root)')
+            from selenium.webdriver.chrome.options import Options
+            chrome_options = Options()
+            chrome_options.add_argument('--no-sandbox')
+            kwargs['chrome_options'] = chrome_options
         driver = getattr(webdriver, browser)(*args, **kwargs)
         return driver
 
