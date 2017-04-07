@@ -56,7 +56,7 @@ def is_valid_file(path):
 
 
 class CommandMixin(object):
-    def _add_smoothtest_common_args(self, parser):
+    def _add_common_args(self, parser):
         parser.add_argument(
             '-S',
             '--settings',
