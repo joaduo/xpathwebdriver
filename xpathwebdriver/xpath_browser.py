@@ -11,6 +11,7 @@ import urllib
 import time
 import os
 from selenium import webdriver
+from selenium.webdriver.common.keys import Keys
 from selenium.common.exceptions import WebDriverException,\
     TimeoutException
 from selenium.webdriver.support.wait import WebDriverWait
@@ -257,7 +258,7 @@ class XpathBrowser(object):
         loaded.
 
         :param condition: functor or javascript string of condition checking logic.
-        :param max_wait: Max amount of time to wait for condition to be true.
+        :param max_wait: Max amount of time to wait for condition to be true (per try round).
         :param print_msg: print debug message (debugging purpose)
         '''
         condition = condition if condition else self._default_condition
@@ -282,8 +283,8 @@ class XpathBrowser(object):
             time.sleep(float(i) / parts)
         # If condition was not satisfied print debug message
         if not loaded and print_msg:
-            msg = ('Page took too long to load. Increase max_wait (secs) class'
-                   ' attr. Or override _wait_script method.')
+            msg = ('Page took too long to load. Increase max_wait parameter'
+                   ' or modify object\'s "_max_wait" attribute.')
             self.log.d(msg)
         # Return whether condition was satisfied
         return loaded
@@ -298,7 +299,7 @@ class XpathBrowser(object):
         :param single: select only a single node
         '''
         common_func = '''
-function extract_elem(elem){
+function extract_element(elem){
     var elem = elem
     //elem.noteType == 1 //web element
     if(elem.nodeType == 2){
@@ -315,8 +316,8 @@ function extract_elem(elem){
         script_single = '''
 var xpath = %(xpath)r;
 //XPathResult.FIRST_ORDERED_NODE_TYPE = 9
-var e = document.evaluate(xpath, document, null,9, null).singleNodeValue;
-return extract_elem(e);
+var element = document.evaluate(xpath, document, null,9, null).singleNodeValue;
+return extract_element(element);
             '''
         script_multiple = '''
 var xpath = %(xpath)r;
@@ -365,14 +366,14 @@ return eslist;
         '''
         dr = self.get_driver()
         try:
-            e = dr.execute_script(self._get_xpath_script(xpath, single))
-        except WebDriverException as e:
+            result = dr.execute_script(self._get_xpath_script(xpath, single))
+        except WebDriverException as result:
             msg = (
                 'WebDriverException: Could not select xpath {xpath!r} '
-                'for page {dr.current_url!r}\n Error:\n {e}'.format(
+                'for page {dr.current_url!r}\n Error:\n {result}'.format(
                     **locals()))
             raise LookupError(msg)
-        return e
+        return result
 
     def has_xpath(self, xpath):
         '''
@@ -405,7 +406,7 @@ return eslist;
         except LookupError:
             return False
 
-    def fill(self, xpath, value, clear=True):
+    def fill(self, xpath, value, clear=True, javascript_safe=False):
         '''
         Fill input field on page:
           - selects Webelement
@@ -413,11 +414,16 @@ return eslist;
 
         :param xpath: xpath's string eg:"./input[@id='example']"
         :param value: string to fill the input with
+        :param clear: if True clear input before writing
+        :param javascript_safe: if True avoid javascript problem (assigning value to field)
         '''
-        e = self.select_xsingle(xpath)
+        element = self.select_xsingle(xpath)
         if clear:
-            e.clear()
-        e.send_keys(value)
+            element.clear()
+        if javascript_safe:
+            self.execute_script("arguments[0].value = arguments[1]", element, value)
+        else:
+            element.send_keys(value)
 
     def click(self, xpath):
         '''
@@ -427,8 +433,8 @@ return eslist;
 
         :param xpath: xpath's string eg:"./button[@id='send_form']"
         '''
-        e = self.select_xsingle(xpath)
-        e.click()
+        element = self.select_xsingle(xpath)
+        element.click()
 
     def sleep(self, timeout=None):
         '''
@@ -497,42 +503,50 @@ return eslist;
         '''
         return self.get_driver().execute_script(script, *args)
 
-    def fill_form(self, **inputs):
+    def fill_form(self, clear=True, javascript_safe=True, **inputs):
         '''
         Fill a form given a {<input/textarea name>:<value>} dictionary
         Example:
             browser.fill_form(name='John', surname='Doe', email='john.doe@gmail.com')
         Is equivalent to doing:
             browser.fill_form_xpath({'//input[@name="name"] | //textarea[@name="name"]':'John', ...})
+        :param clear: if True clear input before writing
+        :param javascript_safe: if True avoid javascript problem (assigning value to field)
         :param inputs: kwargs dictionary of <form's field name>=<value>
         '''
-        self.fill_form_attr('name', inputs)
+        self.fill_form_attr('name', inputs, clear, javascript_safe)
 
-    def fill_form_attr(self, attr, inputs):
+    def fill_form_attr(self, attr, inputs, clear=True, javascript_safe=False):
         '''
         :param attr: attribute name to solve xpaths with
         :param inputs: dictionary of {<form's field attr value>:<value to enter>}
+        :param clear: if True clear input before writing
+        :param javascript_safe: if True avoid javascript problem (assigning value to field)
         '''
         xpath = '//input[@{0}={1!r}] | //textarea[@{0}={1!r}]'
         inputs = {xpath.format(attr,name):value
                   for name, value in inputs.iteritems()}
-        self.fill_form_xpath(inputs)
+        self.fill_form_xpath(inputs, clear, javascript_safe)
 
-    def fill_form_xpath(self, inputs):
+    def fill_form_xpath(self, inputs, clear=True, javascript_safe=False):
         '''
         :param inputs: dictionary of {<form's field xpath>:<value to enter>}
+        :param clear: if True clear input before writing
+        :param javascript_safe: if True avoid javascript problem (assigning value to field)
         '''
         for xpath, value in inputs.iteritems():
-            self.fill(xpath, value)
+            self.fill(xpath, value, clear, javascript_safe)
 
-    def fill_form_ordered(self, items, attr='name'):
+    def fill_form_ordered(self, items, attr='name', clear=True, javascript_safe=False):
         '''
         Fill a form given a [(<input/textarea name>,<value>),...] list
         :param items: list of [(name, value), ...]
+        :param clear: if True clear input before writing
+        :param javascript_safe: if True avoid javascript problem (assigning value to field)
         '''
         for name, value in items:
             self.fill('//input[@{0}={1!r}] | //textarea[@{0}={1!r}]'
-                      .format(attr, name), value)
+                      .format(attr, name), value, clear, javascript_safe)
 
 
 def smoke_test_module():
