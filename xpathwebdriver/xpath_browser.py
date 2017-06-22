@@ -11,7 +11,6 @@ import urllib
 import time
 import os
 from selenium import webdriver
-from selenium.webdriver.common.keys import Keys
 from selenium.common.exceptions import WebDriverException,\
     TimeoutException
 from selenium.webdriver.support.wait import WebDriverWait
@@ -326,7 +325,7 @@ var es = document.evaluate(xpath, document, null, 5, null);
 var r = es.iterateNext();
 var eslist = [];
 while(r){
-    eslist.push(extract_elem(r));
+    eslist.push(extract_element(r));
     r = es.iterateNext();
 }
 return eslist;
