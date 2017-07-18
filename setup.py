@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 name = 'xpathwebdriver'
 
 reqs = '''importlib>=1.0.4
-ipython>=5.1.0
+ipython==5.1.0
 pyvirtualdisplay>=0.2.1
 selenium>=3.0.2
 rel_imp>=0.2.4'''.splitlines()
