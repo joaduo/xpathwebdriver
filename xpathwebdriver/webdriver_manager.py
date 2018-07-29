@@ -136,7 +136,7 @@ class WebdriverManager(XpathWdBase):
         '''
         browser = self.get_browser_name()
         browser_set = set([wdriver
-                           for wdriver,(brws,_) in self._wdriver_pool.iteritems()
+                           for wdriver,(brws,_) in self._wdriver_pool.items()
                            if brws == browser])
         return (self._released & browser_set)
 
@@ -189,6 +189,9 @@ class WebdriverManager(XpathWdBase):
             from selenium.webdriver.chrome.options import Options
             chrome_options = Options()
             chrome_options.add_argument('--no-sandbox')
+            #self.log.w('Adding --disable-application-cache')
+            #chrome_options.add_argument('--disable-application-cache')
+            #chrome_options.add_argument('--incognito')
             kwargs['chrome_options'] = chrome_options
         driver = getattr(webdriver, browser)(*args, **kwargs)
         return driver
