@@ -34,7 +34,7 @@ def register_settings(settings_path):
     Register settings given specific module path.
     :param settings_path:
     '''
-    if isinstance(settings_path, basestring):
+    if isinstance(settings_path, str):
         # TODO:Py3
         # http://stackoverflow.com/questions/67631/how-to-import-a-module-given-the-full-path
         mod = imp.load_source('specific_smoothtest_settings', settings_path)
