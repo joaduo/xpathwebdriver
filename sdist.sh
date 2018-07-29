@@ -14,7 +14,7 @@ if [ "$1" == "venv" ] ;  then
 	#test installation
 	mkdir venv -p
 	cd venv
-	virtualenv ./
+	virtualenv -p python3 ./
 	source bin/activate
 	pip install ../dist/$app\-*.tar.gz
 	pip uninstall $app -y
@@ -23,5 +23,5 @@ if [ "$1" == "venv" ] ;  then
 fi
 
 pkg=`ls dist/$app\-*.tar.gz`
-echo 
+echo
 echo "upload with: twine upload $pkg"

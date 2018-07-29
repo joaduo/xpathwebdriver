@@ -25,7 +25,7 @@ def smoke_test_module():
     xb = SimpleXpathBrowser()
 #    import ipdb; ipdb.set_trace()
     xb.get('www.google.com')
-    import ipdb; ipdb.set_trace()
+#    import ipdb; ipdb.set_trace()
 
 #    print Url
     #xb.get_page_once('www.google.com')

@@ -6,8 +6,12 @@ Copyright (c) 2015 Juju. Inc
 Code Licensed under MIT License. See LICENSE file.
 '''
 import rel_imp; rel_imp.init()
-import urlparse
-import urllib
+import sys
+if sys.version_info >= (3,):
+    from urllib.parse import urlparse, urlunparse, urljoin, parse_qsl, unquote_plus
+else:
+    from urlparse import urlparse, urlunparse, urljoin, parse_qsl
+    from urllib import unquote_plus
 import time
 import os
 from selenium import webdriver
@@ -20,18 +24,16 @@ from .validators import is_valid_netloc
 
 
 class Url(object):
-
     '''A url object that can be compared with other url orbjects
     without regard to the vagaries of encoding, escaping, and ordering
     of parameters in query strings.
     from http://stackoverflow.com/questions/5371992/comparing-two-urls-in-python
     '''
-
     def __init__(self, url):
         if not isinstance(url, Url):
-            self._orig = parts = urlparse.urlparse(url)
-            _query = frozenset(urlparse.parse_qsl(parts.query))
-            _path = urllib.unquote_plus(parts.path).rstrip('/')
+            self._orig = parts = urlparse(url)
+            _query = frozenset(parse_qsl(parts.query))
+            _path = unquote_plus(parts.path).rstrip('/')
             parts = parts._replace(query=_query, path=_path)
             self.parts = parts
         else:
@@ -39,19 +41,19 @@ class Url(object):
             self.parts = url.parts
 
     def replace(self, **kwargs):
-        return Url(urlparse.urlunparse(self._orig._replace(**kwargs)))
+        return Url(urlunparse(self._orig._replace(**kwargs)))
 
     def get_original(self):
         '''
         Get original url.
         '''
-        return urlparse.urlunparse(self._orig)
+        return urlunparse(self._orig)
 
     def get_path_and_on(self):
         '''
         Get (path + params + query + fragment) as string from original url.
         '''
-        return urlparse.urlunparse(self._orig._replace(scheme='', netloc=''))
+        return urlunparse(self._orig._replace(scheme='', netloc=''))
 
     def cmp_path(self, url):
         url = self._convert(url)
@@ -66,7 +68,7 @@ class Url(object):
         return self.parts == other.parts
 
     def _convert(self, url):
-        if isinstance(url, basestring):
+        if isinstance(url, str):
             url = Url(url)
         return url
 
@@ -146,7 +148,7 @@ class XpathBrowser(object):
         :param path: path and on eg:"/blog/123?param=1"
         '''
         assert self._base_url, 'No base_url set for building urls'
-        return urlparse.urljoin(self._base_url, path)
+        return urljoin(self._base_url, path)
 
     def get(self, url, condition=None):
         self.get_url(self.clean_url(url), condition)
@@ -213,10 +215,10 @@ class XpathBrowser(object):
         '''
         # Remove user credentials (they are not shown in browser)
         url = self.build_url(path)
-        parts = urlparse.urlparse(self.build_url(path))
+        parts = urlparse(self.build_url(path))
         if '@' in parts.netloc:
             netloc = parts.netloc.split('@')[1]
-            url = urlparse.urlunparse(parts._replace(netloc=netloc))
+            url = urlunparse(parts._replace(netloc=netloc))
         # Check if page was already loaded
         if not self.Url.are_equal(url, self.current_url()):
             # Url is different, load new page
@@ -261,7 +263,7 @@ class XpathBrowser(object):
         :param print_msg: print debug message (debugging purpose)
         '''
         condition = condition if condition else self._default_condition
-        if isinstance(condition, basestring):
+        if isinstance(condition, str):
             # Its a javascript script
             def condition_func(xbrowser):
                 return xbrowser.get_driver().execute_script(condition)
@@ -292,7 +294,7 @@ class XpathBrowser(object):
         '''
         Get Javascript code for getting single or multiple nodes from webdriver
         page's DOM.
-        Returns [web weblement, attribute, text] depending o the xpath specified.
+        Returns web element, attribute or text depending o the xpath specified.
 
         :param xpath: xpath to build the script from
         :param single: select only a single node
@@ -339,10 +341,9 @@ return eslist;
         May return:
             - webdriver's web element
             - strings (if xpath specifies @attribute or text()) 
-        
+
         :param xpath: xpath's string eg:"/div[@id='example']/text()"
         :returns: list of selected Webelements or strings
-        
         '''
         return self._select_xpath(xpath, single=False)
 
@@ -524,7 +525,7 @@ return eslist;
         '''
         xpath = '//input[@{0}={1!r}] | //textarea[@{0}={1!r}]'
         inputs = {xpath.format(attr,name):value
-                  for name, value in inputs.iteritems()}
+                  for name, value in inputs.items()}
         self.fill_form_xpath(inputs, clear, javascript_safe)
 
     def fill_form_xpath(self, inputs, clear=True, javascript_safe=False):
@@ -533,7 +534,7 @@ return eslist;
         :param clear: if True clear input before writing
         :param javascript_safe: if True avoid javascript problem (assigning value to field)
         '''
-        for xpath, value in inputs.iteritems():
+        for xpath, value in inputs.items():
             self.fill(xpath, value, clear, javascript_safe)
 
     def fill_form_ordered(self, items, attr='name', clear=True, javascript_safe=False):
@@ -554,7 +555,7 @@ def smoke_test_module():
     mngr = WebdriverManager()
 #    mngr.setup_display()
 #    webdriver = mngr.new_webdriver()
-    u = u'https://www.google.cl/?gfe_rd=cr&ei=ix0kVfH8M9PgwASPoIFo&gws_rd=ssl'
+    u = 'https://www.google.cl/?gfe_rd=cr&ei=ix0kVfH8M9PgwASPoIFo&gws_rd=ssl'
     log_test(XpathBrowser.Url(u).get_path_and_on())
 #    browser = XpathBrowser('', webdriver)
 #    browser.get_page('http://www.google.com')

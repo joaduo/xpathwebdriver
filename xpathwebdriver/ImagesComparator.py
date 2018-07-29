@@ -14,17 +14,22 @@ import shutil
 import os
 
 
+logger = logging.getLogger(__name__)
+
+
 class ImagesComparator(XpathWdBase):
-    def exec_cmd(self, cmd):
+    def exec_cmd(self, cmd, check_returncode=True):
         '''
         Exec a shell command. Returns its stdout output
         Command's return value must be 0.
         :param cmd: command line as written in OS shell
         '''
-        logging.debug('Getting output of: %r' % cmd)
+        logger.debug('Getting output of: %r' % cmd)
         p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
         out, err = p.communicate()
-        assert not p.returncode, 'Command %r failed output: %s err: %s' % (cmd, out, err)
+        if check_returncode:
+            assert not p.returncode, ('status=%r cmd=%r out=%r err=%r'
+                                      % (p.returncode, cmd, out, err))
         return out
 
     def create_diff(self, ref_img, new_img, diff, crop_threshold=100):
@@ -48,30 +53,31 @@ class ImagesComparator(XpathWdBase):
             raise ValueError('crop_threshold outside range: 0 <= crop_threshold <= 100.')
         atempdir = btempdir = None
         # Open images to compare image sizes
-        aimg = Image.open(ref_img)
-        bimg = Image.open(new_img)
-        if aimg.size != bimg.size:
-            # Raise exception if we don't tolerate cropping
-            if crop_threshold == 100:
-                raise ValueError('crop_threshold is 100 and images are from different sizes.')
-            # Calculate smaller common size
-            w,h = min((aimg.size[0], bimg.size[0])), min((aimg.size[1], bimg.size[1]))
-            # Make sure we are within the crop threshold
-            wratio = w/float(aimg.size[0])*100
-            hratio = h/float(aimg.size[1])*100
-            if wratio < crop_threshold or hratio < crop_threshold:
-                raise ValueError('Cropping ratios %r are smaller than '
-                                 'crop_threshold=%r.' % ((wratio, hratio), crop_threshold))
-            # If needed, crop reference image to common size
-            if aimg.size != (w,h):
-                atempdir = tempfile.mkdtemp()
-                ref_img = self.crop_image(atempdir, ref_img, w, h)
-            # If needed, crop new image to common size
-            if bimg.size != (w,h):
-                btempdir = tempfile.mkdtemp()
-                new_img =self.crop_image(btempdir, new_img, w, h)
+        with Image.open(ref_img) as aimg:
+            with Image.open(new_img) as bimg:
+                if aimg.size != bimg.size:
+                    # Raise exception if we don't tolerate cropping
+                    if crop_threshold == 100:
+                        raise ValueError('crop_threshold is 100 and images are from different sizes.')
+                    # Calculate smaller common size
+                    w,h = min((aimg.size[0], bimg.size[0])), min((aimg.size[1], bimg.size[1]))
+                    # Make sure we are within the crop threshold
+                    wratio = w/float(aimg.size[0])*100
+                    hratio = h/float(aimg.size[1])*100
+                    if wratio < crop_threshold or hratio < crop_threshold:
+                        raise ValueError('Cropping ratios %r are smaller than '
+                                         'crop_threshold=%r.' % ((wratio, hratio), crop_threshold))
+                    # If needed, crop reference image to common size
+                    if aimg.size != (w,h):
+                        atempdir = tempfile.mkdtemp()
+                        ref_img = self.crop_image(atempdir, ref_img, w, h)
+                    # If needed, crop new image to common size
+                    if bimg.size != (w,h):
+                        btempdir = tempfile.mkdtemp()
+                        new_img =self.crop_image(btempdir, new_img, w, h)
         # Run the image magick command
-        self.exec_cmd('compare %s %s %s'%(ref_img,new_img,diff))
+        self.exec_cmd('compare %s %s %s'%(ref_img,new_img,diff),
+                      check_returncode=False)
         # Remove any created temp dir
         for tempdir in [atempdir, btempdir]:
             if tempdir:

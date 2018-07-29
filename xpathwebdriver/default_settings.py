@@ -29,7 +29,7 @@ class Settings(object):
                                     # process finished (useful when we also keep the browser open for debugging) 
 
     webdriver_enabled = True # Whether or not automatically create the browser
-    webdriver_browser = 'Firefox' #'PhantomJS' # Which browser we would like to use webdriver with: Firefox, Chrome, PhantomJs, etc...
+    webdriver_browser = 'Chrome' #'PhantomJS' # Which browser we would like to use webdriver with: Firefox, Chrome, PhantomJs, etc...
     webdriver_browser_life = TEST_ROUND_LIFE # Level of life of the webdriver browser
     webdriver_pool_size = 1
     webdriver_keep_open = False # Keep latest browser open after a smoothtest process finished (for debugging/testing)
