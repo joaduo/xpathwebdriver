@@ -27,7 +27,7 @@ def long_description():
 setup(
   name = name,
   packages = find_packages(),
-  version = '0.2.3',
+  version = '0.2.4',
   description = 'Simpler webdriver API through a wrapper',
   long_description=long_description(),
   author = 'Joaquin Duo',
