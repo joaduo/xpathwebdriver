@@ -1,10 +1,29 @@
 # Xpathwebdriver
 
-Python wrapper for interacting with Selenium through XPath paths.
+Python wrapper for interacting with Selenium through XPath and CSS selectors.
+The main difference is that you can use use XPaths like:
+```
+//div/text()
+```
+Which will return you a string, somethin selenium does not support easily.
+E.g. you could do:
+```
+from xpathwebdriver.simple_xpath_browser import SimpleXpathBrowser
+
+browser = SimpleXpathBrowser()
+browser.get_url('https://duckduckgo.com/')
+browser.fill(".//*[@id='search_form_input_homepage']", 'xpathwebdriver\n')
+# Using xpath that returns text
+for idx, t in enumerate(browser.select_xpath('//div/text()')):
+    print(idx, t)
+# Using css selector which returns elements
+for idx, elem in enumerate(browser.select_css('.result__title')):
+    print(idx, elem.text)
+```
 
 ## Example
 
-Nicer tests for web sites.
+Unit Test for web site.
 
 ```python
 import unittest
@@ -27,12 +46,18 @@ class SearchEnginesDemo(unittest.TestCase):
 ```
 
 ## Install
+Make sure you installed selenium and webdriver (and that they are working)
+You can test selenium with:
+```
+```
+Then you can install this wrapper easily.
+
 ```
 pip install xpathwebdriver
 ```
 The selenium package requires you to download drivers
 
-* Firefox: https://github.com/mozilla/geckodriver/releases
+* Firefox: https://duckduckgo.com/mozilla/geckodriver/releases
 * Chrome: https://sites.google.com/a/chromium.org/chromedriver/downloads
 * PhantomJs: http://phantomjs.org/download.html (has the driver embedded)
 
@@ -42,20 +67,24 @@ If you update python's `webdriver` package make sure you update browsers and dri
 
 ## Running the interactive shell
 
-Once installed run in command line:
+Install ipython package (in ubuntu probably you can install python-ipython package)
+```
+pip install ipython
+```
+You then can run from command line
 ```
 xpathshell
 ```
-Or:
+Or opening a website:
 ```
-xpathshell github.com/joaduo/xpathwebdriver
+xpathshell duckduckgo.com
 ```
-To open https://github.com/joaduo/xpathwebdriver
+To open https://duckduckgo.com
 
 You will get an IPython interactive shell like:
 ```
 XpathBrowser in 'b' or 'browser' variables
- Current url: https://github.com/joaduo/xpathwebdriver
+ Current url: https://duckduckgo.com/
 In [1]:
 ```
 
