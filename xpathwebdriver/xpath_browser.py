@@ -573,8 +573,8 @@ function extract_element(elem){
 
     def fill_form_attr(self, attr, inputs, clear=True, javascript_safe=False):
         '''
-        :param attr: attribute name to solve xpaths with
-        :param inputs: dictionary of {<form's field attr value>:<value to enter>}
+        :param attr: html tag attribute to build the xpath with
+        :param inputs: dictionary {<form's field attr value>:<value to enter>}
         :param clear: if True clear input before writing
         :param javascript_safe: if True avoid javascript problem (assigning value to field)
         '''
@@ -596,6 +596,7 @@ function extract_element(elem){
         '''
         Fill a form given a [(<input/textarea name>,<value>),...] list
         :param items: list of [(name, value), ...]
+        :param attr: html tag attribute to build the xpath. default='name'
         :param clear: if True clear input before writing
         :param javascript_safe: if True avoid javascript problem (assigning value to field)
         '''
