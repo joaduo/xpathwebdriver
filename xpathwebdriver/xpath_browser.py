@@ -299,7 +299,61 @@ class XpathBrowser(object):
         :param xpath: xpath to build the script from
         :param single: select only a single node
         '''
-        common_func = '''
+        script_single = '''
+var xpath = %(xpath)r;
+//XPathResult.FIRST_ORDERED_NODE_TYPE = 9
+var FIRST_ORDERED_NODE_TYPE = 9
+var element = document.evaluate(xpath, document, null, FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+return extract_element(element);
+            '''
+        script_multiple = '''
+var xpath = %(xpath)r;
+//XPathResult.ORDERED_NODE_ITERATOR_TYPE = 5
+var ORDERED_NODE_ITERATOR_TYPE = 5
+var es = document.evaluate(xpath, document, null, ORDERED_NODE_ITERATOR_TYPE, null);
+var r = es.iterateNext();
+var eslist = [];
+while(r){
+    eslist.push(extract_element(r));
+    r = es.iterateNext();
+}
+return eslist;
+        '''
+        script = script_single if single else script_multiple
+        return self._get_extract_element() + script % locals()
+
+    def _get_css_selector_script(self, selector, single=True):
+        '''
+        Get Javascript code for getting single or multiple nodes from webdriver
+        page's DOM.
+        Returns web element, attribute or text depending o the selector specified.
+
+        :param selector: selector to build the script from
+        :param single: select only a single node
+        '''
+        script_single = '''
+var selector = %(selector)r;
+//XPathResult.FIRST_ORDERED_NODE_TYPE = 9
+var FIRST_ORDERED_NODE_TYPE = 9
+var element = document.querySelector(selector);
+return extract_element(element);
+            '''
+        script_multiple = '''
+var selector = %(selector)r;
+//XPathResult.ORDERED_NODE_ITERATOR_TYPE = 5
+var ORDERED_NODE_ITERATOR_TYPE = 5
+var es = document.querySelectorAll(selector);
+var eslist = [];
+for(var idx=0; idx < es.length; idx++){
+    eslist.push(extract_element(es[idx]));
+}
+return eslist;
+        '''
+        script = script_single if single else script_multiple
+        return self._get_extract_element() + script % locals()
+
+    def _get_extract_element(self):
+        extract_element = '''
 function extract_element(elem){
     var elem = elem
     //elem.noteType == 1 //web element
@@ -314,26 +368,7 @@ function extract_element(elem){
     return elem;
 }
         '''
-        script_single = '''
-var xpath = %(xpath)r;
-//XPathResult.FIRST_ORDERED_NODE_TYPE = 9
-var element = document.evaluate(xpath, document, null,9, null).singleNodeValue;
-return extract_element(element);
-            '''
-        script_multiple = '''
-var xpath = %(xpath)r;
-//XPathResult.ORDERED_NODE_ITERATOR_TYPE = 5
-var es = document.evaluate(xpath, document, null, 5, null);
-var r = es.iterateNext();
-var eslist = [];
-while(r){
-    eslist.push(extract_element(r));
-    r = es.iterateNext();
-}
-return eslist;
-        '''
-        script = script_single if single else script_multiple
-        return common_func + script % locals()
+        return extract_element
 
     def select_xpath(self, xpath):
         '''
@@ -360,17 +395,31 @@ return eslist;
     def _select_xpath(self, xpath, single):
         '''
         Select nodes specified by xpath
-        
+
         :param xpath: xpath's string eg:"/div[@id='example']/text()"
         :param single: if True, returns only the first node
         '''
+        return self._select(xpath, single, select_type='xpath')
+
+    def _select(self, select_expr, single, select_type='xpath'):
+        '''
+        Select nodes specified by xpath
+
+        :param select_expr: xpath or css selector
+        :param single: if True, returns only the first node
+        :param select_type: type of select_expr passed, ie: 'xpath' or 'css'
+        '''
         dr = self.get_driver()
         try:
-            result = dr.execute_script(self._get_xpath_script(xpath, single))
-        except WebDriverException as result:
+            if select_type == 'xpath':
+                script = self._get_xpath_script(select_expr, single)
+            else:
+                script = self._get_css_selector_script(select_expr, single)
+            result = dr.execute_script(script)
+        except WebDriverException as e:
             msg = (
                 'WebDriverException: Could not select xpath {xpath!r} '
-                'for page {dr.current_url!r}\n Error:\n {result}'.format(
+                'for page {dr.current_url!r}\n Error:\n {e}'.format(
                     **locals()))
             raise LookupError(msg)
         return result
@@ -401,10 +450,16 @@ return eslist;
             xpath selection.
         '''
         try:
-            self._extract_xpath(xpath, single)
+            self._select_xpath(xpath, single)
             return True
         except LookupError:
             return False
+
+    def select_css(self, selectors):
+        return self._select(selectors, single=False, select_type='css')
+
+    def select_css_single(self, selectors):
+        return self._select(selectors, single=True, select_type='css')
 
     def fill(self, xpath, value, clear=True, javascript_safe=False):
         '''
