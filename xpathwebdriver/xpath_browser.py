@@ -418,7 +418,7 @@ function extract_element(elem){
             result = dr.execute_script(script)
         except WebDriverException as e:
             msg = (
-                'WebDriverException: Could not select xpath {select_expr!r} '
+                'WebDriverException: Could not select {select_type} {select_expr!r} '
                 'for page {dr.current_url!r}\n Error:\n {e}'.format(
                     **locals()))
             raise LookupError(msg)
