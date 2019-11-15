@@ -40,16 +40,16 @@ def register_settings(settings_path):
         mod = imp.load_source('specific_smoothtest_settings', settings_path)
         _register_settings_module(mod)
     else:
-        _register_settings_instance(settings_path)
+        register_settings_instance(settings_path)
     set_log_level()
 
 
 def _register_settings_module(mod):
-    _register_settings_instance(mod.Settings())
+    register_settings_instance(mod.Settings())
 
 
 global_settings = None
-def _register_settings_instance(settings):
+def register_settings_instance(settings):
     global global_settings
     global_settings = SettingsWrapper(settings)
 
