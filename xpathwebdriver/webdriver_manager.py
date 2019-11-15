@@ -12,8 +12,7 @@ from functools import wraps
 from selenium.common.exceptions import UnexpectedAlertPresentException
 from .base import XpathWdBase, singleton_decorator
 from .solve_settings import solve_settings
-from xpathwebdriver.levels import SURVIVE_PROCESS, TEST_ROUND_LIFE, MANAGER_LIFE,\
-    SINGLE_TEST_LIFE, NONE_LEVEL
+from xpathwebdriver.levels import SURVIVE_PROCESS, TEST_ROUND_LIFE, MANAGER_LIFE
 import os
 
 
