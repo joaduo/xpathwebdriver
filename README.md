@@ -24,7 +24,7 @@ pip install xpathwebdriver
    https://chromedriver.chromium.org/downloads
 4. That generally should work on a modern Linux System (not tested but should also work on other oses).
    Try example below
-5. For image comparison `pip install Pillow` and install `findimagedupes` package for your OS
+5. For image comparison `pip install Pillow` and install `findimagedupes` and `imagemagick` packages for your OS
 
 ## Example
 
