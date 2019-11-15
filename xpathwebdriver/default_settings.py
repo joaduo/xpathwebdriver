@@ -30,8 +30,10 @@ class Settings(object):
 
     webdriver_enabled = True # Whether or not automatically create the browser
     webdriver_browser = 'Chrome' #'PhantomJS' # Which browser we would like to use webdriver with: Firefox, Chrome, PhantomJs, etc...
-    webdriver_browser_life = TEST_ROUND_LIFE # Level of life of the webdriver browser
+    webdriver_browser_keep_open = False # Level of life of the webdriver browser
     webdriver_pool_size = 1
+
+    #webdriver_browser_life DEPRECATED, never used in code
 
     # Browsers profiles
     # Eg: '/home/<user>/.mozilla/firefox/4iyhtofy.webdriver_autotest' on linux

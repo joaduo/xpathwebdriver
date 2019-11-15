@@ -12,7 +12,8 @@ from functools import wraps
 from selenium.common.exceptions import UnexpectedAlertPresentException
 from .base import XpathWdBase, singleton_decorator
 from .solve_settings import solve_settings
-from xpathwebdriver.levels import SURVIVE_PROCESS, TEST_ROUND_LIFE
+from xpathwebdriver.levels import SURVIVE_PROCESS, TEST_ROUND_LIFE, MANAGER_LIFE,\
+    SINGLE_TEST_LIFE, NONE_LEVEL
 import os
 
 
@@ -51,9 +52,10 @@ class WebdriverManager(XpathWdBase):
         self._virtual_display = None
         # Current selected browser
         self._browser_name = None
-        # Check if we need to start the browser
-        if solve_settings().get('webdriver_browser_life') == SURVIVE_PROCESS:
+        if solve_settings().get('webdriver_browser_keep_open'):
+            # Start a never killed process
             self.init_level(SURVIVE_PROCESS)
+        self._current_context_level = -1
 
     @property
     def enabled(self):
@@ -119,7 +121,7 @@ class WebdriverManager(XpathWdBase):
         if not self.enabled:
             return
         # level is mandatory
-        assert 0 < level <= SURVIVE_PROCESS, 'No process level set'
+        assert level and level <= SURVIVE_PROCESS, 'Not a browser level'
         # Get rid of non-responding browsers
         self.quit_all_failed_webdrivers()
         # Get the set of released webdrivers for the selected browser
@@ -146,7 +148,7 @@ class WebdriverManager(XpathWdBase):
 
     @synchronized(_methods_lock)
     def exit_level(self, level):
-        def release_wdriver(wdriver, container):
+        def quit_wdriver(wdriver, container):
             _, drv_level = self._wdriver_pool[wdriver]
             if self._quit_failed_webdriver(wdriver):
                 container.remove(wdriver)
@@ -159,9 +161,9 @@ class WebdriverManager(XpathWdBase):
                 self.log.d('Keeping webdriver %s', wdriver)
         # Make copies of sets, we are going to modify them
         for wdriver in self._released.copy():
-            release_wdriver(wdriver, self._released)
+            quit_wdriver(wdriver, self._released)
         for wdriver in self._locked.copy():
-            release_wdriver(wdriver, self._locked)
+            quit_wdriver(wdriver, self._locked)
 
     @synchronized(_methods_lock)
     def acquire_driver(self, level):
@@ -258,7 +260,12 @@ class WebdriverManager(XpathWdBase):
             WebdriverManager._virtual_display = None
 
     @synchronized(_methods_lock)
-    def enter_level(self, level, base_url=None, name=''):
+    def enter_level(self, level=None, base_url=None, name=''):
+        if not level:
+            # There is no level declared, so it will be only valid for the life
+            # of the context (assuming "with manager.enter_level() as browser: ..." etc)
+            level = self._current_context_level
+            self._current_context_level -= 1
         self.init_level(level)
         return WebdriverLevelManager(self, level, base_url, name)
 
@@ -319,6 +326,10 @@ class WebdriverManager(XpathWdBase):
         assert char in char_browser, 'Could not find browser %r' % browser
         return char_browser.get(char)
 
+    def __del__(self):
+        self.exit_level(MANAGER_LIFE)
+        self.stop_display()
+
 
 class WebdriverLevelManager(XpathWdBase):
     def __init__(self, parent, level, base_url=None, name=''):
@@ -331,15 +342,15 @@ class WebdriverLevelManager(XpathWdBase):
     def __enter__(self):
         return self.get_xpathbrowser()
     
-    def __exit__(self, type, value, traceback):
+    def __exit__(self, type=None, value=None, traceback=None):
         self.exit_level()
 
     def get_locked_driver(self):
         return self.webdriver
 
     def acquire_driver(self):
-        assert not self.webdriver, 'Webdriver already acquired'
-        self.webdriver = self.parent.acquire_driver(self.level)
+        if not self.webdriver:
+            self.webdriver = self.parent.acquire_driver(self.level)
         return self.webdriver
 
     def get_xpathbrowser(self, base_url=None, name=''):
@@ -348,8 +359,8 @@ class WebdriverLevelManager(XpathWdBase):
         base_url = base_url or self.base_url or self.global_settings.get('base_url')
         name = name or self.name
         # Initialize the XpathBrowser class
-        return XpathBrowser(self.webdriver or self.acquire_driver(), base_url,
-                            Logger(name), settings={})
+        return XpathBrowser(self.acquire_driver(), base_url,
+                            Logger(name), settings=solve_settings())
 
     def exit_level(self):
         self.release_driver()

@@ -1,14 +1,31 @@
-# Xpathwebdriver
 
-Python wrapper for interacting with Selenium through XPath and CSS selectors.
+
+
+# xpathwebdriver
+
+A python wrapper for interacting with Selenium through XPath and CSS selectors.
 The main difference is that you can use use XPaths like:
 
 ```
 //div/text()
 ```
 
-Which will return you a string, something selenium does not support easily.
-E.g. you could do:
+Which will return you a string, something webdriver API makes more complicated.
+
+## Install
+
+```
+pip install xpathwebdriver
+```
+
+1. Install xpathwebdriver using pip.
+2. Install google chrome.
+3. Download chromedriver for your chrome version and install it in your path.
+   https://chromedriver.chromium.org/downloads
+4. That generally should work on a modern Linux System (not tested but should also work on other oses).
+   Try example below
+
+## Example
 
 ```python
 from xpathwebdriver.simple_xpath_browser import SimpleXpathBrowser
@@ -24,9 +41,8 @@ for idx, elem in enumerate(browser.select_css('.result__title')):
     print(idx, elem.text)
 ```
 
-## Example
+### Using unittest library
 
-Unit Test for web site.
 
 ```python
 import unittest
@@ -48,11 +64,11 @@ class SearchEnginesDemo(unittest.TestCase):
         self.browser.fill(".//*[@id='search_form_input_homepage']", 'xpathwebdriver\n')
 ```
 
-## Install
+Check a more options in the `examples` directory.
 
-### Installing selenium and the browser driver
-Make sure you installed selenium and webdriver and that they are working.
-You can test selenium with:
+## Checking selenium and the browser driver
+
+To make sure you installed selenium and webdriver correctly use the code below:
 
 ```python
 from selenium import webdriver
@@ -63,12 +79,8 @@ driver.get('https://www.google.com')
 print('You can 10 secs to check the browser window')
 time.sleep(10)
 ```
-Find the easiest way to install selenium in your environment, for example
-in ubuntu, you can do:
 
-```
-apt install python-pip python-selenium
-# Or in case of python3 use: python3-pip python3-selenium packages
+Find the easiest way to install selenium in your environment.
 ```
 Then install driver for chrome and gecko from:
 
@@ -79,14 +91,6 @@ Then install driver for chrome and gecko from:
 
 Decompressed executables should be in yor PATH.
 If you update python's `webdriver` package make sure you update browsers and drivers.
-
-### Installing Xpathwebdriver
-
-Once selenium is working you can easily install this wrapper.
-
-```
-pip install xpathwebdriver
-```
 
 ## Running the interactive shell
 

@@ -1,9 +1,13 @@
 
-# Webdriver life level
-#GOD_LIFE = 7 # Browser survives across universes (WIP)
-#AI_LIFE = 6 # Browser survives across reboots and becomes agent smith (WIP)
-INMORTAL_LIFE = SURVIVE_PROCESS = 5 # Browser survives across processes
-PROCESS_LIFE = 4 # Browser is alive as long as the smoothtest process is running
-TEST_RUNNER_LIFE = 3 # Browser is alive as long as the TestRunner process is running (new test runner process means new browser) 
-TEST_ROUND_LIFE = 2 # Browser is alive for a single test round
-SINGLE_TEST_LIFE = 1 # Start 1 new browser per test ran
+# Webdriver browser life level constants
+
+# Browser survives across processes (INMORTAL_LIFE is deprecated name)
+SURVIVE_PROCESS = INMORTAL_LIFE = 5
+# Browser is alive as long as the smoothtest process is running
+PROCESS_LIFE = 4
+# Browser is alive as long as the WebdriverManager is not deleted (TEST_RUNNER_LIFE is deprecated name)
+MANAGER_LIFE = TEST_RUNNER_LIFE = 3
+# Browser is alive for a single test round (eg: a unit test class)
+TEST_ROUND_LIFE = 2
+# Start 1 new browser per test ran
+SINGLE_TEST_LIFE = 1
