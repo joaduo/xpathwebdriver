@@ -11,7 +11,6 @@ from threading import RLock
 from functools import wraps
 from selenium.common.exceptions import UnexpectedAlertPresentException
 from .base import XpathWdBase, singleton_decorator
-from .solve_settings import solve_settings
 from xpathwebdriver.levels import SURVIVE_PROCESS, TEST_ROUND_LIFE, MANAGER_LIFE
 import os
 
@@ -51,14 +50,14 @@ class WebdriverManager(XpathWdBase):
         self._virtual_display = None
         # Current selected browser
         self._browser_name = None
-        if solve_settings().get('webdriver_browser_keep_open'):
+        if self.global_settings.get('webdriver_browser_keep_open'):
             # Start a never killed process
             self.init_level(SURVIVE_PROCESS)
         self._current_context_level = -1
 
     @property
     def enabled(self):
-        return solve_settings().get('webdriver_enabled')
+        return self.global_settings.get('webdriver_enabled')
 
     @synchronized(_methods_lock)
     def enter_level(self, level=None, base_url=None, name=''):
@@ -359,7 +358,7 @@ class WebdriverLevelManager(XpathWdBase):
         name = name or self.name
         # Initialize the XpathBrowser class
         return XpathBrowser(self.acquire_driver(), base_url,
-                            Logger(name), settings=solve_settings())
+                            Logger(name), settings=self.global_settings)
 
     def exit_level(self):
         self.release_driver()
