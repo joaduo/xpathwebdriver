@@ -61,52 +61,33 @@ class WebdriverManager(XpathWdBase):
         return solve_settings().get('webdriver_enabled')
 
     @synchronized(_methods_lock)
-    def release_driver(self, wdriver, level):
-        '''
-        Release passed webdriver instance, so it becomes available to be used
-        by another test. (this function is not generally used directly)
-        :param wdriver: webdriver instance to be released
-        :param level: level at wich we are releasing the webdriver
-        '''
-        if not wdriver:
-            return
-        assert wdriver in self._locked, 'Webdriver %r was never locked' % wdriver
-        self._locked.remove(wdriver)
-        _, drv_level = self._wdriver_pool[wdriver]
-        # Make sure webdriver is healthy and from the right level
-        # before reusing it
-        if drv_level >= level and not self._quit_failed_webdriver(wdriver):
-            # Keep webdriver with higher level of life
-            self._released.add(wdriver)
-        else:
-            # Remove no longer needed webdriver
-            self._quit_webdriver(wdriver)
+    def enter_level(self, level=None, base_url=None, name=''):
+        if not level:
+            # There is no level declared, so it will be only valid for the life
+            # of the context (assuming "with manager.enter_level() as browser: ..." etc)
+            level = self._current_context_level
+            self._current_context_level -= 1
+        self.init_level(level)
+        return WebdriverLevelManager(self, level, base_url, name)
 
-    def _quit_failed_webdriver(self, wdriver, tested_once=False):
-        # Test wether a webdriver is responding, if not quit it and
-        # unregister it to avoid further usage.
-        try:
-            wdriver.current_url
-            return False
-        except UnexpectedAlertPresentException as e:
-            # An alert window will cause an exception, handle it only once
-            alert = wdriver.switch_to_alert()
-            alert.accept()
-            if not tested_once:
-                return self._quit_failed_webdriver(wdriver, tested_once=True)
-        except Exception as e:
-            self.log.e('Quitting webdriver %r due to exception %r:%s' %
-                       (wdriver, e, e))
-        self._quit_webdriver(wdriver)
-        return True
-
-    def _quit_webdriver(self, wdriver):
-        # quit a webdriver, catch any exception and report it
-        try:
-            self.log.d('Quitting webdriver %s', wdriver)
-            wdriver.quit()
-        except Exception as e:
-            self.log.w('Ignoring %r:%s' % (e,e))
+    @synchronized(_methods_lock)
+    def exit_level(self, level):
+        def quit_wdriver(wdriver, container):
+            _, drv_level = self._wdriver_pool[wdriver]
+            if self._quit_failed_webdriver(wdriver):
+                container.remove(wdriver)
+                self._wdriver_pool.pop(wdriver)
+            elif drv_level <= level:
+                container.remove(wdriver)
+                self._quit_webdriver(wdriver)
+                self._wdriver_pool.pop(wdriver)
+            else:
+                self.log.d('Keeping webdriver %s', wdriver)
+        # Make copies of sets, we are going to modify them
+        for wdriver in self._released.copy():
+            quit_wdriver(wdriver, self._released)
+        for wdriver in self._locked.copy():
+            quit_wdriver(wdriver, self._locked)
 
     @synchronized(_methods_lock)
     def init_level(self, level):
@@ -145,36 +126,6 @@ class WebdriverManager(XpathWdBase):
                            if brws == browser])
         return (self._released & browser_set)
 
-    @synchronized(_methods_lock)
-    def exit_level(self, level):
-        def quit_wdriver(wdriver, container):
-            _, drv_level = self._wdriver_pool[wdriver]
-            if self._quit_failed_webdriver(wdriver):
-                container.remove(wdriver)
-                self._wdriver_pool.pop(wdriver)
-            elif drv_level <= level:
-                container.remove(wdriver)
-                self._quit_webdriver(wdriver)
-                self._wdriver_pool.pop(wdriver)
-            else:
-                self.log.d('Keeping webdriver %s', wdriver)
-        # Make copies of sets, we are going to modify them
-        for wdriver in self._released.copy():
-            quit_wdriver(wdriver, self._released)
-        for wdriver in self._locked.copy():
-            quit_wdriver(wdriver, self._locked)
-
-    @synchronized(_methods_lock)
-    def acquire_driver(self, level):
-        if not self.enabled:
-            return None
-        self.init_level(level)
-        wdriver = self.get_available_set().pop()
-        # Keep track of acquired webdrivers in case we need to close them
-        self._locked.add(wdriver)
-        self._released.remove(wdriver)
-        return wdriver
-
     def _new_webdriver(self, browser=None, *args, **kwargs):
         browser = self.expand_browser_name(browser)
         # Setup display before creating the browser
@@ -204,12 +155,53 @@ class WebdriverManager(XpathWdBase):
         return driver
 
     @synchronized(_methods_lock)
+    def acquire_driver(self, level):
+        if not self.enabled:
+            return None
+        self.init_level(level)
+        wdriver = self.get_available_set().pop()
+        # Keep track of acquired webdrivers in case we need to close them
+        self._locked.add(wdriver)
+        self._released.remove(wdriver)
+        return wdriver
+
+    @synchronized(_methods_lock)
+    def release_driver(self, wdriver, level):
+        '''
+        Release passed webdriver instance, so it becomes available to be used
+        by another test. (this function is not generally used directly)
+        :param wdriver: webdriver instance to be released
+        :param level: level at wich we are releasing the webdriver
+        '''
+        if not wdriver:
+            return
+        assert wdriver in self._locked, 'Webdriver %r was never locked' % wdriver
+        self._locked.remove(wdriver)
+        _, drv_level = self._wdriver_pool[wdriver]
+        # Make sure webdriver is healthy and from the right level
+        # before reusing it
+        if drv_level >= level and not self._quit_failed_webdriver(wdriver):
+            # Keep webdriver with higher level of life
+            self._released.add(wdriver)
+        else:
+            # Remove no longer needed webdriver
+            self._quit_webdriver(wdriver)
+
+    @synchronized(_methods_lock)
     def quit_all_webdrivers(self):
         for wdriver in self._wdriver_pool:
             self._quit_webdriver(wdriver)
         self._wdriver_pool.clear()
         self._locked.clear()
         self._released.clear()
+
+    def _quit_webdriver(self, wdriver):
+        # quit a webdriver, catch any exception and report it
+        try:
+            self.log.d('Quitting webdriver %s', wdriver)
+            wdriver.quit()
+        except Exception as e:
+            self.log.w('Ignoring %r:%s' % (e,e))
 
     @synchronized(_methods_lock)
     def quit_all_failed_webdrivers(self):
@@ -222,6 +214,24 @@ class WebdriverManager(XpathWdBase):
                 remove(self._released, wdriver)
                 found_one = True
         return found_one
+
+    def _quit_failed_webdriver(self, wdriver, tested_once=False):
+        # Test wether a webdriver is responding, if not quit it and
+        # unregister it to avoid further usage.
+        try:
+            wdriver.current_url
+            return False
+        except UnexpectedAlertPresentException as e:
+            # An alert window will cause an exception, handle it only once
+            alert = wdriver.switch_to_alert()
+            alert.accept()
+            if not tested_once:
+                return self._quit_failed_webdriver(wdriver, tested_once=True)
+        except Exception as e:
+            self.log.e('Quitting webdriver %r due to exception %r:%s' %
+                       (wdriver, e, e))
+        self._quit_webdriver(wdriver)
+        return True
 
     @synchronized(_methods_lock)
     def setup_display(self):
@@ -257,16 +267,6 @@ class WebdriverManager(XpathWdBase):
             self.log.d('Stopping virtual display %r' % display)
             display.stop()
             WebdriverManager._virtual_display = None
-
-    @synchronized(_methods_lock)
-    def enter_level(self, level=None, base_url=None, name=''):
-        if not level:
-            # There is no level declared, so it will be only valid for the life
-            # of the context (assuming "with manager.enter_level() as browser: ..." etc)
-            level = self._current_context_level
-            self._current_context_level -= 1
-        self.init_level(level)
-        return WebdriverLevelManager(self, level, base_url, name)
 
     @synchronized(_methods_lock)
     def list_webdrivers(self, which='all'):
