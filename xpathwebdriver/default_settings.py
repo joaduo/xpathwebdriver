@@ -32,7 +32,6 @@ class Settings(object):
     webdriver_browser = 'Chrome' #'PhantomJS' # Which browser we would like to use webdriver with: Firefox, Chrome, PhantomJs, etc...
     webdriver_browser_life = TEST_ROUND_LIFE # Level of life of the webdriver browser
     webdriver_pool_size = 1
-    webdriver_keep_open = False # Keep latest browser open after a smoothtest process finished (for debugging/testing)
 
     # Browsers profiles
     # Eg: '/home/<user>/.mozilla/firefox/4iyhtofy.webdriver_autotest' on linux

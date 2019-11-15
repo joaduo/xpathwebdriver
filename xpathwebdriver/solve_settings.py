@@ -8,6 +8,7 @@ Code Licensed under MIT License. See LICENSE file.
 import rel_imp; rel_imp.init()
 import imp
 import importlib
+import logging
 
 
 # TODO: support .cfg files
@@ -51,6 +52,8 @@ def _register_settings_module(mod):
 global_settings = None
 def register_settings_instance(settings):
     global global_settings
+    if global_settings:
+        logging.debug('Replacing existing settings %r (old) with %r (new)', global_settings, settings)
     global_settings = SettingsWrapper(settings)
 
 

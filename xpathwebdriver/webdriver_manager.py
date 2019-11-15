@@ -51,6 +51,9 @@ class WebdriverManager(XpathWdBase):
         self._virtual_display = None
         # Current selected browser
         self._browser_name = None
+        # Check if we need to start the browser
+        if solve_settings().get('webdriver_browser_life') == SURVIVE_PROCESS:
+            self.init_level(SURVIVE_PROCESS)
 
     @property
     def enabled(self):
@@ -116,7 +119,7 @@ class WebdriverManager(XpathWdBase):
         if not self.enabled:
             return
         # level is mandatory
-        assert 0 < level < SURVIVE_PROCESS, 'No process level set'
+        assert 0 < level <= SURVIVE_PROCESS, 'No process level set'
         # Get rid of non-responding browsers
         self.quit_all_failed_webdrivers()
         # Get the set of released webdrivers for the selected browser
