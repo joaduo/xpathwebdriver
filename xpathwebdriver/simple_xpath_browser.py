@@ -18,7 +18,7 @@ class SimpleXpathBrowser(XpathBrowser):
                 base_url=base_url, logger=logger, settings=settings)
 
     def __del__(self):
-        self._level_mngr.exit_level()
+        self._level_mngr.__exit__()
 
 
 def smoke_test_module():

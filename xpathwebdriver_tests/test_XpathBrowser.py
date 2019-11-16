@@ -65,7 +65,7 @@ class WebUnitTestBase(unittest.TestCase):
         self._tempdir = None
 
     def tearDown(self):
-        self.__level_mngr.exit_level()
+        self.__level_mngr.__exit__()
         if self._tempdir:
             shutil.rmtree(self._tempdir, ignore_errors=True)
             self._tempdir = None
