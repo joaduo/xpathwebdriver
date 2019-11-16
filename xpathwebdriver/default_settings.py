@@ -11,8 +11,8 @@ import json
 
 class Settings(object):
     def __init__(self):
-        if self.webdriver_remote_credentials:
-            with open(self.webdriver_remote_credentials, 'r') as fp:
+        if self.webdriver_remote_credentials_path:
+            with open(self.webdriver_remote_credentials_path, 'r') as fp:
                 cred = json.load(fp)
             self.webdriver_remote_command_executor = cred['webdriver_remote_command_executor']
             self.webdriver_remote_session_id = cred['webdriver_remote_session_id']
@@ -39,9 +39,9 @@ class Settings(object):
     webdriver_pool_size = 1
 
     #Remote driver/reuse open driver
-    webdriver_remote_command_executor = ''
-    webdriver_remote_session_id = ''
-    webdriver_remote_credentials = ''
+    webdriver_remote_command_executor = '' # Manually provide the url for the driver eg: 'http://127.0.0.1:54551'
+    webdriver_remote_session_id = ''       # Manually provide session id for reusage eg: '4aed25f4a5ce78bb7d57c19663110b3c'
+    webdriver_remote_credentials_path = '' # Path to json file containing previous 2 key above (eg:dumped by "xpathshell -d <path>.json")
 
     #webdriver_browser_life DEPRECATED, never used in code
 

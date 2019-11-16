@@ -12,6 +12,7 @@ from functools import wraps
 from selenium.common.exceptions import UnexpectedAlertPresentException
 from .base import XpathWdBase, singleton_decorator
 from xpathwebdriver.levels import SURVIVE_PROCESS, TEST_ROUND_LIFE, MANAGER_LIFE
+from selenium.webdriver.remote.webdriver import WebDriver
 import os
 
 
@@ -111,7 +112,7 @@ class WebdriverManager(XpathWdBase):
         if not released:
             # Create webdriver if needed
             browser = self.get_browser_name()
-            wdriver = self._new_webdriver(browser)
+            wdriver = self._new_webdriver(browser, level)
             self._wdriver_pool[wdriver] = browser, level
             self._released.add(wdriver)
 
@@ -127,15 +128,17 @@ class WebdriverManager(XpathWdBase):
                            if brws == browser])
         return (self._released & browser_set)
 
-    def _new_webdriver(self, browser=None, *args, **kwargs):
+    def _new_webdriver(self, browser, level, args=None, kwargs=None):
+        args = args or []
+        kwargs = kwargs or {}
         browser = self.expand_browser_name(browser)
         # Setup display before creating the browser
         self.setup_display()
-        if (self.global_settings.get('webdriver_remote_command_executor')
+        if (level == SURVIVE_PROCESS
+        and self.global_settings.get('webdriver_remote_command_executor')
         and self.global_settings.get('webdriver_remote_session_id')):
-            driver = webdriver.Remote(command_executor=self.global_settings.get('webdriver_remote_command_executor'))
-            driver.session_id = self.global_settings.get('webdriver_remote_session_id')
-            return driver
+            return self._build_remote(self.global_settings.get('webdriver_remote_command_executor'),
+                                      self.global_settings.get('webdriver_remote_session_id'))
         if browser == 'PhantomJS':
             self._append_service_arg('--ignore-ssl-errors=true', kwargs)
         if (browser == 'Firefox'
@@ -154,6 +157,25 @@ class WebdriverManager(XpathWdBase):
             #chrome_options.add_argument('--incognito')
             kwargs['chrome_options'] = chrome_options
         driver = getattr(webdriver, browser)(*args, **kwargs)
+        return driver
+
+    def _build_remote(self, executor_url, session_id):
+        original_execute = WebDriver.execute
+        first_run = True
+        def _patched_execute(self, command, params=None):
+            nonlocal first_run
+            if command == "newSession" and first_run:
+                first_run = False
+                # Mock the response
+                return {'success': 0, 'value': None, 'sessionId': session_id}
+            else:
+                return original_execute(self, command, params)
+        # Patch the function before creating the driver object
+        WebDriver.execute = _patched_execute
+        driver = webdriver.Remote(command_executor=executor_url)
+        driver.session_id = session_id
+        # Replace the patched function with original function
+        WebDriver.execute = original_execute
         return driver
 
     def _append_service_arg(self, arg, kwargs):
