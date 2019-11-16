@@ -151,6 +151,11 @@ class XpathBrowser(object):
         return urljoin(self._base_url, path)
 
     def get(self, url, condition=None):
+        '''
+        Smarter way to open an url. It cleans url. You can pass what you would use in a browser.
+        :param url:
+        :param condition: condition script or functor passed to the `wait_condition` method condition script or functor passed to the `wait_condition` method
+        '''
         self.get_url(self.clean_url(url), condition)
 
     def clean_url(self, url):
@@ -175,7 +180,7 @@ class XpathBrowser(object):
         Open a page in the browser controlled by webdriver.
         
         :param path: full URL of the page
-        :param condition: condition script or functor passed to the `wait_condition` method
+        :param condition: optional condition script or functor passed to the `wait_condition` method
         '''
         driver = self.get_driver()
         if url.startswith('https') and isinstance(driver, webdriver.PhantomJS):
