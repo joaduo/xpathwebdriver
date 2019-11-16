@@ -16,8 +16,6 @@ class Settings(Settings):
     webdriver_browser = 'Chrome'
     webdriver_browser_keep_open = False #a new browser on each test
 
-    log_color = True
-
 
 class NewBrowserPerTest(unittest.TestCase):
     @classmethod

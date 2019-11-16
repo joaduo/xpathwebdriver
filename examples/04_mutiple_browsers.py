@@ -15,8 +15,6 @@ class Settings(Settings):
     webdriver_browser = 'Chrome'
     webdriver_browser_keep_open = False
 
-    log_color = True
-
 
 class DuckDuckTest(unittest.TestCase):
     @classmethod

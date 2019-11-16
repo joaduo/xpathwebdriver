@@ -3,7 +3,6 @@ from xpathwebdriver.default_settings import Settings
 from xpathwebdriver.levels import TEST_ROUND_LIFE
 from xpathwebdriver.solve_settings import register_settings_instance
 from xpathwebdriver.webdriver_manager import WebdriverManager
-import logging
 
 
 class Settings(Settings):
@@ -17,8 +16,6 @@ class Settings(Settings):
     #webdriver_browser = 'Firefox'
     #webdriver_browser = 'PhantomJS'
     webdriver_browser_keep_open = True #Survive or not after finishing
-
-    log_color = True
 
 
 class DuckDuckKeepOpenTest(unittest.TestCase):
@@ -44,6 +41,4 @@ class DuckDuckKeepOpenTest(unittest.TestCase):
 
 
 if __name__ == "__main__":
-    logging.basicConfig()
-    #logging.getLogger().setLevel(logging.DEBUG)
     unittest.main()

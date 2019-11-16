@@ -6,7 +6,7 @@ Copyright (c) 2014 Juju. Inc
 Code Licensed under MIT License. See LICENSE file.
 '''
 import logging
-from .levels import TEST_ROUND_LIFE
+
 
 class Settings(object):
     # Signal that we are working on production. To disable write tests
@@ -50,7 +50,7 @@ class Settings(object):
 
     log_level_default = logging.INFO
     log_level_root_handler = logging.DEBUG
-    log_color = False
+    log_color = False # Not working on Python 3
 
 
 def smoke_test_module():
