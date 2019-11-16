@@ -6,11 +6,16 @@ Copyright (c) 2014 Juju. Inc
 Code Licensed under MIT License. See LICENSE file.
 '''
 import logging
+import json
 
 
 class Settings(object):
-    # Signal that we are working on production. To disable write tests
-    production = False
+    def __init__(self):
+        if self.webdriver_remote_credentials:
+            with open(self.webdriver_remote_credentials, 'r') as fp:
+                cred = json.load(fp)
+            self.webdriver_remote_command_executor = cred['webdriver_remote_command_executor']
+            self.webdriver_remote_session_id = cred['webdriver_remote_session_id']
 
     @property
     def base_url(self):
@@ -30,8 +35,13 @@ class Settings(object):
 
     webdriver_enabled = True # Whether or not automatically create the browser
     webdriver_browser = 'Chrome' #'PhantomJS' # Which browser we would like to use webdriver with: Firefox, Chrome, PhantomJs, etc...
-    webdriver_browser_keep_open = False # Level of life of the webdriver browser
+    webdriver_browser_keep_open = False # Keep browser open after python process is dead
     webdriver_pool_size = 1
+
+    #Remote driver/reuse open driver
+    webdriver_remote_command_executor = ''
+    webdriver_remote_session_id = ''
+    webdriver_remote_credentials = ''
 
     #webdriver_browser_life DEPRECATED, never used in code
 

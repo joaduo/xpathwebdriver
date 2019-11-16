@@ -12,7 +12,7 @@ The main difference is that you can use use XPaths like:
 
 Which will return you a string, something webdriver API makes more complicated.
 
-## Install
+## Quick install
 
 ```
 pip install xpathwebdriver
@@ -25,6 +25,8 @@ pip install xpathwebdriver
 4. That generally should work on a modern Linux System (not tested but should also work on other oses).
    Try example below
 5. For image comparison `pip install Pillow` and install `findimagedupes` and `imagemagick` packages for your OS
+
+Check "Installing Selenium" section for other browsers and details.
 
 ## Example
 
@@ -67,7 +69,7 @@ class SearchEnginesDemo(unittest.TestCase):
 
 Check a more options in the `examples` directory.
 
-## Checking selenium and the browser driver
+## Installing Selenium
 
 To make sure you installed selenium and webdriver correctly use the code below:
 
@@ -82,7 +84,7 @@ time.sleep(10)
 ```
 
 Find the easiest way to install selenium in your environment.
-```
+
 Then install driver for chrome and gecko from:
 
 * https://www.seleniumhq.org/download/#thirdPartyDrivers
@@ -131,3 +133,24 @@ You can check `XpathBrowser` api at:
 * https://addons.mozilla.org/es/firefox/addon/firepath/
 * http://ricostacruz.com/cheatsheets/xpath.html
 * http://xpath.alephzarro.com/content/cheatsheet.html
+
+## Killing processes hanging around
+
+Depeding on your configuration from virtualdisplay and browser, processes like:
+
+```
+Xvnc
+Xvfb
+Xephyr
+chromedriver
+...
+```
+
+may keep hanging arround. You may want to kill them
+
+```
+# check the wanted process is alive
+ps faux | grep Xvnc
+# and you can kill it. If you are running as root, make sure you are not killing someone else's process too 
+pkill Xvnc
+```

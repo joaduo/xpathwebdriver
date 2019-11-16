@@ -8,17 +8,17 @@ Code Licensed under MIT License. See LICENSE file.
 import rel_imp; rel_imp.init()
 from .webdriver_manager import WebdriverManager
 from .xpath_browser import XpathBrowser
-from .levels import SINGLE_TEST_LIFE
 
 
 class SimpleXpathBrowser(XpathBrowser):
     def __init__(self, base_url=None, logger=None, settings=None, level=None):
-        self._browser_context = WebdriverManager().enter_level(level or SINGLE_TEST_LIFE)
+        self._browser_context = WebdriverManager().enter_level(level=level)
         XpathBrowser.__init__(self, self._browser_context.acquire_driver(),
                 base_url=base_url, logger=logger, settings=settings)
 
     def __del__(self):
-        self._browser_context.__exit__()
+        if hasattr(self, '_browser_context'):
+            self._browser_context.__exit__()
 
 
 def smoke_test_module():

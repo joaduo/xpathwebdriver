@@ -609,6 +609,11 @@ function extract_element(elem){
             self.fill('//input[@{0}={1!r}] | //textarea[@{0}={1!r}]'
                       .format(attr, name), value, clear, javascript_safe)
 
+    def get_remote_credentials(self):
+        drv = self.get_driver()
+        return dict(webdriver_remote_command_executor=drv.command_executor._url,
+                    webdriver_remote_session_id=drv.session_id)
+
 
 def smoke_test_module():
     from .webdriver_manager import WebdriverManager

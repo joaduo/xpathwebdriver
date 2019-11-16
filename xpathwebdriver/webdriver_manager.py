@@ -50,7 +50,9 @@ class WebdriverManager(XpathWdBase):
         self._virtual_display = None
         # Current selected browser
         self._browser_name = None
-        if self.global_settings.get('webdriver_browser_keep_open'):
+        if (self.global_settings.get('webdriver_browser_keep_open')
+        or (self.global_settings.get('webdriver_remote_command_executor')
+            and self.global_settings.get('webdriver_remote_session_id'))):
             # Start a never killed process
             self.init_level(SURVIVE_PROCESS)
         self._current_context_level = -1
@@ -129,12 +131,13 @@ class WebdriverManager(XpathWdBase):
         browser = self.expand_browser_name(browser)
         # Setup display before creating the browser
         self.setup_display()
-        def append_service_arg(arg):
-            service_args = kwargs.get('service_args', [])
-            service_args.append(arg)
-            kwargs['service_args'] = service_args
+        if (self.global_settings.get('webdriver_remote_command_executor')
+        and self.global_settings.get('webdriver_remote_session_id')):
+            driver = webdriver.Remote(command_executor=self.global_settings.get('webdriver_remote_command_executor'))
+            driver.session_id = self.global_settings.get('webdriver_remote_session_id')
+            return driver
         if browser == 'PhantomJS':
-            append_service_arg('--ignore-ssl-errors=true')
+            self._append_service_arg('--ignore-ssl-errors=true', kwargs)
         if (browser == 'Firefox'
         and self.global_settings.get('webdriver_firefox_profile')
         and not args and not kwargs.has_key('firefox_profile')):
@@ -152,6 +155,11 @@ class WebdriverManager(XpathWdBase):
             kwargs['chrome_options'] = chrome_options
         driver = getattr(webdriver, browser)(*args, **kwargs)
         return driver
+
+    def _append_service_arg(self, arg, kwargs):
+        service_args = kwargs.get('service_args', [])
+        service_args.append(arg)
+        kwargs['service_args'] = service_args
 
     @synchronized(_methods_lock)
     def acquire_driver(self, level):
@@ -204,15 +212,12 @@ class WebdriverManager(XpathWdBase):
 
     @synchronized(_methods_lock)
     def quit_all_failed_webdrivers(self):
-        found_one = False
         remove = lambda s,e: e in s and s.remove(e)
-        for wdriver in self._wdriver_pool.keys():
+        for wdriver in list(self._wdriver_pool.keys()):
             if self._quit_failed_webdriver(wdriver):
                 self._wdriver_pool.pop(wdriver)
                 remove(self._locked, wdriver)
                 remove(self._released, wdriver)
-                found_one = True
-        return found_one
 
     def _quit_failed_webdriver(self, wdriver, tested_once=False):
         # Test wether a webdriver is responding, if not quit it and
