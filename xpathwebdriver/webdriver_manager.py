@@ -67,7 +67,7 @@ class WebdriverManager(XpathWdBase):
             level = self._current_context_level
             self._current_context_level -= 1
         self.init_level(level)
-        return WebdriverLevelManager(self, level, base_url, name)
+        return BrowserContextManager(self, level, base_url, name)
 
     @synchronized(_methods_lock)
     def exit_level(self, level):
@@ -329,7 +329,7 @@ class WebdriverManager(XpathWdBase):
         self.stop_display()
 
 
-class WebdriverLevelManager(XpathWdBase):
+class BrowserContextManager(XpathWdBase):
     def __init__(self, parent, level, base_url=None, name=''):
         self.parent = parent
         self.level = level
@@ -341,10 +341,8 @@ class WebdriverLevelManager(XpathWdBase):
         return self.get_xpathbrowser()
     
     def __exit__(self, type=None, value=None, traceback=None):
-        self.exit_level()
-
-    def get_locked_driver(self):
-        return self.webdriver
+        self.release_driver()
+        self.parent.exit_level(self.level)
 
     def acquire_driver(self):
         if not self.webdriver:
@@ -359,10 +357,6 @@ class WebdriverLevelManager(XpathWdBase):
         # Initialize the XpathBrowser class
         return XpathBrowser(self.acquire_driver(), base_url,
                             Logger(name), settings=self.global_settings)
-
-    def exit_level(self):
-        self.release_driver()
-        self.parent.exit_level(self.level)
 
     def release_driver(self):
         if self.webdriver:
