@@ -44,6 +44,25 @@ for idx, elem in enumerate(browser.select_css('.result__title')):
     print(idx, elem.text)
 ```
 
+## Running xpathshell
+
+Install `pip install ipython`
+
+Then you can run the `xpathshell` command:
+
+```
+$ xpathshell
+Python 3.7.5rc1 (default, Oct  8 2019, 16:47:45)
+Type 'copyright', 'credits' or 'license' for more information
+IPython 7.9.0 -- An enhanced Interactive Python. Type '?' for help.
+
+XpathBrowser in 'b' or 'browser' variables
+ Current url: data:,
+In [1]: b.get('github.com/joaduo/xpathwebdriver/')
+INFO 05:53:35:  Current url: https://github.com/joaduo/xpathwebdriver/
+
+```
+
 ### Using unittest library
 
 
