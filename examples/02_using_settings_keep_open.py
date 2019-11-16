@@ -23,12 +23,12 @@ class DuckDuckKeepOpenTest(unittest.TestCase):
     def setUpClass(cls):
         register_settings_instance(Settings())
         cls._mngr = WebdriverManager()
-        cls._level_mngr = cls._mngr.enter_level(level=TEST_ROUND_LIFE)
-        cls.browser = cls._level_mngr.__enter__()
+        cls._browser_context = cls._mngr.enter_level(level=TEST_ROUND_LIFE)
+        cls.browser = cls._browser_context.__enter__()
 
     @classmethod
     def tearDownClass(cls):
-        cls._level_mngr.__exit__()
+        cls._browser_context.__exit__()
         del cls._mngr
 
     def test_duckduckgo(self):

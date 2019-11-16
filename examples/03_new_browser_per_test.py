@@ -23,14 +23,14 @@ class NewBrowserPerTest(unittest.TestCase):
         register_settings_instance(Settings())
 
     def setUp(self):
-        self._level_mngr = WebdriverManager().enter_level(level=SINGLE_TEST_LIFE, name=__name__)
-        self.browser = self._level_mngr.__enter__()
+        self._browser_context = WebdriverManager().enter_level(level=SINGLE_TEST_LIFE, name=__name__)
+        self.browser = self._browser_context.__enter__()
 
     def tearDown(self):
         # Make sure we quit browser created for the specific test
         # If for some reason you would like to inspect the browser
         # add a pause here with ipdb or pdb eg: import pdb; pdb.set_trace()
-        self._level_mngr.__exit__()
+        self._browser_context.__exit__()
 
     def test_duckduckgo(self):
         self.browser.get_url('https://duckduckgo.com/')
