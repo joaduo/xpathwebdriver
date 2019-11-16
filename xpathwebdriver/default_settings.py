@@ -30,11 +30,10 @@ class Settings(object):
     virtual_display_visible = False # Show the virtual display or may be hidden (for headless testing)
     virtual_display_backend = None # 'xvfb', 'xvnc' or 'xephyr', ignores ``virtual_display_visible``
     virtual_display_size = (800, 600) # Dimensions of the virtual display
-    virtual_display_keep_open = False   # Keep the virtual display after a smoothtest 
-                                    # process finished (useful when we also keep the browser open for debugging) 
+    virtual_display_keep_open = False # If we want to check results (useful whe combined with webdriver_browser_keep_open)
 
     webdriver_enabled = True # Whether or not automatically create the browser
-    webdriver_browser = 'Chrome' #'PhantomJS' # Which browser we would like to use webdriver with: Firefox, Chrome, PhantomJs, etc...
+    webdriver_browser = 'Chrome' # Which browser we would like to use webdriver with: Firefox, Chrome, PhantomJs, etc...
     webdriver_browser_keep_open = False # Keep browser open after python process is dead
     webdriver_pool_size = 1
 
