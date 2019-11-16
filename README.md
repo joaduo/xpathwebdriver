@@ -1,6 +1,3 @@
-
-
-
 # xpathwebdriver
 
 A python wrapper for interacting with Selenium through XPath and CSS selectors.
@@ -63,6 +60,17 @@ INFO 05:53:35:  Current url: https://github.com/joaduo/xpathwebdriver/
 
 ```
 
+Or directly from the command line
+
+```
+xpathshell duckduckgo.com
+```
+
+You can check `XpathBrowser` api at:
+
+* https://github.com/joaduo/xpathwebdriver/blob/master/xpathwebdriver_tests/test_XpathBrowser.py
+* https://github.com/joaduo/xpathwebdriver/blob/master/xpathwebdriver/xpath_browser.py
+
 ### Using unittest library
 
 
@@ -113,38 +121,6 @@ Then install driver for chrome and gecko from:
 
 Decompressed executables should be in yor PATH.
 If you update python's `webdriver` package make sure you update browsers and drivers.
-
-## Running the interactive shell
-
-Install ipython package (in Ubuntu probably you can install ipython or ipython3 package)
-
-```
-pip install ipython
-```
-You then can run from command line
-
-```
-xpathshell
-```
-Or opening a website:
-
-```
-xpathshell duckduckgo.com
-```
-To open https://duckduckgo.com
-
-You will get an IPython interactive shell like:
-
-```
-XpathBrowser in 'b' or 'browser' variables
- Current url: https://duckduckgo.com/
-In [1]:
-```
-
-You can check `XpathBrowser` api at:
-
-* https://github.com/joaduo/xpathwebdriver/blob/master/xpathwebdriver_tests/test_XpathBrowser.py
-* https://github.com/joaduo/xpathwebdriver/blob/master/xpathwebdriver/xpath_browser.py
 
 ## Useful links for working with XPath
 
