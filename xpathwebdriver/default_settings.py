@@ -7,22 +7,15 @@ Code Licensed under MIT License. See LICENSE file.
 '''
 import logging
 import json
+import os
+
+
+logger = logging.getLogger('default_settings')
 
 
 class Settings(object):
-    def __init__(self):
-        if self.webdriver_remote_credentials_path:
-            with open(self.webdriver_remote_credentials_path, 'r') as fp:
-                cred = json.load(fp)
-            self.webdriver_remote_command_executor = cred['webdriver_remote_command_executor']
-            self.webdriver_remote_session_id = cred['webdriver_remote_session_id']
-
-    @property
-    def base_url(self):
-        return self.web_server_url
-
     # Server to be tested URL eg: http://www.example.com 
-    web_server_url = ''
+    base_url = None
 
     # Virtual display is useful to keep the webdriver browser contained
     # avoiding the browser to pop-up abover other windows (with alerts for example)
@@ -60,6 +53,37 @@ class Settings(object):
     log_level_default = logging.INFO
     log_level_root_handler = logging.DEBUG
     log_color = False # Not working on Python 3
+
+    def __init__(self):
+        self._load_env_vars()
+        if self.webdriver_remote_credentials_path:
+            with open(self.webdriver_remote_credentials_path, 'r') as fp:
+                cred = json.load(fp)
+            self._set_and_warn(self.webdriver_remote_credentials_path, 'webdriver_remote_command_executor', cred)
+            self._set_and_warn(self.webdriver_remote_credentials_path, 'webdriver_remote_session_id', cred)
+
+    def _set_and_warn(self, path, attr, values):
+        if getattr(self, attr):
+            logger.warning('Replacing value for %s with values in file %s', attr, path)
+        setattr(self, attr, values[attr])
+
+    def _load_env_vars(self):
+        '''
+        Support loading from environment variables
+        '''
+        config_vars = self._get_config_vars()
+        for env_var, attr_name in config_vars.items():
+            if env_var in os.environ:
+                logger.debug('Using %s=%r => %s', env_var, os.environ[env_var], attr_name)
+                setattr(self, attr_name, os.environ[env_var])
+
+    def _get_config_vars(self):
+        config = {}
+        for n in dir(self):
+            if n.startswith('_'):
+                continue
+            config['XPATHWD_' + n.upper()] = n
+        return config
 
 
 def smoke_test_module():
