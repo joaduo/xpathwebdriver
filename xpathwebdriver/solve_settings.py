@@ -21,6 +21,9 @@ class SettingsWrapper(object):
     def __init__(self, settings):
         self._settings = settings
 
+    def _get_config_vars(self):
+        return self._settings._get_config_vars()
+
     def get(self, name, default=None):
         if hasattr(self._settings, name):
             return getattr(self._settings, name)

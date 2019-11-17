@@ -10,6 +10,7 @@ from argparse import ArgumentParser, FileType
 from .logger import Logger
 from .simple_xpath_browser import SimpleXpathBrowser
 from .base import CommandMixin
+from .solve_settings import solve_settings
 import json
 
 logger = Logger(color=True)
@@ -36,10 +37,14 @@ def dump_credentials(browser, dump_file):
 def embed(args):
     """Call this to embed IPython at the current point in your program.
     """
-    iptyhon_msg = ('Could not embed Ipython, falling back to ipdb'
+    ipython_msg = ('Could not embed Ipython, falling back to ipdb'
                    ' shell. Exception: %r')
     ipdb_msg = ('Could not embed ipdb, falling back to pdb'
                 ' shell. Exception: %r')
+    if args.environment_variables:
+        for n in sorted(solve_settings()._get_config_vars().keys()):
+            print('%s=' % n)
+        return
     b = browser = ShellXpathBrowser(logger=logger)
     if args.dump_credentials:
         dump_credentials(browser, args.dump_credentials)
@@ -58,7 +63,7 @@ def embed(args):
         del b
         del browser
     except Exception as e:
-        logger.w(iptyhon_msg % e)
+        logger.w(ipython_msg % e)
         try:
             import ipdb
             ipdb.set_trace()
@@ -77,6 +82,8 @@ class XpathShellCommand(CommandMixin):
         parser.add_argument('-d','--dump-credentials', type=FileType('w'),
             help='Dump credentials to file.',
             default=None,)
+        parser.add_argument('-e','--environment-variables', action='store_true',
+            help='Print available environment variables for configuration.')
         self._add_common_args(parser)
         return parser
 
