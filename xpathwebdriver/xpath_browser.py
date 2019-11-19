@@ -108,7 +108,7 @@ class XpathBrowser(object):
 
     def set_base_url(self, base_url):
         '''
-        Set base URL. (in order to build full URLs passing only paths)
+        Set base URL. (in order to build full URLs passing the path eg: browser.get_page('/path/page.html'))
 
         :param base_url: base URL string eg:"http://example.com/". 
             You can even  add more details after the host like:"http://example.com/common_path/" 

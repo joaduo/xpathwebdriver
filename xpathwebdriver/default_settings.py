@@ -18,6 +18,7 @@ class Settings(object):
     base_url = None
 
     xpathbrowser_wait_timeout = 2
+    xpathbrowser_default_scheme = 'http'
 
     # Virtual display is useful to keep the webdriver browser contained
     # avoiding the browser to pop-up abover other windows (with alerts for example)
