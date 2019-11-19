@@ -8,10 +8,15 @@ Code Licensed under MIT License. See LICENSE file.
 import rel_imp; rel_imp.init()
 from .webdriver_manager import WebdriverManager
 from .xpath_browser import XpathBrowser
-from xpathwebdriver.solve_settings import register_settings_instance
+from .solve_settings import register_settings_instance
 
 
 class SimpleXpathBrowser(XpathBrowser):
+    '''
+    Use this class when using only one browser at a time
+    and you don't require complex browser leveling.
+    (probably most of the cases)
+    '''
     def __init__(self, base_url=None, logger=None, settings=None, level=None):
         register_settings_instance(settings)
         self._browser_context = WebdriverManager().enter_level(level=level)
@@ -25,14 +30,7 @@ class SimpleXpathBrowser(XpathBrowser):
 
 def smoke_test_module():
     xb = SimpleXpathBrowser()
-#    import ipdb; ipdb.set_trace()
     xb.get('www.google.com')
-#    import ipdb; ipdb.set_trace()
-
-#    print Url
-    #xb.get_page_once('www.google.com')
-#    xb.get_url('www.google.com')
-#    import ipdb; ipdb.set_trace()
 
 
 if __name__ == "__main__":
