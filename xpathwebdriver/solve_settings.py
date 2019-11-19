@@ -53,6 +53,9 @@ def _register_settings_module(mod):
 
 global_settings = None
 def register_settings_instance(settings):
+    if not settings:
+        logging.debug('Provided settings object evals to False', settings)
+        return
     global global_settings
     if global_settings:
         logging.debug('Replacing existing settings %r (old) with %r (new)', global_settings, settings)
