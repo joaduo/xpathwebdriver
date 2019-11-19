@@ -172,7 +172,7 @@ class XpathBrowser(object):
             self.log.e(msg)
             raise ValueError(msg)
         if not url.parts.scheme:
-            url = url.replace(scheme='http')
+            url = url.replace(scheme=self.settings.get('xpathbrowser_default_scheme', 'http'))
         return str(url)
 
     def get_url(self, url, condition=None):
