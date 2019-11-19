@@ -307,14 +307,14 @@ class XpathBrowser(object):
         script_single = '''
 var xpath = %(xpath)r;
 //XPathResult.FIRST_ORDERED_NODE_TYPE = 9
-var FIRST_ORDERED_NODE_TYPE = 9
+var FIRST_ORDERED_NODE_TYPE = 9;
 var element = document.evaluate(xpath, document, null, FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
 return extract_element(element);
             '''
         script_multiple = '''
 var xpath = %(xpath)r;
 //XPathResult.ORDERED_NODE_ITERATOR_TYPE = 5
-var ORDERED_NODE_ITERATOR_TYPE = 5
+var ORDERED_NODE_ITERATOR_TYPE = 5;
 var es = document.evaluate(xpath, document, null, ORDERED_NODE_ITERATOR_TYPE, null);
 var r = es.iterateNext();
 var eslist = [];
@@ -339,14 +339,14 @@ return eslist;
         script_single = '''
 var selector = %(selector)r;
 //XPathResult.FIRST_ORDERED_NODE_TYPE = 9
-var FIRST_ORDERED_NODE_TYPE = 9
+var FIRST_ORDERED_NODE_TYPE = 9;
 var element = document.querySelector(selector);
 return extract_element(element);
             '''
         script_multiple = '''
 var selector = %(selector)r;
 //XPathResult.ORDERED_NODE_ITERATOR_TYPE = 5
-var ORDERED_NODE_ITERATOR_TYPE = 5
+var ORDERED_NODE_ITERATOR_TYPE = 5;
 var es = document.querySelectorAll(selector);
 var eslist = [];
 for(var idx=0; idx < es.length; idx++){
@@ -360,7 +360,7 @@ return eslist;
     def _get_extract_element(self):
         extract_element = '''
 function extract_element(elem){
-    var elem = elem
+    var elem = elem;
     //elem.noteType == 1 //web element
     if(elem.nodeType == 2){
       //attribute
