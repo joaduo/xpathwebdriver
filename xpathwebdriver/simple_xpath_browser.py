@@ -8,10 +8,12 @@ Code Licensed under MIT License. See LICENSE file.
 import rel_imp; rel_imp.init()
 from .webdriver_manager import WebdriverManager
 from .xpath_browser import XpathBrowser
+from xpathwebdriver.solve_settings import register_settings_instance
 
 
 class SimpleXpathBrowser(XpathBrowser):
     def __init__(self, base_url=None, logger=None, settings=None, level=None):
+        register_settings_instance(settings)
         self._browser_context = WebdriverManager().enter_level(level=level)
         XpathBrowser.__init__(self, self._browser_context.acquire_driver(),
                 base_url=base_url, logger=logger, settings=settings)
