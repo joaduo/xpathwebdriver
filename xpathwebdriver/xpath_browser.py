@@ -53,7 +53,13 @@ class Url(object):
         '''
         Get (path + params + query + fragment) as string from original url.
         '''
-        return urlunparse(self._orig._replace(scheme='', netloc=''))
+        return str(self.replace(scheme='', netloc=''))
+
+    def get_scheme_netloc(self):
+        return str(self.replace(path='', params='', query='', fragment=''))
+
+    def get_scheme_netloc_path(self):
+        return str(self.replace(params='', query='', fragment=''))
 
     def cmp_path(self, url):
         url = self._convert(url)
@@ -147,14 +153,18 @@ class XpathBrowser(object):
         
         :param path: path and on eg:"/blog/123?param=1"
         '''
-        assert self._base_url, 'No base_url set for building urls'
-        return urljoin(self._base_url, path)
+        base_url = self._base_url or self.Url(self.current_url()).get_scheme_netloc_path()
+        assert base_url, 'No base_url set for building urls'
+        if path.startswith('/') and self.settings.get('xpathbrowser_paths_like_html', True):
+            #building url relative to the server's root
+            base_url = self.Url(base_url).get_scheme_netloc()
+        return urljoin(base_url, path)
 
     def get(self, url, condition=None):
         '''
         Smarter way to open an url. It cleans url. You can pass what you would use in a browser.
-        :param url:
-        :param condition: condition script or functor passed to the `wait_condition` method condition script or functor passed to the `wait_condition` method
+        :param url: url string (eg: github.com)
+        :param condition: optional condition script or functor passed to the `wait_condition` method
         '''
         self.get_url(self.clean_url(url), condition)
 
@@ -204,7 +214,7 @@ class XpathBrowser(object):
         Open a page in the browser controlled by webdriver.
         
         :param path: path and on eg:"/blog/123?param=1" to get the page from
-        :param condition: condition script or functor passed to the `wait_condition` method
+        :param condition: optional condition script or functor passed to the `wait_condition` method
         '''
         self.get_url(self.build_url(path), condition)
 
@@ -216,7 +226,7 @@ class XpathBrowser(object):
         (becaus URL changes and it does not match the value of `path`)
         
         :param path: path and on eg:"/blog/123?param=1" to get the page from
-        :param condition: condition script or functor passed to the `wait_condition` method
+        :param condition: optional condition script or functor passed to the `wait_condition` method
         '''
         # Remove user credentials (they are not shown in browser)
         url = self.build_url(path)
@@ -613,5 +623,4 @@ function extract_element(elem){
         drv = self.get_driver()
         return dict(webdriver_remote_command_executor=drv.command_executor._url,
                     webdriver_remote_session_id=drv.session_id)
-
 
