@@ -615,19 +615,3 @@ function extract_element(elem){
                     webdriver_remote_session_id=drv.session_id)
 
 
-def smoke_test_module():
-    from .webdriver_manager import WebdriverManager
-    from .logger import log_test
-    mngr = WebdriverManager()
-#    mngr.setup_display()
-#    webdriver = mngr.new_webdriver()
-    u = 'https://www.google.cl/?gfe_rd=cr&ei=ix0kVfH8M9PgwASPoIFo&gws_rd=ssl'
-    log_test(XpathBrowser.Url(u).get_path_and_on())
-#    browser = XpathBrowser('', webdriver)
-#    browser.get_page('http://www.google.com')
-#    browser.log.i(browser.current_path())
-
-
-if __name__ == "__main__":
-    smoke_test_module()
-
