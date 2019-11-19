@@ -68,6 +68,7 @@ xpathshell duckduckgo.com
 
 You can check `XpathBrowser` api at:
 
+* https://github.com/joaduo/xpathwebdriver/blob/master/xpathwebdriver/BrowserAPI.md
 * https://github.com/joaduo/xpathwebdriver/blob/master/xpathwebdriver_tests/test_XpathBrowser.py
 * https://github.com/joaduo/xpathwebdriver/blob/master/xpathwebdriver/xpath_browser.py
 
