@@ -161,11 +161,10 @@ class WebdriverManager(XpathWdBase):
 
     def _build_remote(self, executor_url, session_id):
         original_execute = WebDriver.execute
-        first_run = True
+        non_local = dict(first_run=True)
         def _patched_execute(self, command, params=None):
-            nonlocal first_run
-            if command == "newSession" and first_run:
-                first_run = False
+            if command == "newSession" and non_local['first_run']:
+                non_local['first_run'] = False
                 # Mock the response
                 return {'success': 0, 'value': None, 'sessionId': session_id}
             else:
