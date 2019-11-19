@@ -32,7 +32,7 @@ class singleton_decorator(object):
 
 
 class XpathWdBase(object):
-    log = Logger('autotest root', color=solve_settings().get('log_color'))
+    log = Logger('xpath root', color=solve_settings().get('log_color'))
 
     @property
     def global_settings(self):
