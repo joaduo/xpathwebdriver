@@ -11,7 +11,6 @@ import importlib
 import logging
 
 
-# TODO: support .cfg files
 class SettingsWrapper(object):
     '''
     Provide the .get(name, default=None) method for accessing an object's
