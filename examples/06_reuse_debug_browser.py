@@ -34,8 +34,6 @@ class DuckDuckKeepOpenTest(unittest.TestCase):
     def test_duckduckgo(self):
         with self._mngr.enter_level() as browser: # Reuse the "outside" browser
             browser.get_url('https://duckduckgo.com/')
-            with self._mngr.enter_level() as browser: # New browser
-                browser.get_url('https://google.com/')
 
 
 if __name__ == "__main__":
