@@ -104,7 +104,7 @@ class XpathBrowser(object):
         self.settings = settings or {}
         # Initialize values
         self._base_url = base_url
-        self._wait_timeout = self.settings.get('wait_timeout', 2)
+        self._wait_timeout = self.settings.get('xpathbrowser_wait_timeout', 2)
 
     def set_base_url(self, base_url):
         '''

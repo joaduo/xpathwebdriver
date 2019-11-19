@@ -17,6 +17,8 @@ class Settings(object):
     # Server to be tested URL eg: http://www.example.com 
     base_url = None
 
+    xpathbrowser_wait_timeout = 2
+
     # Virtual display is useful to keep the webdriver browser contained
     # avoiding the browser to pop-up abover other windows (with alerts for example)
     virtual_display_enable = False # Use virtual display
