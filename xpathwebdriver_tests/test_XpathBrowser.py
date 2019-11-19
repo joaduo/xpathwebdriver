@@ -5,9 +5,6 @@ Copyright (c) 2015 Juju. Inc
 
 Code Licensed under MIT License. See LICENSE file.
 '''
-from selenium.common.exceptions import UnexpectedAlertPresentException
-from xpathwebdriver.logger import Logger
-from xpathwebdriver.xpath_browser import XpathBrowser
 from contextlib import contextmanager
 from selenium.webdriver.remote.webdriver import WebDriver
 import tempfile
@@ -15,7 +12,7 @@ import shutil
 import unittest
 import os
 from xpathwebdriver.webdriver_manager import WebdriverManager
-from xpathwebdriver.levels import SINGLE_TEST_LIFE
+from xpathwebdriver.levels import TEST_ROUND_LIFE
 
 
 class WebUnitTestBase(unittest.TestCase):
@@ -56,16 +53,18 @@ class WebUnitTestBase(unittest.TestCase):
         finally:
             os.remove(path)
 
-    def setUp(self):
-        self.__level_mngr = WebdriverManager().enter_level(level=SINGLE_TEST_LIFE)
-        webdriver = self.__level_mngr.acquire_driver()
-        logger = Logger(__name__)
-        self.browser = XpathBrowser(webdriver, logger=logger, settings={})
+    @classmethod
+    def setUpClass(cls):
+        cls._browser_context = WebdriverManager().enter_level(level=TEST_ROUND_LIFE)
+        cls.browser = cls._browser_context.__enter__()
         # Temp dir to save pages
-        self._tempdir = None
+        cls._tempdir = None
+
+    @classmethod
+    def tearDownClass(cls):
+        cls._browser_context.__exit__()
 
     def tearDown(self):
-        self.__level_mngr.__exit__()
         if self._tempdir:
             shutil.rmtree(self._tempdir, ignore_errors=True)
             self._tempdir = None
@@ -103,6 +102,7 @@ class TestXpathBrowser(WebUnitTestBase):
             self.browser.fill_form_xpath({'//form/input[1]':'John4','//form/input[2]':'Doe4'})
 
 #    def test_wipe_alerts(self):
+#        from selenium.common.exceptions import UnexpectedAlertPresentException
 #        body = '''
 #          <script type="text/javascript">
 #            alert('Example alert');
