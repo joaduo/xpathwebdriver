@@ -15,7 +15,10 @@ class SimpleXpathBrowser(XpathBrowser):
     '''
     Use this class when using only one browser at a time
     and you don't require complex browser leveling.
-    (probably most of the cases)
+
+    In the context of several test you probably prefer a context manager.
+    That way you will save te overhead of creatin a new browser each time.
+    Check examples using unit test setup/setupClass teardDown/tearDownClass.
     '''
     def __init__(self, base_url=None, logger=None, settings=None, level=None):
         register_settings_instance(settings)
