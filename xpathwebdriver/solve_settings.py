@@ -9,7 +9,65 @@ import rel_imp; rel_imp.init()
 import imp
 import importlib
 import logging
-from xpathwebdriver.default_settings import ConfigVar
+import json
+import os
+
+
+logger = logging.getLogger('solve_settings')
+
+
+class ConfigVar(object):
+    def __init__(self, value, name=None, parser=None):
+        self.value = value
+        self.name = name
+        self.parser = parser or self._solve_parser(value)
+
+    def _solve_parser(self, value):
+        parser = type(value)
+        if parser == bool:
+            parser = eval
+        return parser
+
+    def parse(self, value_str):
+        return self.parser(value_str)
+
+
+class BaseSettings(object):
+    def __init__(self):
+        self._load_env_vars()
+        if self.webdriver_remote_credentials_path:
+            with open(self.webdriver_remote_credentials_path, 'r') as fp:
+                cred = json.load(fp)
+            self._set_and_warn(self.webdriver_remote_credentials_path, 'webdriver_remote_command_executor', cred)
+            self._set_and_warn(self.webdriver_remote_credentials_path, 'webdriver_remote_session_id', cred)
+
+    def _set_and_warn(self, path, attr, values):
+        if getattr(self, attr):
+            logger.warning('Replacing value for %s with values in file %s', attr, path)
+        setattr(self, attr, values[attr])
+
+    def _load_env_vars(self):
+        '''
+        Support loading from environment variables
+        '''
+        config_vars = self._get_config_vars()
+        for env_var, cfg_var in config_vars.items():
+            if env_var in os.environ:
+                logger.debug('Using %s=%r => %s', env_var, os.environ[env_var], cfg_var.name)
+                setattr(self, cfg_var.name, cfg_var.parse(os.environ[env_var]))
+
+    def _get_config_vars(self):
+        config = {}
+        for n in dir(self):
+            if n.startswith('_'):
+                continue
+            cfg_var = getattr(self, n)
+            if not isinstance(cfg_var, ConfigVar):
+                cfg_var = ConfigVar(cfg_var)
+            cfg_var.name = cfg_var.name or n
+            config['XPATHWD_' + n.upper()] = cfg_var
+        return config
+
 
 
 class SettingsWrapper(object):
