@@ -6,7 +6,7 @@ from xpathwebdriver.webdriver_manager import WebdriverManager
 
 
 class Settings(Settings):
-    virtual_display_enable = False # If true, put browser in a contained window
+    virtual_display_enabled = False # If true, put browser in a contained window
     #virtual_display_backend = 'xvnc' # If you want to run in a remote server
     virtual_display_size = (800, 600)
     virtual_display_visible = True # Useful only when backend is not xvnc

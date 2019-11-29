@@ -17,7 +17,7 @@ class ConfigVar(object):
     def __init__(self, value, name=None, parser=None):
         self.value = value
         self.name = name
-        self.parser = parser or self._solve_parser()
+        self.parser = parser or self._solve_parser(value)
 
     def _solve_parser(self, value):
         parser = type(value)

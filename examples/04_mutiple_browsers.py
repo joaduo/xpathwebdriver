@@ -6,7 +6,7 @@ import logging
 
 
 class Settings(Settings):
-    virtual_display_enable = False
+    virtual_display_enabled = False
     #virtual_display_backend = 'xvnc'
     virtual_display_size = (800, 600)
     virtual_display_visible = True

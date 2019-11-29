@@ -9,6 +9,7 @@ import rel_imp; rel_imp.init()
 import imp
 import importlib
 import logging
+from xpathwebdriver.default_settings import ConfigVar
 
 
 class SettingsWrapper(object):
@@ -25,7 +26,9 @@ class SettingsWrapper(object):
 
     def get(self, name, default=None):
         if hasattr(self._settings, name):
-            return getattr(self._settings, name)
+            value = getattr(self._settings, name)
+            value = value.value if isinstance(value, ConfigVar) else value
+            return value
         return default
 
     def set(self, name, value):

@@ -6,5 +6,5 @@ from xpathwebdriver.default_settings import Settings
 
 
 class Settings(Settings):
-    virtual_display_enable = True # If true, put browser in a contained window
+    virtual_display_enabled = True # If true, put browser in a contained window
     virtual_display_visible = True # Useful only when backend is not xvnc

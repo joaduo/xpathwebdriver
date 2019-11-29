@@ -265,7 +265,7 @@ class WebdriverManager(XpathWdBase):
         '''
         def get(name, default=None):
             return self.global_settings.get('virtual_display_' + name, default)
-        if not get('enable'):
+        if not get('enabled'):
             if self._virtual_display:
                 self.log.w('There is a display enabled although config says'
                            ' different')
