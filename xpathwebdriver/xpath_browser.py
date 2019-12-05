@@ -465,8 +465,7 @@ function extract_element(elem){
             xpath selection.
         '''
         try:
-            self._select_xpath(xpath, single)
-            return True
+            return bool(self._select_xpath(xpath, single))
         except LookupError:
             return False
 
