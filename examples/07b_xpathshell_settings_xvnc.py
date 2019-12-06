@@ -13,7 +13,7 @@ from xpathwebdriver.default_settings import DefaultSettings
 
 class Settings(DefaultSettings):
     # Check virtual_display_* options in https://github.com/joaduo/xpathwebdriver/blob/master/xpathwebdriver/default_settings.py#L12
-    # Mots will match option of pyvirtualdisplay.Display class, so you can also check: 
+    # Most options will match those of pyvirtualdisplay.Display class, so check:
     # https://pyvirtualdisplay.readthedocs.io/en/latest/#usage
     virtual_display_enabled = True 
     virtual_display_backend = 'xvnc' # Force the backend

@@ -20,14 +20,16 @@ class DefaultSettings(BaseSettings):
 
     # Virtual display is useful to keep the webdriver browser contained
     # avoiding the browser to pop-up abover other windows (with alerts for example)
+    # Most options will match those of pyvirtualdisplay.Display class, so check:
+    # https://pyvirtualdisplay.readthedocs.io/en/latest/#usage
     virtual_display_enabled = False # Use virtual display
     virtual_display_visible = False # Show the virtual display or may be hidden (for headless testing)
     virtual_display_backend = ConfigVar(None, parser=str) # 'xvfb', 'xvnc' or 'xephyr', if set then ignores `virtual_display_visible`
-    virtual_display_backend_kwargs = {}
+    virtual_display_backend_kwargs = {} # passed to the backend class
     virtual_display_size = ConfigVar((800, 600), parser=eval) # Dimensions of the virtual display
     virtual_display_keep_open = False # If we want to check results (useful whe combined with webdriver_browser_keep_open)
 
-    webdriver_enabled = True # Whether or not automatically create the browser
+    webdriver_enabled = True # Whether or not automatically create the browser (DEPRECATE)
     webdriver_browser = 'Chrome' # Which browser we would like to use webdriver with: Firefox, Chrome, PhantomJs, etc...
     webdriver_browser_keep_open = False # Keep browser open after python process is dead
     webdriver_pool_size = 1
@@ -57,3 +59,4 @@ class DefaultSettings(BaseSettings):
 
 # Soon to be deprecated
 Settings = DefaultSettings
+
