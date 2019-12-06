@@ -1,6 +1,5 @@
 import unittest
 from xpathwebdriver.simple_xpath_browser import SimpleXpathBrowser
-import logging
 
 
 class DuckDuckBasic(unittest.TestCase):
@@ -18,6 +17,7 @@ class DuckDuckBasic(unittest.TestCase):
 
 
 if __name__ == "__main__":
+    import logging
     logging.basicConfig()
     #logging.getLogger().setLevel(logging.DEBUG)
     unittest.main()

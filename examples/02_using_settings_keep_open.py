@@ -1,35 +1,27 @@
 import unittest
-from xpathwebdriver.default_settings import Settings
-from xpathwebdriver.levels import TEST_ROUND_LIFE
+from xpathwebdriver.default_settings import DefaultSettings
 from xpathwebdriver.solve_settings import register_settings_instance
-from xpathwebdriver.webdriver_manager import WebdriverManager
+from xpathwebdriver.simple_xpath_browser import SimpleXpathBrowser
 
 
-class Settings(Settings):
-    virtual_display_enabled = False # If true, put browser in a contained window
-    #virtual_display_backend = 'xvnc' # If you want to run in a remote server
-    virtual_display_size = (800, 600)
-    virtual_display_visible = True # Useful only when backend is not xvnc
-    virtual_display_keep_open = True # If we want to check results (useful whe combined with webdriver_browser_keep_open)
-
+class Settings(DefaultSettings):
+    #Override here any desired option
+    # Check more details inspecting the DefaultSettings class
+    # https://github.com/joaduo/xpathwebdriver/blob/master/xpathwebdriver/default_settings.py#L12
     webdriver_browser = 'Chrome'
-    #webdriver_browser = 'Firefox'
-    #webdriver_browser = 'PhantomJS'
-    webdriver_browser_keep_open = True #Survive or not after finishing
+    # Force browser to survive testing (for inspection for example)
+    webdriver_browser_keep_open = True
 
 
 class DuckDuckKeepOpenTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         register_settings_instance(Settings())
-        cls._mngr = WebdriverManager()
-        cls._browser_context = cls._mngr.enter_level(level=TEST_ROUND_LIFE)
-        cls.browser = cls._browser_context.__enter__()
+        cls.browser = SimpleXpathBrowser()
 
     @classmethod
     def tearDownClass(cls):
-        cls._browser_context.__exit__()
-        del cls._mngr
+        del cls.browser
 
     def test_duckduckgo(self):
         self.browser.get_url('https://duckduckgo.com/')

@@ -9,7 +9,7 @@ from xpathwebdriver.solve_settings import ConfigVar, BaseSettings
 import logging
 
 
-class Settings(BaseSettings):
+class DefaultSettings(BaseSettings):
     # Server to be tested URL eg: http://www.example.com 
     base_url = None
 
@@ -53,3 +53,6 @@ class Settings(BaseSettings):
 
     log_level_default = logging.INFO
     log_color = False # Not working on Python 3
+
+# Soon to be deprecated
+Settings = DefaultSettings

@@ -1,20 +1,12 @@
 import unittest
-from xpathwebdriver.default_settings import Settings
-from xpathwebdriver.levels import SINGLE_TEST_LIFE
+from xpathwebdriver.default_settings import DefaultSettings
 from xpathwebdriver.solve_settings import register_settings_instance
-from xpathwebdriver.webdriver_manager import WebdriverManager
-import logging
+from xpathwebdriver.simple_xpath_browser import SimpleXpathBrowser
 
 
-class Settings(Settings):
-    virtual_display_enabled = False
-    #virtual_display_backend = 'xvnc'
-    virtual_display_size = (800, 600)
-    virtual_display_visible = True
-    virtual_display_keep_open = True
-
-    webdriver_browser = 'Chrome'
-    webdriver_browser_keep_open = False #a new browser on each test
+class Settings(DefaultSettings):
+    #Override here any desired option check example 02
+    pass
 
 
 class NewBrowserPerTest(unittest.TestCase):
@@ -23,14 +15,10 @@ class NewBrowserPerTest(unittest.TestCase):
         register_settings_instance(Settings())
 
     def setUp(self):
-        self._browser_context = WebdriverManager().enter_level(level=SINGLE_TEST_LIFE, name=__name__)
-        self.browser = self._browser_context.__enter__()
+        self.browser = SimpleXpathBrowser()
 
     def tearDown(self):
-        # Make sure we quit browser created for the specific test
-        # If for some reason you would like to inspect the browser
-        # add a pause here with ipdb or pdb eg: import pdb; pdb.set_trace()
-        self._browser_context.__exit__()
+        del self.browser
 
     def test_duckduckgo(self):
         self.browser.get_url('https://duckduckgo.com/')
@@ -42,6 +30,4 @@ class NewBrowserPerTest(unittest.TestCase):
 
 
 if __name__ == "__main__":
-    logging.basicConfig()
-    #logging.getLogger().setLevel(logging.DEBUG)
     unittest.main()

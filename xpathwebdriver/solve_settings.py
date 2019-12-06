@@ -108,7 +108,11 @@ def register_settings(settings_path):
 
 
 def _register_settings_module(mod):
-    register_settings_instance(mod.Settings())
+    if hasattr(mod, 'Settings'):
+        settings_cls = mod.Settings
+    else:
+        settings_cls = mod.DefaultSettings
+    register_settings_instance(settings_cls())
 
 
 global_settings = None
