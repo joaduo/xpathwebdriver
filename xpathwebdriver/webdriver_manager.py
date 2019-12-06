@@ -142,7 +142,7 @@ class WebdriverManager(XpathWdBase):
         kwargs = kwargs or {}
         browser = self.expand_browser_name(browser)
         # Setup display before creating the browser
-        self.setup_display()
+        self.start_display()
         if (level == SURVIVE_PROCESS
         and self.global_settings.get('webdriver_remote_command_executor')
         and self.global_settings.get('webdriver_remote_session_id')):
@@ -268,7 +268,7 @@ class WebdriverManager(XpathWdBase):
         return True
 
     @synchronized(_methods_lock)
-    def setup_display(self):
+    def start_display(self):
         '''
         Create virtual display if set by configuration
         '''
