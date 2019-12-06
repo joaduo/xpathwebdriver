@@ -1,7 +1,7 @@
 '''
 For running this test you need to first dump credentials.json
 Can be done with command:
-    xpathshell -d examples/credentials.json
+    xpathshell -d path/to/dumped/credentials.json
 '''
 import unittest
 from xpathwebdriver.default_settings import Settings
@@ -12,7 +12,7 @@ from xpathwebdriver.webdriver_manager import WebdriverManager
 class Settings(Settings):
     webdriver_browser = 'Chrome'
     webdriver_browser_keep_open = True
-    webdriver_remote_credentials_path = 'credentials.json'
+    webdriver_remote_credentials_path = 'path/to/dumped/credentials.json'
 
     #Alternatively instead of providing a path, you can directly paste executor url and session id
     #here. (remember to comment webdriver_remote_credentials_path line, or values below will be overriden)
