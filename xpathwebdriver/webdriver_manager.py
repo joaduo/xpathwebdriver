@@ -63,6 +63,12 @@ class WebdriverManager(XpathWdBase):
 
     @synchronized(_methods_lock)
     def enter_level(self, level=None, base_url=None, name='', browser_name=None):
+        '''
+        :param level: webdriver's level of life we are entering
+        :param base_url: optional set a base url for the browser (to specify paths)
+        :param name: optional level's name (mainly for logging purposes)
+        :param browser_name: optional browser name string (eg: 'Firefox', 'Chrome', 'PhantomJs')
+        '''
         if not level:
             # There is no level declared, so it will be only valid for the life
             # of the context (assuming "with manager.enter_level() as browser: ..." etc)
@@ -73,6 +79,9 @@ class WebdriverManager(XpathWdBase):
 
     @synchronized(_methods_lock)
     def exit_level(self, level):
+        '''
+        :param level: webdriver's level of life we are exiting
+        '''
         def quit_wdriver(wdriver, container):
             _, drv_level = self._wdriver_pool[wdriver]
             if self._quit_failed_webdriver(wdriver):
