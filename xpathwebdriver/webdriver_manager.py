@@ -74,6 +74,8 @@ class WebdriverManager(XpathWdBase):
             # of the context (assuming "with manager.enter_level() as browser: ..." etc)
             level = self._current_context_level
             self._current_context_level -= 1
+        else:
+            assert 0 < level, 'Negative life levels are reserved for automatic decresing levels'
         self.init_level(level, browser_name)
         return BrowserContextManager(self, level, base_url, name)
 
