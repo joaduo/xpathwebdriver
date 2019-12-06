@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 '''
-Smoothtest
+xpathwebdriver
 Copyright (c) 2014 Juju. Inc
 
 Code Licensed under MIT License. See LICENSE file.
@@ -100,7 +100,7 @@ def register_settings(settings_path):
     '''
     if isinstance(settings_path, str):
         # http://stackoverflow.com/questions/67631/how-to-import-a-module-given-the-full-path
-        mod = imp.load_source('specific_smoothtest_settings', settings_path)
+        mod = imp.load_source('specific_xpathwebdriver_settings', settings_path)
         _register_settings_module(mod)
     else:
         register_settings_instance(settings_path)
@@ -141,7 +141,7 @@ def solve_settings():
 
 def _solve_settings(default_mod):
     '''
-    Main function for getting smoothtest global settings.
+    Main function for getting xpathwebdrivertest global settings.
     #TODO: this goes against any Encapsulated Environment Pattern (context)
     '''
     global global_settings

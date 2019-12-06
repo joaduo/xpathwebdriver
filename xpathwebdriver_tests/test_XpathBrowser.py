@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 '''
-Smoothtest
+xpathwebdriver
 Copyright (c) 2015 Juju. Inc
 
 Code Licensed under MIT License. See LICENSE file.
@@ -41,7 +41,7 @@ class WebUnitTestBase(unittest.TestCase):
         kwargs.update(locals())
         html = templ.format(**kwargs)
         if not self._tempdir:
-            self._tempdir = tempfile.mkdtemp(prefix='smoothtest')
+            self._tempdir = tempfile.mkdtemp(prefix='xpathwebdriver')
         path = os.path.join(self._tempdir, name + '.html')
         # Create html page in temporary dir
         with open(path, 'w') as fh:

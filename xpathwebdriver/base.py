@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 '''
-Smoothtest
+xpathwebdriver
 
 Copyright (c) 2014, Juju inc.
 Copyright (c) 2011-2013, Joaquin G. Duo

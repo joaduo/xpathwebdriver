@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 '''
-Smoothtest
+xpathwebdriver
 Copyright (c) 2015 Juju. Inc
 
 Code Licensed under MIT License. See LICENSE file.
@@ -101,8 +101,8 @@ class XpathBrowser(object):
         :param base_url: common base url (e.g: http://example.com, http://example.com/some/common/path) 
             Used to build URL for all methods accepting the "path" argument. 
         :param webdriver: selenium's webdriver object (connected to Firefox, Chrome, etc...)
-        :param logger: You can optionally pass a smoothtest.Logger instance (or a child class's instance)  
-        :param settings: smoothtest settings object.
+        :param logger: You can optionally pass a xpathwebdriver.Logger instance (or a child class's instance)  
+        :param settings: xpathwebdriver settings object.
         '''
         self.log = logger or Logger(self.__class__.__name__)
         assert webdriver, 'You must provide a webdriver'

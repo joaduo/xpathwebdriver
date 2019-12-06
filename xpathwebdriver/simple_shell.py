@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 '''
-Smoothtest
+xpathwebdriver
 Copyright (c) 2015 Juju. Inc
 
 Code Licensed under MIT License. See LICENSE file.

@@ -3,7 +3,7 @@
 
 # Browser survives across processes (INMORTAL_LIFE is deprecated name)
 SURVIVE_PROCESS = INMORTAL_LIFE = 5
-# Browser is alive as long as the smoothtest process is running
+# Browser is alive as long as the python process is running
 PROCESS_LIFE = 4
 # Browser is alive as long as the WebdriverManager is not deleted (TEST_RUNNER_LIFE is deprecated name)
 MANAGER_LIFE = TEST_RUNNER_LIFE = 3

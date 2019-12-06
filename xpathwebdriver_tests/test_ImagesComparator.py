@@ -1,12 +1,11 @@
 # -*- coding: utf-8 -*-
 '''
-Smoothtest
+xpathwebdriver
 Copyright (c) 2015 Juju. Inc
 
 Code Licensed under MIT License. See LICENSE file.
 '''
 import unittest
-#from smoothtest.webunittest.ImagesComparator import ImagesComparator
 import os
 from xpathwebdriver.ImagesComparator import ImagesComparator
 

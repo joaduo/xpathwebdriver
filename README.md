@@ -93,7 +93,7 @@ class SearchEnginesDemo(unittest.TestCase):
     def test_duckduckgo(self):
         # Load a local page for the demo
         self.browser.get_url('https://duckduckgo.com/')
-        # Type smoothtest and press enter
+        # Type xpathwebdriver and press enter
         self.browser.fill(".//*[@id='search_form_input_homepage']", 'xpathwebdriver\n')
 ```
 
