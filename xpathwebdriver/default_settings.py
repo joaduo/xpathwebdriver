@@ -23,6 +23,7 @@ class DefaultSettings(BaseSettings):
     virtual_display_enabled = False # Use virtual display
     virtual_display_visible = False # Show the virtual display or may be hidden (for headless testing)
     virtual_display_backend = ConfigVar(None, parser=str) # 'xvfb', 'xvnc' or 'xephyr', if set then ignores `virtual_display_visible`
+    virtual_display_backend_kwargs = {}
     virtual_display_size = ConfigVar((800, 600), parser=eval) # Dimensions of the virtual display
     virtual_display_keep_open = False # If we want to check results (useful whe combined with webdriver_browser_keep_open)
 

@@ -276,8 +276,9 @@ class WebdriverManager(XpathWdBase):
             return self.global_settings.get('virtual_display_' + name, default)
         if get('enabled') and not self._virtual_display:
             # We need to setup a new virtual display
+            kwargs = get('backend_kwargs') or {}
             display = Display(backend=get('backend'), size=get('size', (800, 600)),
-                    visible=get('visible'))
+                    visible=get('visible'), **kwargs)
             self.log.d('Starting virtual display %r', display)
             display.start()
             self._virtual_display = display
