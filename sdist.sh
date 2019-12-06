@@ -8,7 +8,7 @@ app="xpathwebdriver"
 
 rm dist/$app\-*.tar.gz
 
-python setup.py sdist && python setup.py check -r
+python setup.py sdist && twine check dist/$app\-*.tar.gz
 
 if [ "$1" == "venv" ] ;  then
 	#test installation
