@@ -274,19 +274,13 @@ class WebdriverManager(XpathWdBase):
         '''
         def get(name, default=None):
             return self.global_settings.get('virtual_display_' + name, default)
-        if not get('enabled'):
-            if self._virtual_display:
-                self.log.w('There is a display enabled although config says'
-                           ' different')
-            return
-        elif self._virtual_display:
-            # There is a display configured
-            return
-        # We need to setup a new virtual display
-        d = Display(backend=get('backend'), size=get('size', (800, 600)),
-                visible=get('visible'))
-        d.start()
-        self._virtual_display = d
+        if get('enabled') and not self._virtual_display:
+            # We need to setup a new virtual display
+            display = Display(backend=get('backend'), size=get('size', (800, 600)),
+                    visible=get('visible'))
+            self.log.d('Starting virtual display %r', display)
+            display.start()
+            self._virtual_display = display
 
     @synchronized(_methods_lock)
     def stop_display(self):
@@ -298,9 +292,9 @@ class WebdriverManager(XpathWdBase):
         if ((not self.global_settings.get('virtual_display_keep_open')
              or not self.global_settings.get('virtual_display_visible'))
                 and display):
-            self.log.d('Stopping virtual display %r' % display)
+            self.log.d('Stopping virtual display %r', display)
             display.stop()
-            WebdriverManager._virtual_display = None
+            self._virtual_display = None
 
     @synchronized(_methods_lock)
     def list_webdrivers(self, which='all'):
