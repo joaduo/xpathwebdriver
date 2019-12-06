@@ -49,27 +49,26 @@ class WebdriverManager(XpathWdBase):
         self._wdriver_pool = {}
         # Virtual display object where we start webdrivers
         self._virtual_display = None
-        # Current selected browser
-        self._browser_name = None
+        # Any browser without specified level
+        self._current_context_level = -1
         if (self.global_settings.get('webdriver_browser_keep_open')
         or (self.global_settings.get('webdriver_remote_command_executor')
             and self.global_settings.get('webdriver_remote_session_id'))):
             # Start a never killed process
             self.init_level(SURVIVE_PROCESS)
-        self._current_context_level = -1
 
     @property
     def enabled(self):
         return self.global_settings.get('webdriver_enabled')
 
     @synchronized(_methods_lock)
-    def enter_level(self, level=None, base_url=None, name=''):
+    def enter_level(self, level=None, base_url=None, name='', browser_name=None):
         if not level:
             # There is no level declared, so it will be only valid for the life
             # of the context (assuming "with manager.enter_level() as browser: ..." etc)
             level = self._current_context_level
             self._current_context_level -= 1
-        self.init_level(level)
+        self.init_level(level, browser_name)
         return BrowserContextManager(self, level, base_url, name)
 
     @synchronized(_methods_lock)
@@ -92,7 +91,7 @@ class WebdriverManager(XpathWdBase):
             quit_wdriver(wdriver, self._locked)
 
     @synchronized(_methods_lock)
-    def init_level(self, level):
+    def init_level(self, level, browser_name=None):
         '''
         Initialize webdriver for a specific Life Level.
         There are two possibilities:
@@ -107,22 +106,22 @@ class WebdriverManager(XpathWdBase):
         # Get rid of non-responding browsers
         self.quit_all_failed_webdrivers()
         # Get the set of released webdrivers for the selected browser
-        released = self.get_available_set()
+        released = self.get_available_set(browser_name)
         # If no webdriver available, then create a new one 
         if not released:
             # Create webdriver if needed
-            browser = self.get_browser_name()
+            browser = self.get_browser_name(browser_name)
             wdriver = self._new_webdriver(browser, level)
             self._wdriver_pool[wdriver] = browser, level
             self._released.add(wdriver)
 
     @synchronized(_methods_lock)
-    def get_available_set(self):
+    def get_available_set(self, browser_name):
         '''
         Return the set of avialable webdrivers for the current Browser selected
         (in global configuration)
         '''
-        browser = self.get_browser_name()
+        browser = self.get_browser_name(browser_name)
         browser_set = set([wdriver
                            for wdriver,(brws,_) in self._wdriver_pool.items()
                            if brws == browser])
@@ -183,11 +182,11 @@ class WebdriverManager(XpathWdBase):
         kwargs['service_args'] = service_args
 
     @synchronized(_methods_lock)
-    def acquire_driver(self, level):
+    def acquire_driver(self, level, browser_name=None):
         if not self.enabled:
             return None
-        self.init_level(level)
-        wdriver = self.get_available_set().pop()
+        self.init_level(level, browser_name)
+        wdriver = self.get_available_set(browser_name).pop()
         # Keep track of acquired webdrivers in case we need to close them
         self._locked.add(wdriver)
         self._released.remove(wdriver)
@@ -315,21 +314,13 @@ class WebdriverManager(XpathWdBase):
             wdrivers_report[wdriver] = browser, level
         return wdrivers_report
 
-    @synchronized(_methods_lock)
-    def set_browser(self, browser):
-        '''
-        :param browser: browser's name string
-        '''
-        assert browser
-        self._browser_name = browser
-
-    def get_browser_name(self):
+    def get_browser_name(self, browser_name=None):
         '''
         Get the current browser name in usage
         If not set, we use the one specified in global settings
         or PhantomJS as the final default
         '''
-        browser = (self._browser_name
+        browser = (browser_name
                    or self.global_settings.get('webdriver_browser'))
         return self.expand_browser_name(browser)
 
@@ -356,12 +347,13 @@ class WebdriverManager(XpathWdBase):
 
 
 class BrowserContextManager(XpathWdBase):
-    def __init__(self, parent, level, base_url=None, name=''):
+    def __init__(self, parent, level, base_url=None, name='', browser_name=None):
         self.parent = parent
         self.level = level
         self.base_url = base_url
         self.name = name
         self.webdriver = None
+        self.browser_name = browser_name
         
     def __enter__(self):
         return self.get_xpathbrowser()
@@ -372,7 +364,7 @@ class BrowserContextManager(XpathWdBase):
 
     def acquire_driver(self):
         if not self.webdriver:
-            self.webdriver = self.parent.acquire_driver(self.level)
+            self.webdriver = self.parent.acquire_driver(self.level, self.browser_name)
         return self.webdriver
 
     def get_xpathbrowser(self, base_url=None, name=''):
