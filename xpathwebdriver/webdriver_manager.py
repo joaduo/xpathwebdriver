@@ -112,7 +112,7 @@ class WebdriverManager(XpathWdBase):
         if not self.enabled:
             return
         # level is mandatory
-        assert level and level <= SURVIVE_PROCESS, 'Not a browser level'
+        assert level and level <= SURVIVE_PROCESS, 'Not a browser level %s' % level
         # Get rid of non-responding browsers
         self.quit_all_failed_webdrivers()
         # Get the set of released webdrivers for the selected browser
