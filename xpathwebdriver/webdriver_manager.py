@@ -34,8 +34,7 @@ def synchronized(lock):
 @singleton_decorator
 class WebdriverManager(XpathWdBase):
     '''
-    This is a "Context Manager" for the Webdriver's instances available. (used
-    for running tests in general)
+    This is a Global Manager for the Webdriver's instances available.
     '''
     # Thread lock for methods in this class
     _methods_lock = RLock()
