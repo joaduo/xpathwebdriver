@@ -10,6 +10,18 @@ The main difference is that you can use use XPaths like:
 ```
 
 Which will return you a string, something webdriver API makes more complicated.
+Means you can write all your tests based on XPath without having to do heavy python manipulation
+of the resulting objects.
+
+Also adds:
+
+- Interactive shell for testing XPath manually and easily
+- Virtual display management
+- Multiple browser management
+- Browser life management (wether to keep the browser open or kill it on exit)
+- Useful settings for local and remote (headless) testing
+  - Also supports environment variables as settings
+- Screenshots comparison and diff management
 
 ## Quick install
 
@@ -23,7 +35,9 @@ pip install xpathwebdriver
    https://chromedriver.chromium.org/downloads
 4. That generally should work on a modern Linux System (not tested but should also work on other oses).
    Try example below
-5. For image comparison `pip install Pillow` and install `findimagedupes` and `imagemagick` packages for your OS
+5. For image comparison install `pip install Pillow`,  `findimagedupes` and `imagemagick` packages for your OS. (they are not automatically installed to keep basic requirments low)
+   On ubuntu: `sudo apt install imagemagick findimagedupes`
+6. For interactive shell install `pip install ipython`
 
 Check "Installing Selenium" section for other browsers and details.
 
@@ -45,7 +59,7 @@ for idx, elem in enumerate(browser.select_css('.result__title')):
 
 ## IPython interactive shell
 
-For a faster development cycles you can run an interactive shell which will let access the browser API. First install ipython `pip install ipython` (it's not mandatory to keep requirements small in non dev environment)
+For a faster development and debugging cycles you can run an interactive shell which will let access the browser. First install ipython `pip install ipython` (not automatically installed to keep basic requirements low)
 
 Then you can run the `xpathshell` in your terminal. You should see something like:
 
@@ -62,10 +76,9 @@ INFO 05:53:35:  Current url: https://github.com/joaduo/xpathwebdriver/
 
 ```
 
-Pass the url in the command arguments too. Eg: `xpathshell duckduckgo.com`
+Or pass the url in the command arguments. Eg: `xpathshell github.com/joaduo/xpathwebdriver/`
 
-On IPython you can enter `browser.select_xpath?` to get documentation on `select_xpath` method.
-This way you can access API docs.
+Inside IPython you can enter `browser.select_xpath?` to get documentation and can access API docs.
 
 More `XpathBrowser` details at:
 
