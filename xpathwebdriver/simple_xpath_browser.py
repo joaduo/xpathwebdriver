@@ -17,7 +17,7 @@ class SimpleXpathBrowser(XpathBrowser):
     and you don't require complex browser leveling.
 
     In the context of several test you probably prefer a context manager.
-    That way you will save te overhead of creatin a new browser each time.
+    That way you will save the overhead of creating a new browser each time.
     Check examples using unit test setup/setupClass teardDown/tearDownClass.
     '''
     def __init__(self, base_url=None, logger=None, settings=None, level=None):

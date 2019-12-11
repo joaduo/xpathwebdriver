@@ -16,7 +16,7 @@ class DefaultSettings(BaseSettings):
     xpathbrowser_wait_timeout = 2
     xpathbrowser_default_scheme = 'http'
     xpathbrowser_paths_like_html = True # when using a relative path if starting with "/" means relative to the root of the server
-                                        # if set to False, means all paths are appended to _base_url no matter what
+                                        # if set to False, means all paths are appended to base_url no matter what
 
     # Virtual display is useful to keep the webdriver browser contained
     # avoiding the browser to pop-up abover other windows (with alerts for example)

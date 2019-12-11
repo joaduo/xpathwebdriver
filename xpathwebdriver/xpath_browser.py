@@ -255,7 +255,7 @@ class XpathBrowser(object):
 
             def condition(xbrowser):
                # We want to know if the email was loaded
-               return xbrowser.extract_xsingle('//a[@id="EmailSubject"]') == u'Welcome to our service'
+               return xbrowser.select_xsingle('//a[@id="EmailSubject"]') == u'Welcome to our service'
 
           - a string javascript function, eg:
             """
@@ -268,7 +268,7 @@ class XpathBrowser(object):
         If you don't supply any condition, then this default javascript condition
         will be used:
             return "complete" == document.readyState;
-            
+
         Sometimes that condition is not good enough, so you may use a python
         function or a javascript condition to be sure you got the page/result
         loaded.
@@ -516,8 +516,7 @@ function extract_element(elem){
 
     def wipe_alerts(self, timeout=0.5):
         '''
-        Wipe browser's alert dialogs. Useful for unblocking webdriver. 
-        (Although using alert dialogs in a webpage is not recommended)
+        Wipe browser's alert dialogs. Useful for unblocking webdriver.
 
         :param timeout: max wait for alert in second (default=0.5)
         '''
