@@ -15,13 +15,14 @@ of the resulting objects.
 
 Also adds:
 
-- Interactive shell for testing XPath manually and easily
-- Virtual display management
+- Interactive shell for testing XPath manually and easily against a live browser
 - Multiple browser management
 - Browser life management (wether to keep the browser open or kill it on exit)
 - Useful settings for local and remote (headless) testing
   - Also supports environment variables as settings
 - Screenshots comparison and diff management
+- Virtual display management (so you cah run "headless" in a remote instance)
+  - you can use VNC to access the remote Browser
 
 ## Quick install
 
