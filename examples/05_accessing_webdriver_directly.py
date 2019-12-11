@@ -16,7 +16,7 @@ class DuckDuckTest(unittest.TestCase):
 
     def test_duckduckgo(self):
         with WebdriverManager().enter_level() as browser:
-            driver = browser.get_driver()
+            driver = browser.driver
             driver.get('https://duckduckgo.com')
             element = driver.find_element_by_id('search_form_input_homepage')
             element.send_keys('Example')
