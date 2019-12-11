@@ -8,24 +8,20 @@ Code Licensed under MIT License. See LICENSE file.
 import rel_imp; rel_imp.init()
 from argparse import ArgumentParser, FileType
 from .logger import Logger
-from .simple_xpath_browser import SimpleXpathBrowser
+from .browser import Browser
 from .base import CommandMixin
 from .solve_settings import solve_settings
 import json
+import os
+
 
 logger = Logger(color=True)
 
-class ShellXpathBrowser(SimpleXpathBrowser):
+
+class ShellBrowser(Browser):
     def get_url(self, url, condition=None):
-        SimpleXpathBrowser.get_url(self, url, condition=condition)
+        Browser.get_url(self, url, condition=condition)
         self.log.i(" Current url: %s" % self.current_url())
-
-
-def get_credentials_str(browser):
-    cred = '\n\n'
-    for k,v in browser.get_remote_credentials().items():
-        cred += '  %s=%r\n' % (k,v)
-    return cred
 
 
 def dump_credentials(browser, dump_file):
@@ -42,26 +38,24 @@ def embed(args):
     ipdb_msg = ('Could not embed ipdb, falling back to pdb'
                 ' shell. Exception: %r')
     if args.environment_variables:
+        print('\n# Available environment variables to override configuration (current values if declared): \n')
         for n in sorted(solve_settings()._get_config_vars().keys()):
-            print('%s=' % n)
+            print('%s=%s' % (n, os.environ.get(n,'')))
+        print()
         return
-    b = browser = ShellXpathBrowser(logger=logger)
+    b = browser = ShellBrowser(logger=logger)
     if args.dump_credentials:
         dump_credentials(browser, args.dump_credentials)
     if args.url:
         b.get(args.url)
     display_banner = ("XpathBrowser in 'b' or 'browser' variables\n"
                       " Current url: %s" % b.current_url())
-    if args.print_credentials:
-        display_banner += get_credentials_str(browser)
     try:
         from IPython.terminal.embed import InteractiveShellEmbed
         # Now create the IPython shell instance. Put ipshell() anywhere in your code
         # where you want it to open.
         ipshell = InteractiveShellEmbed(banner2=display_banner)
         ipshell()
-        del b
-        del browser
     except Exception as e:
         logger.w(ipython_msg % e)
         try:
@@ -71,6 +65,8 @@ def embed(args):
             logger.e(ipdb_msg % e)
             import pdb
             pdb.set_trace()
+    finally:
+        del browser, b
 
 
 class XpathShellCommand(CommandMixin):
@@ -91,12 +87,6 @@ class XpathShellCommand(CommandMixin):
         args = self.get_parser().parse_args(argv)
         self._process_common_args(args)
         embed(args)
-
-
-def smoke_test_module():
-    XpathShellCommand()
-    b = ShellXpathBrowser()
-    b.get('http://localhost')
 
 
 def main(argv=None):
