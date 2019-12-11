@@ -10,16 +10,27 @@ rm dist/$app\-*.tar.gz
 
 python setup.py sdist && twine check dist/$app\-*.tar.gz
 
+function test_venv(){
+    #test installation
+    mkdir venv -p
+    cd venv
+    virtualenv -p python3 ./
+    source bin/activate
+    pip install ../dist/$app\-*.tar.gz
+    pip uninstall $app -y
+    cd ..
+    #rm venv -Rf
+}
+
+function full_tests(){
+    echo WIP
+}
+
 if [ "$1" == "venv" ] ;  then
-	#test installation
-	mkdir venv -p
-	cd venv
-	virtualenv -p python3 ./
-	source bin/activate
-	pip install ../dist/$app\-*.tar.gz
-	pip uninstall $app -y
-	cd ..
-	#rm venv -Rf
+test_venv
+elif [ "$1" == "full" ] ;  then
+test_venv
+full_tests
 fi
 
 pkg=`ls dist/$app\-*.tar.gz`
