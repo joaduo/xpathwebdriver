@@ -43,11 +43,11 @@ for idx, elem in enumerate(browser.select_css('.result__title')):
     print(idx, elem.text)
 ```
 
-## Running xpathshell
+## IPython interactive shell
 
-Install `pip install ipython`
+For a faster development cycles you can run an interactive shell which will let access the browser API. First install ipython `pip install ipython` (it's not mandatory to keep requirements small in non dev environment)
 
-Then you can run the `xpathshell` command:
+Then you can run the `xpathshell` in your terminal. You should see something like:
 
 ```
 $ xpathshell
@@ -62,13 +62,12 @@ INFO 05:53:35:  Current url: https://github.com/joaduo/xpathwebdriver/
 
 ```
 
-Or directly from the command line
+Pass the url in the command arguments too. Eg: `xpathshell duckduckgo.com`
 
-```
-xpathshell duckduckgo.com
-```
+On IPython you can enter `browser.select_xpath?` to get documentation on `select_xpath` method.
+This way you can access API docs.
 
-You can check `XpathBrowser` api at:
+More `XpathBrowser` details at:
 
 * https://github.com/joaduo/xpathwebdriver/blob/master/BrowserAPI.md
 * https://github.com/joaduo/xpathwebdriver/blob/master/xpathwebdriver/xpath_browser.py
