@@ -445,23 +445,31 @@ function extract_element(elem){
         return result
 
     def has_xpath(self, xpath):
+        self.log.w('DEPRECATED METHOD has_xpath')
+        return self.valid_xpath(xpath)
+
+    def valid_xpath(self, xpath):
         '''
         Returns True if xpath is present (won't check if it has content)
 
         :param xpath: xpath's string eg:"/div[@id='example']/text()"
         '''
-        return self._has_xpath(xpath, single=False)
+        return self._valid_xpath(xpath, single=False)
 
     def has_xsingle(self, xpath):
+        self.log.w('DEPRECATED METHOD has_xpath')
+        return self.valid_xsingle(xpath)
+
+    def valid_xsingle(self, xpath):
         '''
         Returns True if xpath is present AND there is at least 1 
         node in the resulting selection.
 
         :param xpath: xpath's string eg:"/div[@id='example']/text()"
         '''
-        return self._has_xpath(xpath, single=True)
+        return self._valid_xpath(xpath, single=True)
 
-    def _has_xpath(self, xpath, single):
+    def _valid_xpath(self, xpath, single):
         '''
         Returns True if xpath exists. 
         
@@ -470,7 +478,8 @@ function extract_element(elem){
             xpath selection.
         '''
         try:
-            return bool(self._select_xpath(xpath, single))
+            self._select_xpath(xpath, single)
+            return True
         except LookupError:
             return False
 

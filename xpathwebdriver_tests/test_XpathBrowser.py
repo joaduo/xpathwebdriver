@@ -73,10 +73,9 @@ class WebUnitTestBase(unittest.TestCase):
 class TestXpathBrowser(WebUnitTestBase):
     '''
     TODO:
-    - test select/has/extract 
+    - test valid_*
     - get_url (with condition)
     - get_path (with condition)
-    - test wait
     '''
 
     def test_fill(self):
