@@ -112,6 +112,10 @@ class XpathBrowser(object):
         self._base_url = base_url
         self._wait_timeout = self.settings.get('xpathbrowser_wait_timeout', 2)
 
+    @property
+    def driver(self):
+        return self.get_driver()
+
     def set_base_url(self, base_url):
         '''
         Set base URL. (in order to build full URLs passing the path eg: browser.get_page('/path/page.html'))
@@ -131,6 +135,7 @@ class XpathBrowser(object):
     def get_driver(self):
         '''
         Return selenium's webdriver instance
+        Or you can directly access it via browser.driver attribute
         '''
         assert self._driver, 'driver was not initialized'
         return self._driver
