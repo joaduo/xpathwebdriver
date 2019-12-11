@@ -1,7 +1,7 @@
 import unittest
 from xpathwebdriver.default_settings import DefaultSettings
 from xpathwebdriver.solve_settings import register_settings_instance
-from xpathwebdriver.simple_xpath_browser import SimpleXpathBrowser
+from xpathwebdriver.browser import Browser
 
 
 class Settings(DefaultSettings):
@@ -15,7 +15,7 @@ class NewBrowserPerTest(unittest.TestCase):
         register_settings_instance(Settings())
 
     def setUp(self):
-        self.browser = SimpleXpathBrowser()
+        self.browser = Browser()
 
     def tearDown(self):
         del self.browser

@@ -8,4 +8,4 @@ Code Licensed under MIT License. See LICENSE file.
 from .browser import Browser
 
 #Backward compatibility
-SimpleXpathBrowser = Browser
+Browser = Browser

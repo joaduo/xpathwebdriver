@@ -44,9 +44,9 @@ Check "Installing Selenium" section for other browsers and details.
 ## Example
 
 ```python
-from xpathwebdriver.simple_xpath_browser import SimpleXpathBrowser
+from xpathwebdriver.browser import Browser
 
-browser = SimpleXpathBrowser()
+browser = Browser()
 browser.get_url('https://duckduckgo.com/')
 browser.fill(".//*[@id='search_form_input_homepage']", 'xpathwebdriver\n')
 # Using xpath that returns text
@@ -91,12 +91,12 @@ More `XpathBrowser` details at:
 
 ```python
 import unittest
-from xpathwebdriver.simple_xpath_browser import SimpleXpathBrowser
+from xpathwebdriver.browser import Browser
 
 class SearchEnginesDemo(unittest.TestCase):
     def setUp(self):
         # Get Xpath browser
-        self.browser = SimpleXpathBrowser()
+        self.browser = Browser()
 
     def tearDown(self):
         # Make sure we quit those webdrivers created in this specific "level of life"

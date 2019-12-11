@@ -1,10 +1,10 @@
 import unittest
-from xpathwebdriver.simple_xpath_browser import SimpleXpathBrowser
+from xpathwebdriver.browser import Browser
 
 
 class DuckDuckBasic(unittest.TestCase):
     def setUp(self):
-        self.browser = SimpleXpathBrowser()
+        self.browser = Browser()
 
     def tearDown(self):
         # Make sure we quit browser
