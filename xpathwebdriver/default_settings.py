@@ -10,51 +10,112 @@ import logging
 
 
 class DefaultSettings(BaseSettings):
-    # Server to be tested URL eg: http://www.example.com 
-    base_url = None
+    base_url = ConfigVar(
+        doc='specifies the root URL string to build other relative URLs upon',
+        default=None)
 
-    xpathbrowser_wait_timeout = 2
-    xpathbrowser_default_scheme = 'http'
-    xpathbrowser_paths_like_html = True # when using a relative path if starting with "/" means relative to the root of the server
-                                        # if set to False, means all paths are appended to base_url no matter what
+    # XpathBrowser related settings
+    xpathbrowser_wait_timeout = ConfigVar(
+        doc='Time multiplier factor (in seconds) for waiting related functions',
+        default=2)
+    xpathbrowser_default_scheme = ConfigVar(
+        doc='When resolving a URL without scheme, what scheme (protocol) to default to',
+        default='http')
+    xpathbrowser_paths_like_html = ConfigVar(
+        doc='When using a relative path if starting with "/" means relative to the root of the server.'
+            'If set to False, means all paths are appended to base_url no matter what',
+        default=True)
 
-    # Virtual display is useful to keep the webdriver browser contained
-    # avoiding the browser to pop-up abover other windows (with alerts for example)
-    # Most options will match those of pyvirtualdisplay.Display class, so check:
+    # Virtual display, most options similar to pyvirtualdisplay.Display class:
     # https://pyvirtualdisplay.readthedocs.io/en/latest/#usage
-    virtual_display_enabled = False # Use virtual display
-    virtual_display_visible = False # Show the virtual display or may be hidden (for headless testing)
-    virtual_display_backend = ConfigVar(None, parser=str) # 'xvfb', 'xvnc' or 'xephyr', if set then ignores `virtual_display_visible`
-    virtual_display_backend_kwargs = {} # passed to the backend class
-    virtual_display_size = ConfigVar((800, 600), parser=eval) # Dimensions of the virtual display
-    virtual_display_keep_open = False # If we want to check results (useful whe combined with webdriver_browser_keep_open)
+    virtual_display_enabled = ConfigVar(
+        doc='If True use virtual display',
+        default=False)
+    virtual_display_visible = ConfigVar(
+        doc='Show the virtual display in the current display (ignored if backend is set)',
+        default=False)
+    virtual_display_backend = ConfigVar(
+        doc="'xvfb', 'xvnc' or 'xephyr', if set then ignores `virtual_display_visible`",
+        default=None,
+        parser=str)
+    virtual_display_backend_kwargs = ConfigVar(
+        doc='**kwargs passed to the virtualdisplay backend class.'
+        'Useful for passing rfbauth= file location to xvnc',
+        default={},
+        parser=eval)
+    virtual_display_size = ConfigVar(
+        doc='Dimensions in pixels of the virtual display',
+        default=(800, 600),
+        parser=eval)
+    virtual_display_keep_open = ConfigVar(
+        doc='Keep virtual display open after process finishes. (for debugging purposes)',
+        default=False)
 
-    webdriver_browser = 'Chrome' # Which browser we would like to use webdriver with: Firefox, Chrome, PhantomJs, etc...
-    webdriver_browser_keep_open = False # Keep browser open after python process is dead
-    webdriver_pool_size = 1
+    # Webdriver related settings
+    webdriver_browser =  ConfigVar(
+        doc='Webdriver\'s browser: Firefox, Chrome, PhantomJs, etc...',
+        default='Chrome')
+    webdriver_browser_keep_open = ConfigVar(
+        doc='Keep browser open after process finishes. (for debugging purposes)',
+        default=False)
+    webdriver_pool_size = ConfigVar(
+        doc='The pool size of open Browsers',
+        default=1)
+    webdriver_browser_kwargs = ConfigVar(
+        doc='**kwargs passed to the webrivers browser class',
+        default={},
+        parser=eval)
+    webdriver_firefox_profile = ConfigVar(
+        doc="Specify firefox's profile path Eg: '/home/<user>/.mozilla/firefox/4iyhtofy.xpathwebdriver'",
+        default=None,
+        parser=str)
 
-    #Remote driver/reuse open driver
-    webdriver_remote_command_executor = '' # Manually provide the url for the driver eg: 'http://127.0.0.1:54551'
-    webdriver_remote_session_id = ''       # Manually provide session id for reusage eg: '4aed25f4a5ce78bb7d57c19663110b3c'
-    webdriver_remote_credentials_path = '' # Path to json file containing previous 2 key above (eg:dumped by "xpathshell -d <path>.json")
+    #Remote driver related settings
+    webdriver_remote_credentials_path = ConfigVar(
+        doc='Path to json file containing remote credentials (as dumped by "xpathshell -d path/to/credentials.json")',
+        default=None,
+        parser=str)
+    webdriver_remote_command_executor = ConfigVar(
+        doc='Instead of credentials path, manually provide the url for the driver eg: "http://127.0.0.1:54551"',
+        default=None,
+        parser=str)
+    webdriver_remote_session_id =  ConfigVar(
+        doc='Instead of credentials path, manually provide session id for reusage eg: "4aed25f4a5ce78bb7d57c19663110b3c"',
+        default=None,
+        parser=str)
 
-    #webdriver_browser_life DEPRECATED, never used in code
+    #Screenhot related settings
+    screenshot_level = ConfigVar(
+        doc='Similar to text logging level, but for screenshots (WIP)',
+        default=logging.INFO,
+        parser=str,
+        experimental=True)
+    screenshot_exceptions_dir = ConfigVar(
+        doc='When an exception occurs during a test, where to save screenshots to',
+        default='/tmp/', #FIXME
+        parser=str)
+    assert_screenshots_dir = ConfigVar(
+        doc='When asserting/comparing an screenshot where to save taken screenshots to',
+        default='/tmp/', #FIXME
+        parser=str)
+    assert_screenshots_learning = ConfigVar(
+        doc='If True means we take current screenshot as valid for future comparisons',
+        default=False)
+    assert_screenshots_failed_dir = ConfigVar(
+        doc='When asserting/comparing an screenshot where to save failing screenshots to',
+        default='/tmp/', #FIXME
+        parser=str)
 
-    # Browsers profiles
-    # Eg: '/home/<user>/.mozilla/firefox/4iyhtofy.webdriver_autotest' on linux
-    # or: 'C:/Users/<user>/AppData/Roaming/Mozilla/Firefox/Profiles/c1r3g2wi.default' on windows
-    webdriver_firefox_profile = None
-
-    screenshot_level = 0 # Like a text logging level, but doing screenshots (WIP) 
-                        # Higher level-> more screenshots per action
-    screenshot_exceptions_dir = './' # Were to save logged screenshot
+    log_level_default = ConfigVar(
+        doc='Log level of xpathwebdriver messages',
+        default=logging.INFO,
+        experimental=True)
     
-    assert_screenshots_dir = '/tmp/'
-    assert_screenshots_learning = False
-    assert_screenshots_failed_dir = '/tmp/'
+    log_color = ConfigVar(
+        doc='If True use colors in logging messages (not working?)',
+        default=logging.INFO,
+        experimental=True)
 
-    log_level_default = logging.INFO
-    log_color = False # Not working on Python 3
 
 # Soon to be deprecated
 Settings = DefaultSettings

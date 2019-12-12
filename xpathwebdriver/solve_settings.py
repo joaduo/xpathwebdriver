@@ -17,11 +17,12 @@ logger = logging.getLogger('solve_settings')
 
 
 class ConfigVar(object):
-    def __init__(self, value, parser=None, doc=''):
-        self.value = value
-        self.parser = parser or self._solve_parser(value)
+    def __init__(self, doc=None, default=None, parser=None, experimental=False):
+        self.value = default
+        self.parser = parser or self._solve_parser(default)
         self.name = None
         self.doc = doc
+        self.experimental = experimental
 
     def _solve_parser(self, value):
         parser = type(value)
@@ -32,15 +33,19 @@ class ConfigVar(object):
     def parse(self, value_str):
         return self.parser(value_str)
 
+    def __bool__(self):
+        return bool(self.value)
+
 
 class BaseSettings(object):
     def __init__(self):
         self._load_env_vars()
         if self.webdriver_remote_credentials_path:
-            with open(self.webdriver_remote_credentials_path, 'r') as fp:
+            path = self.webdriver_remote_credentials_path.value
+            with open(path, 'r') as fp:
                 cred = json.load(fp)
-            self._set_and_warn(self.webdriver_remote_credentials_path, 'webdriver_remote_command_executor', cred)
-            self._set_and_warn(self.webdriver_remote_credentials_path, 'webdriver_remote_session_id', cred)
+            self._set_and_warn(path, 'webdriver_remote_command_executor', cred)
+            self._set_and_warn(path, 'webdriver_remote_session_id', cred)
 
     def _set_and_warn(self, path, attr, values):
         if getattr(self, attr):

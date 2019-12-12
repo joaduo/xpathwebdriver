@@ -10,9 +10,9 @@ from argparse import ArgumentParser, FileType
 from .logger import Logger
 from .browser import Browser
 from .base import CommandMixin
-from .solve_settings import solve_settings
 import json
 import os
+from xpathwebdriver.default_settings import DefaultSettings
 
 
 logger = Logger(color=True)
@@ -39,9 +39,10 @@ def embed(args):
                 ' shell. Exception: %r')
     if args.environment_variables:
         print('\n# Available environment variables to override configuration (current values if declared): \n')
-        for n in sorted(solve_settings()._get_config_vars().keys()):
-            print('%s=%s' % (n, os.environ.get(n,'')))
-        print()
+        for n,cfg in sorted(DefaultSettings()._get_config_vars().items()):
+            if cfg.experimental:
+                continue
+            print('%s=%s\t\t(default:%r)' % (n, os.environ.get(n,''), cfg.value))
         return
     b = browser = ShellBrowser(logger=logger)
     if args.dump_credentials:

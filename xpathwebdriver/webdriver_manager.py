@@ -133,7 +133,7 @@ class WebdriverManager(XpathWdBase):
 
     def _new_webdriver(self, browser, level, args=None, kwargs=None):
         args = args or []
-        kwargs = kwargs or {}
+        kwargs = kwargs or self.global_settings.get('webdriver_browser_kwargs', {})
         browser = self.expand_browser_name(browser)
         # Setup display before creating the browser
         self.start_display()
