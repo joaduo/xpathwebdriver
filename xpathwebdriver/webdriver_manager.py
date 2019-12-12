@@ -56,10 +56,6 @@ class WebdriverManager(XpathWdBase):
             # Start a never killed process
             self.init_level(SURVIVE_PROCESS)
 
-    @property
-    def enabled(self):
-        return self.global_settings.get('webdriver_enabled')
-
     @synchronized(_methods_lock)
     def enter_level(self, level=None, base_url=None, name='', browser_name=None):
         '''
@@ -109,8 +105,6 @@ class WebdriverManager(XpathWdBase):
           2- there is a webdriver for the browser selected, no action is performed.
         :param level: webdriver's level of life we are entering
         '''
-        if not self.enabled:
-            return
         # level is mandatory
         assert level and level <= SURVIVE_PROCESS, 'Not a browser level %s' % level
         # Get rid of non-responding browsers
@@ -193,8 +187,6 @@ class WebdriverManager(XpathWdBase):
 
     @synchronized(_methods_lock)
     def acquire_driver(self, level, browser_name=None):
-        if not self.enabled:
-            return None
         self.init_level(level, browser_name)
         wdriver = self.get_available_set(browser_name).pop()
         # Keep track of acquired webdrivers in case we need to close them

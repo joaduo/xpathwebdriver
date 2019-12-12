@@ -29,7 +29,6 @@ class DefaultSettings(BaseSettings):
     virtual_display_size = ConfigVar((800, 600), parser=eval) # Dimensions of the virtual display
     virtual_display_keep_open = False # If we want to check results (useful whe combined with webdriver_browser_keep_open)
 
-    webdriver_enabled = True # Whether or not automatically create the browser (DEPRECATE)
     webdriver_browser = 'Chrome' # Which browser we would like to use webdriver with: Firefox, Chrome, PhantomJs, etc...
     webdriver_browser_keep_open = False # Keep browser open after python process is dead
     webdriver_pool_size = 1
