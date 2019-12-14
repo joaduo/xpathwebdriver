@@ -64,8 +64,34 @@ class CommandMixin(object):
             help='Specific settings module path.',
             default=None,
             nargs=1)
+        parser.add_argument(
+            '-D',
+            '--debug-level',
+            type=str,
+            help=('Debug level (%s)' %
+                  ', '.join(repr(n) for n in self.__log_name_to_level)),
+            default='INFO')
+
+    __log_level_to_name = {
+        logging.CRITICAL: 'CRITICAL',
+        logging.ERROR: 'ERROR',
+        logging.WARNING: 'WARNING',
+        logging.INFO: 'INFO',
+        logging.DEBUG: 'DEBUG',
+    }
+
+    __log_name_to_level = {
+        'CRITICAL': logging.CRITICAL,
+        'FATAL': logging.FATAL,
+        'ERROR': logging.ERROR,
+        'WARNING': logging.WARNING,
+        'INFO': logging.INFO,
+        'DEBUG': logging.DEBUG,
+    }
 
     def _process_common_args(self, args):
+        letter_to_level = {n[0].lower():l for n,l in self.__log_name_to_level.items()}
+        logging.getLogger().setLevel(letter_to_level[args.debug_level[0].lower()])
         # Specific settings
         if args.settings:
             register_settings(args.settings.pop())
