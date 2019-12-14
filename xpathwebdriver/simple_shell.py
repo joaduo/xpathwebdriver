@@ -39,13 +39,6 @@ def embed(args):
                    ' shell. Exception: %r')
     ipdb_msg = ('Could not embed ipdb, falling back to pdb'
                 ' shell. Exception: %r')
-    if args.environment_variables:
-        print('\n# Available environment variables to override configuration (current values if declared): \n')
-        for n,cfg in sorted(DefaultSettings()._get_config_vars().items()):
-            if cfg.experimental:
-                continue
-            print('%s=%s\t\t(default:%r)' % (n, os.environ.get(n,''), cfg.value))
-        return
     b = browser = ShellBrowser(logger=logger)
     if args.dump_credentials:
         dump_credentials(browser, args.dump_credentials)
@@ -83,13 +76,49 @@ class XpathShellCommand(CommandMixin):
             default=None,)
         parser.add_argument('-e','--environment-variables', action='store_true',
             help='Print available environment variables for configuration.')
+        parser.add_argument('--settings-help', action='store_true',
+            help='Print settings help documentation.')
         self._add_common_args(parser)
         return parser
 
     def main(self, argv=None):
         args = self.get_parser().parse_args(argv)
         self._process_common_args(args)
-        embed(args)
+        if args.environment_variables:
+            self.print_env_vars()
+        elif args.settings_help:
+            self.print_settings_help()
+        else:
+            embed(args)
+
+    def print_env_vars(self):
+        print('\n# Available environment variables to override configuration (current values if declared): \n')
+        for n,cfg in sorted(DefaultSettings()._get_config_vars().items()):
+            if cfg.experimental:
+                continue
+            print('%s=%s\t\t(default:%r)' % (n, os.environ.get(n,''), cfg.value))
+
+    def print_settings_help(self):
+        settings_doc = '''
+## Xpathwebdriver Settings Variables
+You can declare variables inside a Settings class inherinting from DefaultSettings.
+(check examples/02_using_settings_keep_open.py as a reference on how to do it)
+
+You can also export an environment variable to override any configuration.
+(check examples/08_settings_use_environment_variables.py)
+%s
+        '''
+        vars_doc = ''
+        for env_var,cfg in sorted(DefaultSettings()._get_config_vars().items()):
+            dc = '''
+* {cfg.name} (python)
+  {env_var} (env var)
+{experimental}    {cfg.doc}
+'''.format(cfg=cfg,
+           env_var=env_var,
+           experimental=' status:EXPERIMENTAL\n' if cfg.experimental else '')
+            vars_doc += dc
+        print(settings_doc % vars_doc)
 
 
 def main(argv=None):

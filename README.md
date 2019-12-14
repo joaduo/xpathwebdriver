@@ -62,7 +62,9 @@ for idx, elem in enumerate(browser.select_css('.result__title')):
 
 * Check different options in `examples` directory
 * Check `BrowserAPI.md` a quick list of API
-* Use `xpathsell -e` to print environment variables for settings
+* Use `xpathsell -e` to print available environment variables for settings
+* Use `xpathsell --settings-help` to print settings detailed documentation
+  - or optionally check `xpathwebdriver/default_settings.py`
 
 ## IPython interactive shell
 
