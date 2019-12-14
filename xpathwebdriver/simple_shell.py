@@ -32,8 +32,9 @@ def dump_credentials(browser, dump_file):
 
 
 def embed(args):
-    """Call this to embed IPython at the current point in your program.
-    """
+    '''
+    :param args: parser args object
+    '''
     ipython_msg = ('Could not embed Ipython, falling back to ipdb'
                    ' shell. Exception: %r')
     ipdb_msg = ('Could not embed ipdb, falling back to pdb'
