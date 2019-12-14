@@ -27,8 +27,12 @@ class Browser(XpathBrowser):
                 base_url=base_url, logger=logger, settings=settings)
 
     def __del__(self):
-        if hasattr(self, '_browser_context'):
+        self._free_webdriver()
+
+    def _free_webdriver(self):
+        if getattr(self, '_browser_context'):
             self._browser_context.__exit__()
+            self._browser_context = None
 
 
 def smoke_test_module():
