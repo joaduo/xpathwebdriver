@@ -14,6 +14,10 @@ from .base import XpathWdBase, singleton_decorator
 from xpathwebdriver.levels import SURVIVE_PROCESS, TEST_ROUND_LIFE, MANAGER_LIFE
 from selenium.webdriver.remote.webdriver import WebDriver
 import os
+import logging
+
+
+logger = logging.getLogger(__name__)
 
 
 def synchronized(lock):
@@ -187,6 +191,7 @@ class WebdriverManager(XpathWdBase):
 
     @synchronized(_methods_lock)
     def acquire_driver(self, level, browser_name=None):
+        logger.debug('Acquiring driver %s level %s', browser_name, level)
         self.init_level(level, browser_name)
         wdriver = self.get_available_set(browser_name).pop()
         # Keep track of acquired webdrivers in case we need to close them
@@ -202,8 +207,7 @@ class WebdriverManager(XpathWdBase):
         :param wdriver: webdriver instance to be released
         :param level: level at wich we are releasing the webdriver
         '''
-        if not wdriver:
-            return
+        logger.debug('Releasing %s level %s', wdriver, level)
         assert wdriver in self._locked, 'Webdriver %r was never locked' % wdriver
         self._locked.remove(wdriver)
         _, drv_level = self._wdriver_pool[wdriver]
