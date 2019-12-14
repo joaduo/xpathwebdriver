@@ -58,6 +58,12 @@ for idx, elem in enumerate(browser.select_css('.result__title')):
     print(idx, elem.text)
 ```
 
+## Documentation and tutorials
+
+* Check different options in `examples` directory
+* Check `BrowserAPI.md` a quick list of API
+* Use `xpathsell -e` to print environment variables for settings
+
 ## IPython interactive shell
 
 For a faster development and debugging cycles you can run an interactive shell which will let access the browser. First install ipython `pip install ipython` (not automatically installed to keep basic requirements low)
