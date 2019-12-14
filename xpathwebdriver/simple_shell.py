@@ -13,9 +13,10 @@ from .base import CommandMixin
 import json
 import os
 from xpathwebdriver.default_settings import DefaultSettings
+import logging
 
 
-logger = Logger(color=True)
+logger = Logger(level=logging.DEBUG, color=False)
 
 
 class ShellBrowser(Browser):
@@ -67,7 +68,7 @@ def embed(args):
             import pdb
             pdb.set_trace()
     finally:
-        del browser, b
+        browser._free_webdriver()
 
 
 class XpathShellCommand(CommandMixin):
@@ -77,7 +78,7 @@ class XpathShellCommand(CommandMixin):
         parser.add_argument('-p','--print-credentials', action='store_true',
             help='Print remote credentials just after starting.')
         parser.add_argument('-d','--dump-credentials', type=FileType('w'),
-            help='Dump credentials to file.',
+            help='Dump webdriver\'s remote credentials to file.',
             default=None,)
         parser.add_argument('-e','--environment-variables', action='store_true',
             help='Print available environment variables for configuration.')
