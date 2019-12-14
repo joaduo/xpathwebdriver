@@ -40,7 +40,7 @@ class ConfigVar(object):
 class BaseSettings(object):
     def __init__(self):
         self._load_env_vars()
-        if self.webdriver_remote_credentials_path:
+        if self.webdriver_remote_credentials_path.value:
             path = self.webdriver_remote_credentials_path.value
             with open(path, 'r') as fp:
                 cred = json.load(fp)
@@ -135,7 +135,7 @@ def _register_settings_module(mod):
 global_settings = None
 def register_settings_instance(settings):
     if not settings:
-        logging.debug('Provided settings object evals to False', settings)
+        logging.debug('Provided empty settings %s', settings)
         return
     global global_settings
     if global_settings:
