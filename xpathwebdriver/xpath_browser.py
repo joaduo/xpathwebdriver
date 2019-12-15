@@ -125,13 +125,6 @@ class XpathBrowser(object):
         '''
         self._base_url = self.clean_url(base_url)
 
-    def _quit_webdriver(self):
-        '''
-        Quit selenium's webdriver.
-        '''
-        self._driver.quit()
-        self._driver = None
-
     def get_driver(self):
         '''
         Return selenium's webdriver instance
@@ -139,16 +132,6 @@ class XpathBrowser(object):
         '''
         assert self._driver, 'driver was not initialized'
         return self._driver
-
-    def set_driver(self, webdriver):
-        '''
-        Replace webdriver for this browser.
-            Consider using WebdriverManager().enter_level() to get a new browser
-            instead of this method.
-        :param webdriver:
-        '''
-        self.log.d('Replacing driver %s with %s', self._driver, webdriver)
-        self._driver = webdriver
 
     def current_path(self):
         '''
