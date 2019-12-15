@@ -97,18 +97,22 @@ class DefaultSettings(BaseSettings):
     screenshot_exceptions_dir = ConfigVar(
         doc='When an exception occurs during a test, where to save screenshots to',
         default='/tmp/', #FIXME
-        parser=str)
+        parser=str,
+        experimental=True)
     assert_screenshots_dir = ConfigVar(
         doc='When asserting/comparing an screenshot where to save taken screenshots to',
         default='/tmp/', #FIXME
-        parser=str)
+        parser=str,
+        experimental=True)
     assert_screenshots_learning = ConfigVar(
         doc='If True means we take current screenshot as valid for future comparisons',
-        default=False)
+        default=False,
+        experimental=True)
     assert_screenshots_failed_dir = ConfigVar(
         doc='When asserting/comparing an screenshot where to save failing screenshots to',
         default='/tmp/', #FIXME
-        parser=str)
+        parser=str,
+        experimental=True)
 
     log_level_default = ConfigVar(
         doc='Log level of xpathwebdriver messages',
