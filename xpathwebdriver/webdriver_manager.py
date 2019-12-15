@@ -164,6 +164,9 @@ class WebdriverManager(XpathWdBase):
             #chrome_options.add_argument('--incognito')
             kwargs['chrome_options'] = chrome_options
         driver = getattr(webdriver, browser)(*args, **kwargs)
+        if self.global_settings.get('webdriver_window_size'):
+            h,w = self.global_settings.get('webdriver_window_size')
+            driver.set_window_size(h,w)
         return driver
 
     def _build_remote(self, executor_url, session_id):

@@ -69,6 +69,10 @@ class DefaultSettings(BaseSettings):
         doc="Specify firefox's profile path Eg: '/home/<user>/.mozilla/firefox/4iyhtofy.xpathwebdriver'",
         default=None,
         parser=str)
+    webdriver_window_size = ConfigVar(
+        doc='Dimensions in pixels of the Browser\'s window',
+        default=(800, 600),
+        parser=eval)
 
     #Remote driver related settings
     webdriver_remote_credentials_path = ConfigVar(
