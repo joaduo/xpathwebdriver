@@ -562,7 +562,10 @@ function extract_element(elem){
     def save_screenshot(self, path, width=None, height=None, windowHandle='current'):
         '''
         Take a screenshot and save it to the path specified in filename
-        :param filename: path to save the screenshot file to
+        :param path: path to save the screenshot file to
+        :param width: optional. set window size width
+        :param height: optional. set window size height
+        :param windowHandle: optional. if more than one window, they you may need to set window handler
         '''
         previous = None
         try:
