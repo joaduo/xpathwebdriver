@@ -140,6 +140,16 @@ class XpathBrowser(object):
         assert self._driver, 'driver was not initialized'
         return self._driver
 
+    def set_driver(self, webdriver):
+        '''
+        Replace webdriver for this browser.
+            Consider using WebdriverManager().enter_level() to get a new browser
+            instead of this method.
+        :param webdriver:
+        '''
+        self.log.d('Replacing driver %s with %s', self._driver, webdriver)
+        self._driver = webdriver
+
     def current_path(self):
         '''
         Get (path + params + query + fragment) as string from current url.
@@ -150,7 +160,7 @@ class XpathBrowser(object):
         '''
         Return the current page's URL. (from webdriver instance) 
         '''
-        return self.get_driver().current_url
+        return self.driver.current_url
 
     def build_url(self, path):
         '''
@@ -197,7 +207,7 @@ class XpathBrowser(object):
         :param path: full URL of the page
         :param condition: optional condition script or functor passed to the `wait_condition` method
         '''
-        driver = self.get_driver()
+        driver = self.driver
         if url.startswith('https') and isinstance(driver, webdriver.PhantomJS):
             self.log.d('PhantomJS may fail with https if you don\'t pass '
                        'service_args=[\'--ignore-ssl-errors=true\']'
@@ -429,7 +439,7 @@ function extract_element(elem){
         :param single: if True, returns only the first node
         :param select_type: type of select_expr passed, ie: 'xpath' or 'css'
         '''
-        dr = self.get_driver()
+        dr = self.driver
         try:
             if select_type == 'xpath':
                 script = self._get_xpath_script(select_expr, single)
@@ -535,10 +545,10 @@ function extract_element(elem){
         :param timeout: max wait for alert in second (default=0.5)
         '''
         try:
-            WebDriverWait(self.get_driver(), timeout
+            WebDriverWait(self.driver, timeout
                           ).until(expected_conditions.alert_is_present(),
                                   'Timed out waiting alert.')
-            alert = self.get_driver().switch_to_alert()
+            alert = self.driver.switch_to_alert()
             alert.accept()
         except TimeoutException:
             pass
@@ -570,14 +580,14 @@ function extract_element(elem){
         previous = None
         try:
             if width or height:
-                previous = self._driver.get_window_size(windowHandle)
+                previous = self.driver.get_window_size(windowHandle)
                 width = width or previous['width']
                 height = height or previous['height']
-                self._driver.set_window_size(width, height, windowHandle)
-            self.get_driver().save_screenshot(path)
+                self.driver.set_window_size(width, height, windowHandle)
+            self.driver.save_screenshot(path)
         finally:
             if previous:
-                self._driver.set_window_size(previous['width'],
+                self.driver.set_window_size(previous['width'],
                             previous['height'], windowHandle=windowHandle)
 
     def execute_script(self, script, *args):
@@ -586,7 +596,7 @@ function extract_element(elem){
         Will return a value if the specified script returns a value.
         :param script: javascript script to be executed. 
         '''
-        return self.get_driver().execute_script(script, *args)
+        return self.driver.execute_script(script, *args)
 
     def fill_form(self, clear=True, javascript_safe=True, **inputs):
         '''
@@ -635,7 +645,7 @@ function extract_element(elem){
                       .format(attr, name), value, clear, javascript_safe)
 
     def get_remote_credentials(self):
-        drv = self.get_driver()
+        drv = self.driver
         return dict(webdriver_remote_command_executor=drv.command_executor._url,
                     webdriver_remote_session_id=drv.session_id)
 
