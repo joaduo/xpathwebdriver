@@ -445,7 +445,7 @@ function extract_element(elem){
         return result
 
     def has_xpath(self, xpath):
-        self.log.w('DEPRECATED METHOD has_xpath')
+        self.log.w('DEPRECATED METHOD has_xpath, use valid_xpath')
         return self.valid_xpath(xpath)
 
     def valid_xpath(self, xpath):
@@ -457,7 +457,7 @@ function extract_element(elem){
         return self._valid_xpath(xpath, single=False)
 
     def has_xsingle(self, xpath):
-        self.log.w('DEPRECATED METHOD has_xpath')
+        self.log.w('DEPRECATED METHOD has_xsingle, use valid_xsingle')
         return self.valid_xsingle(xpath)
 
     def valid_xsingle(self, xpath):
