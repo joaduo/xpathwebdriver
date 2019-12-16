@@ -6,7 +6,7 @@ Copyright (c) 2015 Juju. Inc
 Code Licensed under MIT License. See LICENSE file.
 '''
 import rel_imp; rel_imp.init()
-from argparse import ArgumentParser, FileType
+from argparse import ArgumentParser
 from .logger import Logger
 from .browser import Browser
 from .base import CommandMixin

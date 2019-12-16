@@ -110,6 +110,7 @@ class XpathBrowser(object):
         self.settings = settings or {}
         # Initialize values
         self._base_url = base_url
+        self._max_wait = self.settings.get('xpathbrowser_max_wait', 5)
         self._wait_timeout = self.settings.get('xpathbrowser_wait_timeout', 2)
 
     @property
@@ -240,7 +241,6 @@ class XpathBrowser(object):
             # Page already loaded
             self.log.d('Page already loaded once: %r' % url)
 
-    _max_wait = 2
     _default_condition = 'return "complete" == document.readyState;'
 
     def wait_condition(self, condition=None, max_wait=None, print_msg=True):

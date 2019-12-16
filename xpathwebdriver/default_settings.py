@@ -12,12 +12,17 @@ import logging
 class DefaultSettings(BaseSettings):
     base_url = ConfigVar(
         doc='specifies the root URL string to build other relative URLs upon',
-        default=None)
+        default=None,
+        parser=str)
 
     # XpathBrowser related settings
     xpathbrowser_wait_timeout = ConfigVar(
         doc='Time multiplier factor (in seconds) for waiting related functions',
-        default=2)
+        default=2,
+        experimental=True)
+    xpathbrowser_max_wait = ConfigVar(
+        doc='Time multiplier factor (in seconds) for waiting related functions',
+        default=5)
     xpathbrowser_default_scheme = ConfigVar(
         doc='When resolving a URL without scheme, what scheme (protocol) to default to',
         default='http')
