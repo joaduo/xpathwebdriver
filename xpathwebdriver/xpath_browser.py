@@ -104,10 +104,11 @@ class XpathBrowser(object):
         :param logger: You can optionally pass a xpathwebdriver.Logger instance (or a child class's instance)  
         :param settings: xpathwebdriver settings object.
         '''
-        self.log = logger or Logger(self.__class__.__name__)
+        settings = settings or {}
+        self.settings = settings
+        self.log = logger or settings.get('logger', Logger(self.__class__.__name__))
         assert webdriver, 'You must provide a webdriver'
         self._driver = webdriver
-        self.settings = settings or {}
         # Initialize values
         self._base_url = base_url
         self._max_wait = self.settings.get('xpathbrowser_max_wait', 5)
@@ -519,6 +520,7 @@ function extract_element(elem){
 
         :param timeout: if specified, amount of seconds to wait. (else use global value)
         '''
+        self.log.w('DEPRECATED use wait_condition or time.sleep instead')
         time.sleep(timeout or self._wait_timeout)
 
     def wipe_alerts(self, timeout=0.5):
