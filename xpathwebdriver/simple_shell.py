@@ -25,10 +25,10 @@ class ShellBrowser(Browser):
         self.log.i(" Current url: %s" % self.current_url())
 
 
-def dump_credentials(browser, dump_path, context_name):
+def dump_credentials(browser, dump_path, context_name, wipe_credentials):
     logger.info('Dumping webdriver remote credentials to %s', dump_path)
     creds = {}
-    if os.path.exists(dump_path):
+    if os.path.exists(dump_path) and not wipe_credentials:
         with open(dump_path, 'r') as fp:
             creds = json.load(fp)
     creds[context_name] = browser.get_remote_credentials()
@@ -46,7 +46,7 @@ def embed(args):
                 ' shell. Exception: %r')
     b = browser = ShellBrowser(logger=logger)
     if args.dump_credentials:
-        dump_credentials(browser, args.dump_credentials, args.context_name)
+        dump_credentials(browser, args.dump_credentials, args.context_name, args.wipe_credentials)
     if args.url:
         b.get(args.url)
     display_banner = ("XpathBrowser in 'b' or 'browser' variables\n"
@@ -79,6 +79,8 @@ class XpathShellCommand(CommandMixin):
         parser.add_argument('-d','--dump-credentials', type=str,
             help='Dump webdriver\'s remote credentials to file.',
             default=None,)
+        parser.add_argument('-w','--wipe-credentials', action='store_true',
+            help='Empty other credentials in file.')
         parser.add_argument('-c','--context-name', type=str,
             help='When dumping credentials, set this context name.',
             default='default',)
