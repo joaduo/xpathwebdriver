@@ -36,7 +36,7 @@ class ConfigVar(object):
         return bool(self.value)
 
     def copy(self, value):
-        new_cfg = ConfigVar(self.doc, None, self.parser, self.experimental)
+        new_cfg = ConfigVar(self.doc, self.value, self.parser, self.experimental)
         new_cfg.name = self.name
         new_cfg.value = value
         return new_cfg
@@ -83,7 +83,7 @@ class BaseSettings(object):
                 continue
             cfg_var = getattr(self, n)
             if not isinstance(cfg_var, ConfigVar):
-                cfg_var = ConfigVar(cfg_var)
+                cfg_var = getattr(DefaultSettings, n).copy(cfg_var)
             cfg_var.name = cfg_var.name or n
             config['XPATHWD_' + n.upper()] = cfg_var
         return config
