@@ -27,10 +27,6 @@ class DuckDuckKeepOpenTest(unittest.TestCase):
         self.browser.get_url('https://duckduckgo.com/')
         self.browser.fill(".//*[@id='search_form_input_homepage']", 'xpathwebdriver\n')
 
-    def test_duckduckgo2(self):
-        self.browser.get_url('https://duckduckgo.com/')
-        self.browser.fill(".//*[@id='search_form_input_homepage']", 'Second test\n')
-
 
 if __name__ == "__main__":
     unittest.main()

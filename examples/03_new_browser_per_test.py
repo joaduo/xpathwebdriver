@@ -3,11 +3,9 @@ from xpathwebdriver.default_settings import DefaultSettings
 from xpathwebdriver.solve_settings import register_settings_instance
 from xpathwebdriver.browser import Browser
 
-
 class Settings(DefaultSettings):
     #Override here any desired option check example 02
     pass
-
 
 class NewBrowserPerTest(unittest.TestCase):
     @classmethod

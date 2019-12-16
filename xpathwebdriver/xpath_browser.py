@@ -629,6 +629,6 @@ function extract_element(elem){
 
     def get_remote_credentials(self):
         drv = self.driver
-        return dict(webdriver_remote_command_executor=drv.command_executor._url,
-                    webdriver_remote_session_id=drv.session_id)
+        return dict(command_executor=drv.command_executor._url,
+                    session_id=drv.session_id)
 

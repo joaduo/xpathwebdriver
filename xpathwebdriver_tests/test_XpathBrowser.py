@@ -11,8 +11,7 @@ import tempfile
 import shutil
 import unittest
 import os
-from xpathwebdriver.webdriver_manager import WebdriverManager
-from xpathwebdriver.levels import TEST_ROUND_LIFE
+from xpathwebdriver.browser import Browser
 
 
 class WebUnitTestBase(unittest.TestCase):
@@ -55,14 +54,13 @@ class WebUnitTestBase(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls._browser_context = WebdriverManager().enter_level(level=TEST_ROUND_LIFE)
-        cls.browser = cls._browser_context.__enter__()
+        cls.browser = Browser()
         # Temp dir to save pages
         cls._tempdir = None
 
     @classmethod
     def tearDownClass(cls):
-        cls._browser_context.__exit__()
+        del cls.browser
 
     def tearDown(self):
         if self._tempdir:

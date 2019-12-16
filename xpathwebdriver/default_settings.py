@@ -79,14 +79,6 @@ class DefaultSettings(BaseSettings):
         doc='Path to json file containing remote credentials (as dumped by "xpathshell -d path/to/credentials.json")',
         default=None,
         parser=str)
-    webdriver_remote_command_executor = ConfigVar(
-        doc='Instead of credentials path, manually provide the url for the driver eg: "http://127.0.0.1:54551"',
-        default=None,
-        parser=str)
-    webdriver_remote_session_id =  ConfigVar(
-        doc='Instead of credentials path, manually provide session id for reusage eg: "4aed25f4a5ce78bb7d57c19663110b3c"',
-        default=None,
-        parser=str)
 
     #Screenhot related settings
     screenshot_level = ConfigVar(

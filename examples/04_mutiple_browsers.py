@@ -1,7 +1,7 @@
 import unittest
 from xpathwebdriver.default_settings import DefaultSettings
 from xpathwebdriver.solve_settings import register_settings_instance
-from xpathwebdriver.webdriver_manager import WebdriverManager
+from xpathwebdriver.webdriver_manager import get_browser
 
 
 class Settings(DefaultSettings):
@@ -16,10 +16,10 @@ class DuckDuckTest(unittest.TestCase):
 
     def test_duckduckgo(self):
         #Use WebdriverManager for more than 1 browser
-        with WebdriverManager().enter_level(name='First') as browser:
+        with get_browser('First', 'Chrome') as browser:
             browser.get_url('https://duckduckgo.com/')
             browser.fill(".//*[@id='search_form_input_homepage']", 'xpathwebdriver\n')
-            with WebdriverManager().enter_level(name='Second') as browser2:
+            with get_browser('Second', 'Firefox') as browser2:
                 browser2.get_url('https://google.com/')
 
 

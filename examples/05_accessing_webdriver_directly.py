@@ -1,7 +1,7 @@
 import unittest
 from xpathwebdriver.default_settings import DefaultSettings
 from xpathwebdriver.solve_settings import register_settings_instance
-from xpathwebdriver.webdriver_manager import WebdriverManager
+from xpathwebdriver.webdriver_manager import get_browser
 
 
 class Settings(DefaultSettings):
@@ -15,7 +15,7 @@ class DuckDuckTest(unittest.TestCase):
         register_settings_instance(Settings())
 
     def test_duckduckgo(self):
-        with WebdriverManager().enter_level() as browser:
+        with get_browser() as browser:
             driver = browser.driver
             driver.get('https://duckduckgo.com')
             element = driver.find_element_by_id('search_form_input_homepage')

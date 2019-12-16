@@ -9,7 +9,6 @@ import rel_imp; rel_imp.init()
 import imp
 import importlib
 import logging
-import json
 import os
 
 
@@ -36,32 +35,36 @@ class ConfigVar(object):
     def __bool__(self):
         return bool(self.value)
 
+    def copy(self, value):
+        new_cfg = ConfigVar(self.doc, None, self.parser, self.experimental)
+        new_cfg.name = self.name
+        new_cfg.value = value
+        return new_cfg
+
 
 class BaseSettings(object):
     def __init__(self):
         self._load_env_vars()
-        if self.webdriver_remote_credentials_path.value:
-            path = self.webdriver_remote_credentials_path.value
-            with open(path, 'r') as fp:
-                cred = json.load(fp)
-            self._set_and_warn(path, 'webdriver_remote_command_executor', cred)
-            self._set_and_warn(path, 'webdriver_remote_session_id', cred)
-
-    def _set_and_warn(self, path, attr, values):
-        if getattr(self, attr):
-            logger.warning('Replacing value for %s with values in file %s', attr, path)
-        setattr(self, attr, values[attr])
 
     def _load_env_vars(self):
         '''
         Support loading from environment variables
         '''
         config_vars = self._get_config_vars()
+        self._wrap_raw_values(config_vars)
         self._check_mispelling_deprecated(config_vars)
         for env_var, cfg_var in config_vars.items():
             if env_var in os.environ:
                 logger.debug('Using %s=%r => %s', env_var, os.environ[env_var], cfg_var.name)
                 setattr(self, cfg_var.name, cfg_var.parse(os.environ[env_var]))
+
+    def _wrap_raw_values(self, config_vars):
+        for cfg in config_vars.values():
+            name = cfg.name
+            if hasattr(self, name):
+                value = getattr(self, name)
+                if not isinstance(value, ConfigVar):
+                    setattr(self, name, cfg.copy(value))
 
     def _check_mispelling_deprecated(self, config_vars):
         name2cfg = {cfg.name:cfg for cfg in config_vars.values()}

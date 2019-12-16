@@ -15,7 +15,8 @@ from xpathwebdriver.levels import SURVIVE_PROCESS, TEST_ROUND_LIFE, MANAGER_LIFE
 from selenium.webdriver.remote.webdriver import WebDriver
 import os
 import logging
-
+import json
+from collections import namedtuple
 
 logger = logging.getLogger(__name__)
 
@@ -33,6 +34,9 @@ def synchronized(lock):
                 return method(*args, **kw)
         return newFunction
     return wrap_method
+
+
+WdriverCfg = namedtuple('WdriverCfg', 'browser context external level')
 
 
 @singleton_decorator
@@ -53,12 +57,9 @@ class WebdriverManager(XpathWdBase):
         # Virtual display object where we start webdrivers
         self._virtual_display = None
         # Any browser without specified level
-        self._current_context_level = -1
-        if (self.global_settings.get('webdriver_browser_keep_open')
-        or (self.global_settings.get('webdriver_remote_command_executor')
-            and self.global_settings.get('webdriver_remote_session_id'))):
-            # Start a never killed process
-            self.init_level(SURVIVE_PROCESS)
+        self._current_context_level = 0
+        # Marks those contexts already taken
+        self._context_name_level = {}
 
     @synchronized(_methods_lock)
     def enter_level(self, level=None, base_url=None, name='', browser_name=None):
@@ -68,15 +69,23 @@ class WebdriverManager(XpathWdBase):
         :param name: optional level's name (mainly for logging purposes)
         :param browser_name: optional browser name string (eg: 'Firefox', 'Chrome', 'PhantomJs')
         '''
-        if not level:
-            # There is no level declared, so it will be only valid for the life
-            # of the context (assuming "with manager.enter_level() as browser: ..." etc)
-            level = self._current_context_level
-            self._current_context_level -= 1
-        else:
-            assert 0 < level, 'Negative life levels are reserved for automatic decresing levels'
-        self.init_level(level, browser_name)
-        return BrowserContextManager(self, level, base_url, name)
+        self.log.w('DEPRECATED method enter_level, use enter get_browser')
+        # override level
+        self._current_context_level += 1
+        level = self._current_context_level
+        self.init_level(level, browser_name, context_name=name)
+        return BrowserContextManager(self, level, base_url, name, browser_name)
+
+    @synchronized(_methods_lock)
+    def get_browser(self, context_name='default', browser=None):
+        '''
+        :param name: optional context's name (mainly for logging purposes)
+        :param browser: optional browser name string (eg: 'Firefox', 'Chrome', 'PhantomJs')
+        '''
+        self._current_context_level += 1
+        level = self._current_context_level
+        self.init_level(level, browser, context_name)
+        return BrowserContextManager(self, level, context_name=context_name, browser_name=browser)
 
     @synchronized(_methods_lock)
     def exit_level(self, level):
@@ -84,11 +93,16 @@ class WebdriverManager(XpathWdBase):
         :param level: webdriver's level of life we are exiting
         '''
         def quit_wdriver(wdriver, container):
-            _, drv_level = self._wdriver_pool[wdriver]
+            cfg = self._wdriver_pool[wdriver]
             if self._quit_failed_webdriver(wdriver):
+                self.log.d('Quitting failed webdriver %s', wdriver)
                 container.remove(wdriver)
                 self._wdriver_pool.pop(wdriver)
-            elif drv_level <= level:
+            # Quit if exiting the level (but keep if external browser, started by some other process)
+            elif (cfg.level >= level 
+            and not cfg.external
+            and not self.global_settings.get('webdriver_browser_keep_open')):
+                self.log.d('Quitting exited level webdriver %s', wdriver)
                 container.remove(wdriver)
                 self._quit_webdriver(wdriver)
                 self._wdriver_pool.pop(wdriver)
@@ -101,7 +115,7 @@ class WebdriverManager(XpathWdBase):
             quit_wdriver(wdriver, self._locked)
 
     @synchronized(_methods_lock)
-    def init_level(self, level, browser_name=None):
+    def init_level(self, level, browser_name, context_name):
         '''
         Initialize webdriver for a specific Life Level.
         There are two possibilities:
@@ -109,67 +123,75 @@ class WebdriverManager(XpathWdBase):
           2- there is a webdriver for the browser selected, no action is performed.
         :param level: webdriver's level of life we are entering
         '''
-        # level is mandatory
-        assert level and level <= SURVIVE_PROCESS, 'Not a browser level %s' % level
         # Get rid of non-responding browsers
         self.quit_all_failed_webdrivers()
         # Get the set of released webdrivers for the selected browser
-        released = self.get_available_set(browser_name)
+        released = self.get_available_set(browser_name, context_name)
         # If no webdriver available, then create a new one 
         if not released:
             # Create webdriver if needed
-            browser = self.get_browser_name(browser_name)
-            wdriver = self._new_webdriver(browser, level)
-            self._wdriver_pool[wdriver] = browser, level
+            browser_name = self.get_browser_name(browser_name)
+            wdriver, external = self._new_webdriver(browser_name, level, context_name)
+            self._wdriver_pool[wdriver] = WdriverCfg(browser_name, context_name, external, level)
             self._released.add(wdriver)
 
     @synchronized(_methods_lock)
-    def get_available_set(self, browser_name):
+    def get_available_set(self, browser_name, context_name):
         '''
         Return the set of avialable webdrivers for the current Browser selected
         (in global configuration)
         '''
         browser = self.get_browser_name(browser_name)
         browser_set = set([wdriver
-                           for wdriver,(brws,_) in self._wdriver_pool.items()
-                           if brws == browser])
+                           for wdriver,cfg in self._wdriver_pool.items()
+                           if cfg.browser == browser and cfg.context == context_name])
         return (self._released & browser_set)
 
-    def _new_webdriver(self, browser, level, args=None, kwargs=None):
+    def _new_webdriver(self, browser, level, context_name, args=None, kwargs=None):
         args = args or []
         kwargs = kwargs or self.global_settings.get('webdriver_browser_kwargs', {})
         browser = self.expand_browser_name(browser)
         # Setup display before creating the browser
         self.start_display()
-        if (level == SURVIVE_PROCESS
-        and self.global_settings.get('webdriver_remote_command_executor')
-        and self.global_settings.get('webdriver_remote_session_id')):
-            return self._build_remote(self.global_settings.get('webdriver_remote_command_executor'),
-                                      self.global_settings.get('webdriver_remote_session_id'))
-        if browser == 'PhantomJS':
-            self._append_service_arg('--ignore-ssl-errors=true', kwargs)
-        if (browser == 'Firefox'
-        and self.global_settings.get('webdriver_firefox_profile')
-        and not args and not kwargs.has_key('firefox_profile')):
-            # Update with profile specified from config
-            fp = webdriver.FirefoxProfile(self.global_settings.get('webdriver_firefox_profile'))
-            kwargs['firefox_profile'] = fp
-        if (browser == 'Chrome' and os.name == 'posix' and os.geteuid() == 0):
-            self.log.w('Passing --no-sandbox flag to Chrome (running as root)')
-            from selenium.webdriver.chrome.options import Options
-            chrome_options = Options()
-            chrome_options.add_argument('--no-sandbox')
-            #self.log.w('Adding --disable-application-cache')
-            #chrome_options.add_argument('--disable-application-cache')
-            #chrome_options.add_argument('--incognito')
-            kwargs['chrome_options'] = chrome_options
-        driver = getattr(webdriver, browser)(*args, **kwargs)
+        credentials = self._load_credentials()
+        external = False
+        if (context_name not in self._context_name_level
+        and context_name in credentials):
+            self._context_name_level[context_name] = level
+            external = True
+            driver = self._build_remote(**credentials[context_name])
+        else:
+            if browser == 'PhantomJS':
+                self._append_service_arg('--ignore-ssl-errors=true', kwargs)
+            if (browser == 'Firefox'
+            and self.global_settings.get('webdriver_firefox_profile')
+            and not args and not kwargs.has_key('firefox_profile')):
+                # Update with profile specified from config
+                fp = webdriver.FirefoxProfile(self.global_settings.get('webdriver_firefox_profile'))
+                kwargs['firefox_profile'] = fp
+            if (browser == 'Chrome' and os.name == 'posix' and os.geteuid() == 0):
+                self.log.w('Passing --no-sandbox flag to Chrome (running as root)')
+                from selenium.webdriver.chrome.options import Options
+                chrome_options = Options()
+                chrome_options.add_argument('--no-sandbox')
+                #self.log.w('Adding --disable-application-cache')
+                #chrome_options.add_argument('--disable-application-cache')
+                #chrome_options.add_argument('--incognito')
+                kwargs['chrome_options'] = chrome_options
+            driver = getattr(webdriver, browser)(*args, **kwargs)
         if self.global_settings.get('webdriver_window_size'):
             h,w = self.global_settings.get('webdriver_window_size')
             driver.set_window_size(h,w)
-        return driver
+        return driver, external
 
-    def _build_remote(self, executor_url, session_id):
+    def _load_credentials(self):
+        path = self.global_settings.get('webdriver_remote_credentials_path')
+        if not path:
+            return {}
+        with open(path) as fp:
+            return json.load(fp)
+
+    def _build_remote(self, command_executor, session_id):
         original_execute = WebDriver.execute
         non_local = dict(first_run=True)
         def _patched_execute(self, command, params=None):
@@ -181,7 +203,7 @@ class WebdriverManager(XpathWdBase):
                 return original_execute(self, command, params)
         # Patch the function before creating the driver object
         WebDriver.execute = _patched_execute
-        driver = webdriver.Remote(command_executor=executor_url)
+        driver = webdriver.Remote(command_executor=command_executor)
         driver.session_id = session_id
         # Replace the patched function with original function
         WebDriver.execute = original_execute
@@ -193,10 +215,10 @@ class WebdriverManager(XpathWdBase):
         kwargs['service_args'] = service_args
 
     @synchronized(_methods_lock)
-    def acquire_driver(self, level, browser_name=None):
+    def acquire_driver(self, level, browser_name, context_name):
         logger.debug('Acquiring driver %s level %s', browser_name, level)
-        self.init_level(level, browser_name)
-        wdriver = self.get_available_set(browser_name).pop()
+        self.init_level(level, browser_name, context_name)
+        wdriver = self.get_available_set(browser_name, context_name).pop()
         # Keep track of acquired webdrivers in case we need to close them
         self._locked.add(wdriver)
         self._released.remove(wdriver)
@@ -213,15 +235,17 @@ class WebdriverManager(XpathWdBase):
         logger.debug('Releasing %s level %s', wdriver, level)
         assert wdriver in self._locked, 'Webdriver %r was never locked' % wdriver
         self._locked.remove(wdriver)
-        _, drv_level = self._wdriver_pool[wdriver]
+        cfg = self._wdriver_pool[wdriver]
+        if cfg.external:
+            # Make sure we release context_name
+            for context_name, lvl in self._context_name_level.copy().items():
+                if lvl == level:
+                    del self._context_name_level[context_name]
         # Make sure webdriver is healthy and from the right level
         # before reusing it
-        if drv_level >= level and not self._quit_failed_webdriver(wdriver):
+        if not self._quit_failed_webdriver(wdriver):
             # Keep webdriver with higher level of life
             self._released.add(wdriver)
-        else:
-            # Remove no longer needed webdriver
-            self._quit_webdriver(wdriver)
 
     @synchronized(_methods_lock)
     def quit_all_webdrivers(self):
@@ -242,7 +266,7 @@ class WebdriverManager(XpathWdBase):
     @synchronized(_methods_lock)
     def quit_all_failed_webdrivers(self):
         remove = lambda s,e: e in s and s.remove(e)
-        for wdriver in list(self._wdriver_pool.keys()):
+        for wdriver in list(self._wdriver_pool):
             if self._quit_failed_webdriver(wdriver):
                 self._wdriver_pool.pop(wdriver)
                 remove(self._locked, wdriver)
@@ -314,8 +338,7 @@ class WebdriverManager(XpathWdBase):
             in_report = self._locked
         # Build report
         for wdriver in in_report:
-            browser, level = self._wdriver_pool[wdriver]
-            wdrivers_report[wdriver] = browser, level
+            wdrivers_report[wdriver] = self._wdriver_pool[wdriver]
         return wdrivers_report
 
     def get_browser_name(self, browser_name=None):
@@ -351,11 +374,11 @@ class WebdriverManager(XpathWdBase):
 
 
 class BrowserContextManager(XpathWdBase):
-    def __init__(self, parent, level, base_url=None, name='', browser_name=None):
+    def __init__(self, parent, level, base_url=None, context_name='', browser_name=None):
         self.parent = parent
         self.level = level
         self.base_url = base_url
-        self.name = name
+        self.name = context_name
         self.webdriver = None
         self.browser_name = browser_name
         
@@ -368,7 +391,7 @@ class BrowserContextManager(XpathWdBase):
 
     def acquire_driver(self):
         if not self.webdriver:
-            self.webdriver = self.parent.acquire_driver(self.level, self.browser_name)
+            self.webdriver = self.parent.acquire_driver(self.level, self.browser_name, self.name)
         return self.webdriver
 
     def get_xpathbrowser(self, base_url=None, name=''):
@@ -384,6 +407,14 @@ class BrowserContextManager(XpathWdBase):
         if self.webdriver:
             self.parent.release_driver(self.webdriver, self.level)
             self.webdriver = None
+
+
+def get_browser(context_name='default', browser=None):
+    '''
+    :param name: optional context's name (mainly for logging purposes)
+    :param browser: optional browser name string (eg: 'Firefox', 'Chrome', 'PhantomJs')
+    '''
+    return WebdriverManager().get_browser(context_name, browser)
 
 
 def smoke_test_module():

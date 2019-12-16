@@ -18,7 +18,6 @@ class singleton_decorator(object):
     '''
       Singleton pattern decorator.
       There will be only one instance of the decorated class.
-      Decorator always returns same instance.
     '''
 
     def __init__(self, class_):

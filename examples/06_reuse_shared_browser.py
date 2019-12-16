@@ -6,7 +6,7 @@ Can be done with command:
 import unittest
 from xpathwebdriver.default_settings import DefaultSettings
 from xpathwebdriver.solve_settings import register_settings_instance
-from xpathwebdriver.webdriver_manager import WebdriverManager
+from xpathwebdriver.webdriver_manager import get_browser
 
 
 class Settings(DefaultSettings):
@@ -25,7 +25,7 @@ class DuckDuckKeepOpenTest(unittest.TestCase):
         register_settings_instance(Settings())
 
     def test_duckduckgo(self):
-        with WebdriverManager().enter_level() as browser: # Reuse the "outside" browser
+        with get_browser() as browser: # Reuse the "outside" browser
             browser.get_url('https://duckduckgo.com/')
 
 
