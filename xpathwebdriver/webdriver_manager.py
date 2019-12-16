@@ -36,7 +36,7 @@ def synchronized(lock):
     return wrap_method
 
 
-WdriverCfg = namedtuple('WdriverCfg', 'browser context external level')
+WdriverCfg = namedtuple('WdriverCfg', 'browser context shared level')
 
 
 @singleton_decorator
@@ -98,9 +98,9 @@ class WebdriverManager(XpathWdBase):
                 self.log.d('Quitting failed webdriver %s', wdriver)
                 container.remove(wdriver)
                 self._wdriver_pool.pop(wdriver)
-            # Quit if exiting the level (but keep if external browser, started by some other process)
+            # Quit if exiting the level (but keep if shared browser, started by some other process)
             elif (cfg.level >= level 
-            and not cfg.external
+            and not cfg.shared
             and not self.global_settings.get('webdriver_browser_keep_open')):
                 self.log.d('Quitting exited level webdriver %s', wdriver)
                 container.remove(wdriver)
@@ -131,8 +131,8 @@ class WebdriverManager(XpathWdBase):
         if not released:
             # Create webdriver if needed
             browser_name = self.get_browser_name(browser_name)
-            wdriver, external = self._new_webdriver(browser_name, level, context_name)
-            self._wdriver_pool[wdriver] = WdriverCfg(browser_name, context_name, external, level)
+            wdriver, shared = self._new_webdriver(browser_name, level, context_name)
+            self._wdriver_pool[wdriver] = WdriverCfg(browser_name, context_name, shared, level)
             self._released.add(wdriver)
 
     @synchronized(_methods_lock)
@@ -154,11 +154,11 @@ class WebdriverManager(XpathWdBase):
         # Setup display before creating the browser
         self.start_display()
         credentials = self._load_credentials()
-        external = False
+        shared = False
         if (context_name not in self._context_name_level
         and context_name in credentials):
             self._context_name_level[context_name] = level
-            external = True
+            shared = True
             driver = self._build_remote(**credentials[context_name])
         else:
             if browser == 'PhantomJS':
@@ -182,7 +182,7 @@ class WebdriverManager(XpathWdBase):
         if self.global_settings.get('webdriver_window_size'):
             h,w = self.global_settings.get('webdriver_window_size')
             driver.set_window_size(h,w)
-        return driver, external
+        return driver, shared
 
     def _load_credentials(self):
         path = self.global_settings.get('webdriver_remote_credentials_path')
@@ -236,7 +236,7 @@ class WebdriverManager(XpathWdBase):
         assert wdriver in self._locked, 'Webdriver %r was never locked' % wdriver
         self._locked.remove(wdriver)
         cfg = self._wdriver_pool[wdriver]
-        if cfg.external:
+        if cfg.shared:
             # Make sure we release context_name
             for context_name, lvl in self._context_name_level.copy().items():
                 if lvl == level:
