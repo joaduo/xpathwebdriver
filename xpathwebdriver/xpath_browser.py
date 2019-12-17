@@ -118,6 +118,10 @@ class XpathBrowser(object):
     def driver(self):
         return self.get_driver()
 
+    @property
+    def base_url(self):
+        return self._base_url
+
     def set_base_url(self, base_url):
         '''
         Set base URL. (in order to build full URLs passing the path eg: browser.get_page('/path/page.html'))
