@@ -145,6 +145,7 @@ class XpathBrowser(object):
         '''
         return self.Url(self.current_url).get_path_and_on()
 
+    @property
     def current_url(self):
         '''
         Return the current page's URL. (from webdriver instance) 
