@@ -139,6 +139,7 @@ class XpathBrowser(object):
         assert self._driver, 'driver was not initialized'
         return self._driver
 
+    @property
     def current_path(self):
         '''
         Get (path + params + query + fragment) as string from current url.

@@ -90,7 +90,7 @@ class TestXpathBrowser(WebUnitTestBase):
         self.assertEqual(self.browser.build_url('example'), 'http://mepinta.com/example')
         with self.create_html('test_fill', body) as path:
             self.get_local_page(path)
-            self.assertTrue(self.browser.current_path().endswith('.html'))
+            self.assertTrue(self.browser.current_path.endswith('.html'))
             self.assertTrue(self.browser.current_url.endswith('.html'))
             self.assertIsInstance(self.browser.get_driver(), WebDriver)
             self.browser.fill_form(firstname='John1', lastname='Doe1')
