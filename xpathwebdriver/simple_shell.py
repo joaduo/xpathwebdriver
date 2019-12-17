@@ -22,7 +22,7 @@ logger = Logger(level=logging.DEBUG, color=False)
 class ShellBrowser(Browser):
     def get_url(self, url, condition=None):
         Browser.get_url(self, url, condition=condition)
-        self.log.i(" Current url: %s" % self.current_url())
+        self.log.i(" Current url: %s" % self.current_url)
 
 
 def dump_credentials(browser, dump_path, context_name, wipe_credentials):
@@ -50,7 +50,7 @@ def embed(args):
     if args.url:
         b.get(args.url)
     display_banner = ("XpathBrowser in 'b' or 'browser' variables\n"
-                      " Current url: %s" % b.current_url())
+                      " Current url: %s" % b.current_url)
     try:
         from IPython.terminal.embed import InteractiveShellEmbed
         # Now create the IPython shell instance. Put ipshell() anywhere in your code

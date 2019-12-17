@@ -91,7 +91,7 @@ class TestXpathBrowser(WebUnitTestBase):
         with self.create_html('test_fill', body) as path:
             self.get_local_page(path)
             self.assertTrue(self.browser.current_path().endswith('.html'))
-            self.assertTrue(self.browser.current_url().endswith('.html'))
+            self.assertTrue(self.browser.current_url.endswith('.html'))
             self.assertIsInstance(self.browser.get_driver(), WebDriver)
             self.browser.fill_form(firstname='John1', lastname='Doe1')
             self.browser.fill_form_attr('id', {1:'John2', 2:'Doe2'})

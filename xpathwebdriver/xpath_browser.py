@@ -143,7 +143,7 @@ class XpathBrowser(object):
         '''
         Get (path + params + query + fragment) as string from current url.
         '''
-        return self.Url(self.current_url()).get_path_and_on()
+        return self.Url(self.current_url).get_path_and_on()
 
     def current_url(self):
         '''
@@ -157,7 +157,7 @@ class XpathBrowser(object):
         
         :param path: path and on eg:"/blog/123?param=1"
         '''
-        base_url = self._base_url or self.Url(self.current_url()).get_scheme_netloc_path()
+        base_url = self._base_url or self.Url(self.current_url).get_scheme_netloc_path()
         assert base_url, 'No base_url set for building urls'
         if path.startswith('/') and self.settings.get('xpathbrowser_paths_like_html', True):
             #building url relative to the server's root
@@ -207,11 +207,11 @@ class XpathBrowser(object):
         msg = 'Couldn\'t load page at {url!r}'.format(url=url)
         if condition and not self.wait_condition(condition):
             raise LookupError(msg)
-        if self.current_url() == u'about:blank':
+        if self.current_url == u'about:blank':
             raise LookupError(msg + '. Url is u"about:blank"')
-        if not self.Url.are_equal(url, self.current_url()):
+        if not self.Url.are_equal(url, self.current_url):
             self.log.d('For {url!r} we got {current!r}.'
-                       .format(url=url, current=self.current_url()))
+                       .format(url=url, current=self.current_url))
 
     def get_page(self, path, condition=None):
         '''
@@ -239,7 +239,7 @@ class XpathBrowser(object):
             netloc = parts.netloc.split('@')[1]
             url = urlunparse(parts._replace(netloc=netloc))
         # Check if page was already loaded
-        if not self.Url.are_equal(url, self.current_url()):
+        if not self.Url.are_equal(url, self.current_url):
             # Url is different, load new page
             self.get_page(path, condition)
         else:
