@@ -76,7 +76,7 @@ class BaseSettings(object):
             cfg_var = getattr(self, n)
             if not isinstance(cfg_var, ConfigVar):
                 cfg_var = self._solve_config_var(n)
-                if not cfg_var:
+                if not isinstance(cfg_var, ConfigVar):
                     logger.warning('Config variable %r not supported (mispelled/deprecated?)', n)
                     continue
             cfg_var.name = cfg_var.name or n
@@ -86,7 +86,8 @@ class BaseSettings(object):
     @classmethod
     def _solve_config_var(cls, attr):
         cfg_var = getattr(cls, attr, None)
-        if not isinstance(cfg_var, ConfigVar) and issubclass(cls.__bases__[0], BaseSettings):
+        if (not isinstance(cfg_var, ConfigVar)
+        and issubclass(cls.__bases__[0], BaseSettings)):
             return cls.__bases__[0]._solve_config_var(attr)
         return cfg_var
 
