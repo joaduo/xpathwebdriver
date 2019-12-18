@@ -14,6 +14,7 @@ import json
 import os
 from xpathwebdriver.default_settings import DefaultSettings
 import logging
+from xpathwebdriver.solve_settings import solve_settings
 
 
 logger = Logger(level=logging.DEBUG, color=False)
@@ -103,10 +104,10 @@ class XpathShellCommand(CommandMixin):
 
     def print_env_vars(self):
         print('\n# Available environment variables to override configuration (current values if declared): \n')
-        for n,cfg in sorted(DefaultSettings()._get_config_vars().items()):
+        for n,cfg in sorted(solve_settings().get_config_vars().items()):
             if cfg.experimental:
                 continue
-            print('%s=%s\t\t(default:%r)' % (n, os.environ.get(n,''), cfg.value))
+            print('%s=%s\t\t(default:%r)' % (n, cfg.value, cfg.default))
 
     def print_settings_help(self):
         settings_doc = '''
@@ -119,7 +120,7 @@ You can also export an environment variable to override any configuration.
 %s
         '''
         vars_doc = ''
-        for env_var,cfg in sorted(DefaultSettings()._get_config_vars().items()):
+        for env_var,cfg in sorted(solve_settings().get_config_vars().items()):
             dc = '''
 * {cfg.name} (python)
   {env_var} (env var)
