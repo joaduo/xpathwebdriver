@@ -27,7 +27,7 @@ def long_description():
 setup(
   name = name,
   packages = find_packages(),
-  version = '1.1.0',
+  version = '1.3.0',
   description = 'Simpler selenium/webdriver API through a wrapper',
   long_description=long_description(),
   long_description_content_type='text/x-rst',
