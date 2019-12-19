@@ -12,12 +12,6 @@ from xpathwebdriver.webdriver_manager import get_browser
 class Settings(DefaultSettings):
     webdriver_remote_credentials_path = 'path/to/dumped/credentials.json'
 
-    #Alternatively instead of providing a path, you can directly paste executor url and session id
-    #here. (remember to comment webdriver_remote_credentials_path line, or values below will be overriden)
-    # Run `xpathshell -p` (to see them and copy paste them)
-    #webdriver_remote_command_executor = ''
-    #webdriver_remote_session_id = ''
-
 
 class DuckDuckKeepOpenTest(unittest.TestCase):
     @classmethod
