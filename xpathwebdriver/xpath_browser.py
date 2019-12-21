@@ -517,7 +517,15 @@ function extract_element(elem){
         :param xpath: xpath's string eg:"./button[@id='send_form']"
         '''
         element = self.select_xsingle(xpath)
-        element.click()
+        try:
+            element.click()
+        except WebDriverException as e:
+            msg = (
+                '\nWebDriverException: Could not click {xpath!r}'
+                'for page {self.current_url!r}\n Error:\n {e}'.format(
+                    **locals()))
+            e.msg += msg
+            raise e
 
     def sleep(self, timeout=None):
         '''
