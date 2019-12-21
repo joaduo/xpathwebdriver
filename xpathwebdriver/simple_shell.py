@@ -12,9 +12,10 @@ from .browser import Browser
 from .base import CommandMixin
 import json
 import os
-from xpathwebdriver.default_settings import DefaultSettings
 import logging
 from xpathwebdriver.solve_settings import solve_settings
+from json.decoder import JSONDecodeError
+from urllib3.exceptions import MaxRetryError
 
 
 logger = Logger(level=logging.DEBUG, color=False)
@@ -31,13 +32,19 @@ def dump_credentials(browser, dump_path, context_name, wipe_credentials):
     creds = {}
     if os.path.exists(dump_path) and not wipe_credentials:
         with open(dump_path, 'r') as fp:
-            creds = json.load(fp)
+            json_str = fp.read()
+            try:
+                creds = json.loads(json_str)
+            except JSONDecodeError:
+                logger.warning('File %r does not have valid json %r', dump_path, json_str)
+    if context_name in creds:
+        logger.info('Ovewriting previous context_name %r in %s', context_name, dump_path)
     creds[context_name] = browser.get_remote_credentials()
     with open(dump_path, 'w') as fp:
         json.dump(creds, fp)
 
 
-def embed(args):
+def embed(args, browser):
     '''
     :param args: parser args object
     '''
@@ -45,7 +52,7 @@ def embed(args):
                    ' shell. Exception: %r')
     ipdb_msg = ('Could not embed ipdb, falling back to pdb'
                 ' shell. Exception: %r')
-    b = browser = ShellBrowser(logger=logger)
+    b = browser
     if args.dump_credentials:
         dump_credentials(browser, args.dump_credentials, args.context_name, args.wipe_credentials)
     if args.url:
@@ -100,7 +107,26 @@ class XpathShellCommand(CommandMixin):
         elif args.settings_help:
             self.print_settings_help()
         else:
-            embed(args)
+            creds_env_var = 'XPATHWD_WEBDRIVER_REMOTE_CREDENTIALS_PATH'
+            creds_cfg_var = 'webdriver_remote_credentials_path'
+            if solve_settings().get(creds_cfg_var) and args.dump_credentials:
+                if os.environ.get(creds_env_var, None):
+                    logger.warning('%s environment variable is set', creds_env_var)
+                logger.error('You are dumping webdriver credentials but at the same time'
+                             ' %r config var is set', creds_cfg_var)
+            else:
+                browser = None
+                try:
+                    browser = ShellBrowser(logger=logger)
+                except Exception:
+                    logger.exception('Webdriver Browser')
+                    logger.error('Could not create browser object. Are configuration settings ok?')
+                    if solve_settings().get(creds_cfg_var):
+                        logger.warning('%r config var is set', creds_cfg_var)
+                    if os.environ.get(creds_env_var, None):
+                        logger.warning('%s environment variable is set', creds_env_var)
+                if browser:
+                    embed(args, browser)
 
     def print_env_vars(self):
         print('\n# Available environment variables to override configuration (current values if declared): \n')
@@ -121,6 +147,8 @@ You can also export an environment variable to override any configuration.
         '''
         vars_doc = ''
         for env_var,cfg in sorted(solve_settings().get_config_vars().items()):
+            if cfg.experimental:
+                continue
             dc = '''
 * {cfg.name} (python)
   {env_var} (env var)

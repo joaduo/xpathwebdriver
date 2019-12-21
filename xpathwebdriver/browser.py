@@ -28,7 +28,7 @@ class Browser(XpathBrowser):
         self._free_webdriver()
 
     def _free_webdriver(self):
-        if getattr(self, '_browser_context'):
+        if getattr(self, '_browser_context', None):
             self._browser_context.__exit__()
             self._browser_context = None
 
