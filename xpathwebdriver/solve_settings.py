@@ -139,13 +139,18 @@ def _register_settings_module(mod):
 
 global_settings = None
 def register_settings_instance(settings):
+    global global_settings
     if not settings:
         logging.debug('Provided empty settings %s', settings)
         return
-    global global_settings
+    if settings == global_settings:
+        logging.debug('Settings %s already registered', settings)
+        return
     if global_settings:
         logging.debug('Replacing existing settings %r (old) with %r (new)', global_settings, settings)
-    global_settings = SettingsWrapper(settings)
+    if not isinstance(settings, SettingsWrapper):
+        settings = SettingsWrapper(settings)
+    global_settings = settings
 
 
 def set_log_level():
