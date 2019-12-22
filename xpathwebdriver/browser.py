@@ -8,7 +8,7 @@ Code Licensed under MIT License. See LICENSE file.
 import rel_imp; rel_imp.init()
 from .webdriver_manager import WebdriverManager
 from .xpath_browser import XpathBrowser
-from .solve_settings import register_settings_instance
+from .solve_settings import register_settings_instance, solve_settings
 
 
 class Browser(XpathBrowser):
@@ -19,7 +19,10 @@ class Browser(XpathBrowser):
     For multiple browsers at the same time check examples/04_mutiple_browsers.py
     '''
     def __init__(self, base_url=None, logger=None, settings=None, context_name='default'):
-        register_settings_instance(settings)
+        if settings:
+            register_settings_instance(settings)
+        else:
+            settings = solve_settings()
         self._browser_context = WebdriverManager().get_browser(context_name=context_name)
         XpathBrowser.__init__(self, self._browser_context.acquire_driver(),
                 base_url=base_url, logger=logger, settings=settings)
