@@ -11,7 +11,7 @@ from threading import RLock
 from functools import wraps
 from selenium.common.exceptions import UnexpectedAlertPresentException
 from .base import XpathWdBase, singleton_decorator
-from xpathwebdriver.levels import SURVIVE_PROCESS, TEST_ROUND_LIFE, MANAGER_LIFE
+from xpathwebdriver.levels import TEST_ROUND_LIFE, MANAGER_LIFE
 from selenium.webdriver.remote.webdriver import WebDriver
 import os
 import logging
