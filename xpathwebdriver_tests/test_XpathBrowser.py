@@ -145,8 +145,8 @@ class TestXpathBrowser(WebUnitTestBase):
         '''
         with self.create_html('test_select', body) as path:
             self.get_local_page(path)
-            self.browser.select_xpath('//div')
-            self.browser.select_xsingle('//div')
+            self.assertTrue(self.browser.select_xpath('//div'))
+            self.assertTrue(self.browser.select_xsingle('//div'))
             found = self.browser.wait_condition(lambda b: b.select_xpath('//div'))
             self.assertTrue(found)
             found = self.browser.wait_condition(lambda b: b.select_xpath('//div/form'), max_wait=0.1)
