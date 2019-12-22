@@ -251,7 +251,7 @@ class XpathBrowser(object):
 
     _default_condition = 'return "complete" == document.readyState;'
 
-    def wait_condition(self, condition=None, max_wait=None, print_msg=True):
+    def wait_condition(self, condition=None, max_wait=None):
         '''
         Active wait (polling) function, for a specific condition inside a page.
         
@@ -307,10 +307,9 @@ class XpathBrowser(object):
                 self.log.d('Waiting condition "%s" to be True.' % condition)
                 time.sleep(delta * try_num)
         # If condition was not satisfied print debug message
-        if not loaded and print_msg:
-            msg = ('Page took too long to load. Increase max_wait parameter'
+        if not loaded:
+            self.log.d('Page took too long to load. Increase max_wait parameter'
                    ' or modify object\'s "_max_wait" attribute.')
-            self.log.d(msg)
         # Return whether condition was satisfied
         return loaded
 
