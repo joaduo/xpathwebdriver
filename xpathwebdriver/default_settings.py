@@ -16,12 +16,15 @@ class DefaultSettings(BaseSettings):
         parser=str)
 
     # XpathBrowser related settings
-    xpathbrowser_wait_timeout = ConfigVar(
-        doc='Time multiplier factor (in seconds) for waiting related functions',
-        default=2,
+    xpathbrowser_sleep_multiplier = ConfigVar(
+        doc='Time multiplier factor for browser.sleep() method',
+        default=1,
         experimental=True)
+    xpathbrowser_sleep_default_time = ConfigVar(
+        doc='Default time in seconds for browser.sleep() method',
+        default=1)
     xpathbrowser_max_wait = ConfigVar(
-        doc='Time multiplier factor (in seconds) for waiting related functions',
+        doc='Maximum time in seconds, per try, for wait_condition',
         default=5)
     xpathbrowser_default_scheme = ConfigVar(
         doc='When resolving a URL without scheme, what scheme (protocol) to default to',

@@ -111,8 +111,9 @@ class XpathBrowser(object):
         self._driver = webdriver
         # Initialize values
         self._base_url = base_url
+        self._sleep_multiplier = self.settings.get('xpathbrowser_sleep_multiplier', 1)
+        self._sleep_time = self.settings.get('xpathbrowser_sleep_default_time', 1)
         self._max_wait = self.settings.get('xpathbrowser_max_wait', 5)
-        self._wait_timeout = self.settings.get('xpathbrowser_wait_timeout', 2)
 
     @property
     def driver(self):
@@ -280,6 +281,7 @@ class XpathBrowser(object):
 
         :param condition: functor or javascript string of condition checking logic.
         :param max_wait: Max amount of time to wait for condition to be true (per try round).
+                         First try is 1/10th of this value, second 2/10th and so on...
         :param print_msg: print debug message (debugging purpose)
         '''
         condition = condition if condition else self._default_condition
@@ -294,14 +296,16 @@ class XpathBrowser(object):
         # then increase time adding a tenth until getting the 100% of wait time
         parts = 10
         max_wait = max_wait or self._max_wait
-        top = int(parts * max_wait)
-        for i in range(1, top + 1):
+        assert 0 < max_wait , 'max_wait must be greater than zero'
+        delta = float(max_wait) / float(parts)
+        for try_num in range(1, parts + 1):
             loaded = condtn(self)
             if loaded:
                 self.log.d('Condition "%s" is True.' % condition)
                 break
-            self.log.d('Waiting condition "%s" to be True.' % condition)
-            time.sleep(float(i) / parts)
+            if try_num < parts:
+                self.log.d('Waiting condition "%s" to be True.' % condition)
+                time.sleep(delta * try_num)
         # If condition was not satisfied print debug message
         if not loaded and print_msg:
             msg = ('Page took too long to load. Increase max_wait parameter'
@@ -527,15 +531,16 @@ function extract_element(elem){
             e.msg += msg
             raise e
 
-    def sleep(self, timeout=None):
+    def sleep(self, timeout=None, scalable=True):
         '''
-        Useful sleep method (alias to time.sleep)
-        The timeout can be set globally or passed to the method.
-
-        :param timeout: if specified, amount of seconds to wait. (else use global value)
+        Useful sleep method (workaround for many webdriver's problem)
+        :param timeout: if specified, amount of seconds to wait, else use settings default value.
+        :param scalable: if True time is multiplied global setting 'xpathbrowser_sleep_multiplier'
         '''
-        self.log.w('DEPRECATED use wait_condition or time.sleep instead')
-        time.sleep(timeout or self._wait_timeout)
+        seconds = (timeout or self._sleep_time)
+        if scalable:
+            seconds *= self._sleep_multiplier
+        time.sleep(seconds)
 
     def wipe_alerts(self, timeout=0.5):
         '''
