@@ -77,7 +77,6 @@ class WebUnitTestBase(unittest.TestCase):
 class TestXpathBrowser(WebUnitTestBase):
     '''
     TODO:
-    - test valid_*
     - get_url (with condition)
     - get_path (with condition)
     '''
@@ -138,7 +137,9 @@ class TestXpathBrowser(WebUnitTestBase):
             self.assertTrue(found)
             found = self.browser.wait_condition(lambda b: b.select_xpath('//div/form'), max_wait=0.1)
             self.assertFalse(found)
-
+            # default condition
+            found = self.browser.wait_condition()
+            self.assertTrue(found)
 
 if __name__ == "__main__":
     unittest.main()

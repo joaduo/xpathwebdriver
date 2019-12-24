@@ -20,8 +20,6 @@ Main methods:
 * `select_xsingle`
 * `select_css`
 * `select_css_single`
-* `valid_xpath`
-* `valid_xsingle`
 * `fill`
 * `fill_form`
 * `fill_form_attr`
