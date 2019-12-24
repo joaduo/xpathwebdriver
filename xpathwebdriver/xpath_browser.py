@@ -542,9 +542,8 @@ function extract_element(elem){
         '''
         seconds = (timeout or self._sleep_time)
         mult = self._sleep_multiplier
-        if mult > 1 and '>' in condition:
-            seconds *= mult
-        if mult < 1 and '<' in condition:
+        if ((mult > 1 and '>' in condition)
+        or  (mult < 1 and '<' in condition)):
             seconds *= mult
         time.sleep(seconds)
 
