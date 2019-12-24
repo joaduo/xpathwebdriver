@@ -424,7 +424,7 @@ function extract_element(elem){
         '''
         return self._select(xpath, single, select_type='xpath')
 
-    def _select(self, select_expr, single, select_type='xpath'):
+    def _select(self, select_expr, single, select_type):
         '''
         Select nodes specified by xpath
 
@@ -448,7 +448,7 @@ function extract_element(elem){
         return result
 
     def has_xpath(self, xpath):
-        self.log.w('DEPRECATED METHOD has_xpath, use valid_xpath')
+        self.log.w('DEPRECATED METHOD has_xpath, use select_xpath')
         return self.valid_xpath(xpath)
 
     def valid_xpath(self, xpath):
@@ -457,19 +457,20 @@ function extract_element(elem){
 
         :param xpath: xpath's string eg:"/div[@id='example']/text()"
         '''
+        self.log.w('DEPRECATED METHOD valid_xpath, use select_xpath')
         return self._valid_xpath(xpath, single=False)
 
     def has_xsingle(self, xpath):
-        self.log.w('DEPRECATED METHOD has_xsingle, use valid_xsingle')
+        self.log.w('DEPRECATED METHOD has_xsingle, use select_xpath')
         return self.valid_xsingle(xpath)
 
     def valid_xsingle(self, xpath):
         '''
-        Returns True if xpath is present AND there is at least 1 
-        node in the resulting selection.
+        Returns True if there is at least 1 node in the resulting selection.
 
         :param xpath: xpath's string eg:"/div[@id='example']/text()"
         '''
+        self.log.w('DEPRECATED METHOD has_xsingle, use select_xpath')
         return self._valid_xpath(xpath, single=True)
 
     def _valid_xpath(self, xpath, single):
@@ -480,11 +481,7 @@ function extract_element(elem){
         :param single: if True, it makes sure there is at least 1 node in the
             xpath selection.
         '''
-        try:
-            self._select_xpath(xpath, single)
-            return True
-        except LookupError:
-            return False
+        return self._select_xpath(xpath, single)
 
     def select_css(self, selectors):
         return self._select(selectors, single=False, select_type='css')
