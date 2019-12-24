@@ -530,15 +530,22 @@ function extract_element(elem){
             e.msg += msg
             raise e
 
-    def sleep(self, timeout=None, scalable=True):
+    def sleep(self, timeout=None, condition='>'):
         '''
         Useful sleep method (workaround for many webdriver's problem)
         :param timeout: if specified, amount of seconds to wait, else use settings default value.
-        :param scalable: if True time is multiplied global setting 'xpathbrowser_sleep_multiplier'
+        :param condition: scaling condition, a string like '>','<', '><', '='
+                        >:   scales when mutiplier > 1 (grows time)
+                        <: scales when multiplier < 1 (shrinks time)
+                        ><: scales always
+                        =: no scaling allowed
         '''
         seconds = (timeout or self._sleep_time)
-        if scalable:
-            seconds *= self._sleep_multiplier
+        mult = self._sleep_multiplier
+        if mult > 1 and '>' in condition:
+            seconds *= mult
+        if mult < 1 and '<' in condition:
+            seconds *= mult
         time.sleep(seconds)
 
     def wipe_alerts(self, timeout=0.5):

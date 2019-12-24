@@ -18,8 +18,7 @@ class DefaultSettings(BaseSettings):
     # XpathBrowser related settings
     xpathbrowser_sleep_multiplier = ConfigVar(
         doc='Time multiplier factor for browser.sleep() method',
-        default=1,
-        experimental=True)
+        default=1)
     xpathbrowser_sleep_default_time = ConfigVar(
         doc='Default time in seconds for browser.sleep() method',
         default=1)

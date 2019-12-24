@@ -114,8 +114,10 @@ class TestXpathBrowser(WebUnitTestBase):
     def test_sleep(self):
         self.browser.sleep()
         self.browser.sleep(0.1)
-        self.browser.sleep(0.1, scalable=False)
-        self.browser.sleep(scalable=False)
+        self.browser.sleep(0.1, condition='>')
+        self.browser.sleep(condition='<')
+        self.browser.sleep(0.05, condition='=')
+        self.browser.sleep(1, condition='><')
 
     def test_select(self):
         body = '''
