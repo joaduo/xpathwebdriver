@@ -144,7 +144,7 @@ import time
 driver = webdriver.Chrome()
 driver.maximize_window()
 driver.get('https://www.google.com')
-print('You can 10 secs to check the browser window')
+print('You have 10 secs to check the browser window...')
 time.sleep(10)
 ```
 
