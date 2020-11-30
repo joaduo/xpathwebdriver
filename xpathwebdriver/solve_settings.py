@@ -6,7 +6,6 @@ Copyright (c) 2014 Juju. Inc
 Code Licensed under MIT License. See LICENSE file.
 '''
 import rel_imp; rel_imp.init()
-import imp
 import importlib
 import logging
 import os
@@ -121,9 +120,7 @@ def register_settings(settings_path):
     :param settings_path:
     '''
     if isinstance(settings_path, str):
-        # http://stackoverflow.com/questions/67631/how-to-import-a-module-given-the-full-path
-        mod = imp.load_source('specific_xpathwebdriver_settings', settings_path)
-        _register_settings_module(mod)
+        solve_settings(file_path=settings_path)
     else:
         register_settings_instance(settings_path)
     set_log_level()
@@ -141,7 +138,7 @@ global_settings = None
 def register_settings_instance(settings):
     global global_settings
     if not settings:
-        logging.debug('Provided empty settings %s', settings)
+        logging.debug('Empty settings %s, ignoring them', settings)
         return
     if settings == global_settings:
         logging.debug('Settings %s already registered', settings)
@@ -166,18 +163,20 @@ def _set_log_level(base_cls, logger_cls):
     base_cls.log.setLevel(global_settings.get('log_level_default'))
 
 
-def solve_settings():
-    return _solve_settings('xpathwebdriver.default_settings')
-
-
-def _solve_settings(default_mod):
-    '''
-    Main function for getting xpathwebdrivertest global settings.
-    #TODO: this goes against any Encapsulated Environment Pattern (context)
-    '''
+def solve_settings(module_name=None, file_path=None):
     global global_settings
     if not global_settings:
-        _register_settings_module(importlib.import_module(default_mod))
+        file_path = file_path or os.environ.get('XPATHWD_SETTINGS_FILE')
+        if file_path:
+            if not os.path.exists(file_path):
+                raise LookupError(f'No such settings file {file_path}')
+            spec = importlib.util.spec_from_file_location('xpathwebdriver_custom_settings_file', file_path)
+            mod = importlib.util.module_from_spec(spec)
+        else:
+            module_name = module_name or os.environ.get('XPATHWD_SETTINGS_MODULE',
+                                                        'xpathwebdriver.default_settings')
+            mod = importlib.import_module(module_name)
+        _register_settings_module(mod)
     return global_settings
 
 
