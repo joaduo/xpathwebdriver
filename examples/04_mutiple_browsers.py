@@ -1,19 +1,8 @@
 import unittest
-from xpathwebdriver.default_settings import DefaultSettings
-from xpathwebdriver.solve_settings import register_settings_instance
 from xpathwebdriver.webdriver_manager import get_browser
 
 
-class Settings(DefaultSettings):
-    #Override here any desired option check example 02
-    pass
-
-
 class DuckDuckTest(unittest.TestCase):
-    @classmethod
-    def setUpClass(cls):
-        register_settings_instance(Settings())
-
     def test_duckduckgo(self):
         #Use WebdriverManager for more than 1 browser
         with get_browser('First', 'Chrome') as browser:

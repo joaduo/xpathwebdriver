@@ -20,14 +20,11 @@ class Settings(DefaultSettings):
 
 
 class DuckDuckKeepOpenTest(unittest.TestCase):
-    @classmethod
-    def setUpClass(cls):
-        register_settings_instance(Settings())
-
     def test_duckduckgo(self):
         with get_browser() as browser:
             browser.get_url('https://duckduckgo.com/')
 
 
 if __name__ == "__main__":
+    register_settings_instance(Settings())
     unittest.main()

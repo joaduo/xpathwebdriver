@@ -20,10 +20,6 @@ class Settings(DefaultSettings):
 
 
 class DuckDuckKeepOpenTest(unittest.TestCase):
-    @classmethod
-    def setUpClass(cls):
-        register_settings_instance(Settings())
-
     def test_duckduckgo(self):
         # First argument in context name, that matches dictionary key in credentials.json
         with get_browser('default') as browser:
@@ -33,4 +29,5 @@ class DuckDuckKeepOpenTest(unittest.TestCase):
 
 
 if __name__ == "__main__":
+    register_settings_instance(Settings())
     unittest.main()
