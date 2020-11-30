@@ -393,6 +393,18 @@ function extract_element(elem){
         '''
         return extract_element
 
+    def xpath(self, xpath, single=False):
+        '''
+        Select HTML nodes given an xpath.
+        May return:
+            - webdriver's web element
+            - strings (if xpath specifies @attribute or text())
+
+        :param xpath: xpath's string eg:"/div[@id='example']/text()"
+        :returns: list of selected Webelements or strings
+        '''
+        return self._select_xpath(xpath, single=single)
+
     def select_xpath(self, xpath):
         '''
         Select HTML nodes given an xpath.
@@ -482,6 +494,9 @@ function extract_element(elem){
             xpath selection.
         '''
         return self._select_xpath(xpath, single)
+
+    def css(self, selectors):
+        return self._select(selectors, single=False, select_type='css')
 
     def select_css(self, selectors):
         return self._select(selectors, single=False, select_type='css')
