@@ -73,7 +73,11 @@ class DefaultSettings(BaseSettings):
         default={},
         parser=eval)
     webdriver_firefox_profile = ConfigVar(
-        doc="Specify firefox's profile path Eg: '/home/<user>/.mozilla/firefox/4iyhtofy.xpathwebdriver'",
+        doc="DEPRECATED: Specify firefox's profile path Eg: '/home/<user>/.mozilla/firefox/4iyhtofy.xpathwebdriver'",
+        default=None,
+        parser=str)
+    webdriver_browser_profile = ConfigVar(
+        doc="Specify browser's profile path Eg: '/home/<user>/.mozilla/firefox/4iyhtofy.xpathwebdriver'",
         default=None,
         parser=str)
     webdriver_window_size = ConfigVar(

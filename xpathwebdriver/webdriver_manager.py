@@ -164,16 +164,24 @@ class WebdriverManager(XpathWdBase):
             if browser == 'PhantomJS':
                 self._append_service_arg('--ignore-ssl-errors=true', kwargs)
             if (browser == 'Firefox'
-            and self.global_settings.get('webdriver_firefox_profile')
+            and self.global_settings.get('webdriver_browser_profile',
+                self.global_settings.get('webdriver_firefox_profile'))
             and not args and not kwargs.has_key('firefox_profile')):
                 # Update with profile specified from config
-                fp = webdriver.FirefoxProfile(self.global_settings.get('webdriver_firefox_profile'))
+                fp = webdriver.FirefoxProfile(self.global_settings.get('webdriver_browser_profile',
+                                              self.global_settings.get('webdriver_firefox_profile')))
                 kwargs['firefox_profile'] = fp
-            if (browser == 'Chrome' and os.name == 'posix' and os.geteuid() == 0):
+            if (browser == 'Chrome'
+            and self.global_settings.get('webdriver_browser_profile')
+            and not args and not kwargs.has_key('chrome_options')):
                 self.log.w('Passing --no-sandbox flag to Chrome (running as root)')
                 from selenium.webdriver.chrome.options import Options
                 chrome_options = Options()
-                chrome_options.add_argument('--no-sandbox')
+                if os.name == 'posix' and os.geteuid() == 0:
+                    chrome_options.add_argument('--no-sandbox')
+                if self.global_settings.get('webdriver_browser_profile'):
+                    chrome_options.add_argument('--user-data-dir=%r' %
+                                                self.global_settings.get('webdriver_browser_profile'))
                 #self.log.w('Adding --disable-application-cache')
                 #chrome_options.add_argument('--disable-application-cache')
                 #chrome_options.add_argument('--incognito')
