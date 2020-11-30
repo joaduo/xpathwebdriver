@@ -8,6 +8,8 @@ app="xpathwebdriver"
 
 rm dist/$app\-*.tar.gz
 
+pip install twine
+
 python setup.py sdist && twine check dist/$app\-*.tar.gz
 
 function test_venv(){
