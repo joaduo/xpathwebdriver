@@ -109,6 +109,6 @@ class ImagesComparator(XpathWdBase):
         '''
         ref_img = shlex.quote(ref_img)
         new_img = shlex.quote(new_img)
-        command = 'findimagedupes -t=%s %s %s' % (threshold, ref_img, new_img)
+        command = f'findimagedupes -t={threshold} {ref_img} {new_img}'
         return bool(self.exec_cmd(command))
 
