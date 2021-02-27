@@ -9,7 +9,7 @@ from selenium import webdriver
 from pyvirtualdisplay import Display
 from threading import RLock
 from functools import wraps
-from selenium.common.exceptions import UnexpectedAlertPresentException
+from selenium.common.exceptions import UnexpectedAlertPresentException, WebDriverException
 from .base import XpathWdBase, singleton_decorator
 from xpathwebdriver.levels import TEST_ROUND_LIFE, MANAGER_LIFE
 from selenium.webdriver.remote.webdriver import WebDriver
@@ -53,7 +53,7 @@ class WebdriverManager(XpathWdBase):
         self._locked = set()
         # Set of released webdrivers
         self._released = set()
-        # Pool of drivers {wdriver:(browser_name, driver_life_level)}
+        # Pool of drivers {wdriver:WdriverCfg}
         self._wdriver_pool = {}
         # Virtual display object where we start webdrivers
         self._virtual_display = None
@@ -158,10 +158,11 @@ class WebdriverManager(XpathWdBase):
         shared = False
         if (context_name not in self._context_name_level
         and context_name in credentials):
-            self._context_name_level[context_name] = level
-            shared = True
             driver = self._build_remote(**credentials[context_name])
-        else:
+            if driver:
+                shared = True
+                self._context_name_level[context_name] = level
+        if not shared:
             if browser == 'PhantomJS':
                 self._append_service_arg('--ignore-ssl-errors=true', kwargs)
             if (browser == 'Firefox'
@@ -217,6 +218,12 @@ class WebdriverManager(XpathWdBase):
         driver.session_id = session_id
         # Replace the patched function with original function
         WebDriver.execute = original_execute
+        try:
+            driver.get_window_size()
+        except WebDriverException as e:
+            logger.warning(f'Exception {e} while trying to connect to a remote shared webdriver.'
+                           ' Creating new local browser...')
+            driver = None
         return driver
 
     def _append_service_arg(self, arg, kwargs):
@@ -242,8 +249,8 @@ class WebdriverManager(XpathWdBase):
         :param wdriver: webdriver instance to be released
         :param level: level at wich we are releasing the webdriver
         '''
-        logger.debug('Releasing %s level %s', wdriver, level)
-        assert wdriver in self._locked, 'Webdriver %r was never locked' % wdriver
+        logger.debug(f'Releasing {wdriver} level {level}')
+        assert wdriver in self._locked, f'Webdriver {wdriver} was never locked'
         self._locked.remove(wdriver)
         cfg = self._wdriver_pool[wdriver]
         if cfg.shared:
@@ -264,6 +271,7 @@ class WebdriverManager(XpathWdBase):
         self._wdriver_pool.clear()
         self._locked.clear()
         self._released.clear()
+        self._context_name_level.clear()
 
     def _quit_webdriver(self, wdriver):
         # quit a webdriver, catch any exception and report it
@@ -278,9 +286,11 @@ class WebdriverManager(XpathWdBase):
         remove = lambda s,e: e in s and s.remove(e)
         for wdriver in list(self._wdriver_pool):
             if self._quit_failed_webdriver(wdriver):
-                self._wdriver_pool.pop(wdriver)
+                cfg = self._wdriver_pool.pop(wdriver)
                 remove(self._locked, wdriver)
                 remove(self._released, wdriver)
+                if cfg.context in self._context_name_level:
+                    del self._context_name_level[cfg.context]
 
     def _quit_failed_webdriver(self, wdriver):
         failed = self._is_failed_webdriver(wdriver)
