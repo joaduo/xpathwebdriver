@@ -12,6 +12,7 @@ from PIL import Image
 import tempfile
 import shutil
 import os
+import shlex
 
 
 logger = logging.getLogger(__name__)
@@ -92,7 +93,9 @@ class ImagesComparator(XpathWdBase):
         :param h: new height size
         '''
         new_file = os.path.join(tempdir, os.path.basename(img_file))
-        cmd = 'convert {img_file} -crop {w}x{h}+0+0  +repage {new_file}'.format(**locals())
+        new_file = shlex.quote(new_file)
+        img_file = shlex.quote(img_file)
+        cmd = f'convert {img_file} -crop {w}x{h}+0+0  +repage {new_file}'
         self.exec_cmd(cmd)
         return new_file
 
@@ -104,14 +107,8 @@ class ImagesComparator(XpathWdBase):
         :param new_img: path to the current image. (new one)
         :param threshold: threshold value in percent to tolerate in comparison
         '''
+        ref_img = shlex.quote(ref_img)
+        new_img = shlex.quote(new_img)
         command = 'findimagedupes -t=%s %s %s' % (threshold, ref_img, new_img)
         return bool(self.exec_cmd(command))
 
-
-def smoke_test_module():
-    # There is a unit test
-    pass
-
-
-if __name__ == "__main__":
-    smoke_test_module()

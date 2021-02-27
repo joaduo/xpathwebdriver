@@ -17,6 +17,7 @@ import os
 import logging
 import json
 from collections import namedtuple
+import shlex
 
 logger = logging.getLogger(__name__)
 
@@ -166,22 +167,23 @@ class WebdriverManager(XpathWdBase):
             if (browser == 'Firefox'
             and self.global_settings.get('webdriver_browser_profile',
                 self.global_settings.get('webdriver_firefox_profile'))
-            and not args and not kwargs.has_key('firefox_profile')):
+            and not args and 'firefox_profile' not in kwargs):
                 # Update with profile specified from config
                 fp = webdriver.FirefoxProfile(self.global_settings.get('webdriver_browser_profile',
                                               self.global_settings.get('webdriver_firefox_profile')))
                 kwargs['firefox_profile'] = fp
             if (browser == 'Chrome'
             and self.global_settings.get('webdriver_browser_profile')
-            and not args and not kwargs.has_key('chrome_options')):
+            and not args and 'chrome_options' not in kwargs):
                 self.log.w('Passing --no-sandbox flag to Chrome (running as root)')
                 from selenium.webdriver.chrome.options import Options
                 chrome_options = Options()
                 if os.name == 'posix' and os.geteuid() == 0:
                     chrome_options.add_argument('--no-sandbox')
                 if self.global_settings.get('webdriver_browser_profile'):
-                    chrome_options.add_argument('--user-data-dir=%r' %
-                                                self.global_settings.get('webdriver_browser_profile'))
+                    profile_dir = self.global_settings.get('webdriver_browser_profile')
+                    profile_dir = shlex.quote(profile_dir)
+                    chrome_options.add_argument(f'--user-data-dir={profile_dir}')
                 #self.log.w('Adding --disable-application-cache')
                 #chrome_options.add_argument('--disable-application-cache')
                 #chrome_options.add_argument('--incognito')
