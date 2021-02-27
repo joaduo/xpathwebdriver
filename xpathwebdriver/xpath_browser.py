@@ -356,15 +356,11 @@ return eslist;
         '''
         script_single = '''
 var selector = %(selector)r;
-//XPathResult.FIRST_ORDERED_NODE_TYPE = 9
-var FIRST_ORDERED_NODE_TYPE = 9;
 var element = document.querySelector(selector);
 return extract_element(element);
             '''
         script_multiple = '''
 var selector = %(selector)r;
-//XPathResult.ORDERED_NODE_ITERATOR_TYPE = 5
-var ORDERED_NODE_ITERATOR_TYPE = 5;
 var es = document.querySelectorAll(selector);
 var eslist = [];
 for(var idx=0; idx < es.length; idx++){
