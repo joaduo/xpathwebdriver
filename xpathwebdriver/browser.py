@@ -31,15 +31,14 @@ class Browser(XpathBrowser):
         self._free_webdriver()
 
     def _free_webdriver(self):
+        # We may get an exception before setting _browser_context 
         if getattr(self, '_browser_context', None):
             self._browser_context.__exit__()
             self._browser_context = None
 
+    def _quit_failed_webdriver(self):
+        failed = WebdriverManager()._is_failed_webdriver(self.driver)
+        if failed:
+            self._free_webdriver()
+        return failed
 
-def smoke_test_module():
-    xb = Browser()
-    xb.get('duckduckgo.com')
-
-
-if __name__ == "__main__":
-    smoke_test_module()

@@ -44,28 +44,23 @@ def dump_credentials(browser, dump_path, context_name, wipe_credentials):
         json.dump(creds, fp)
 
 
-def embed(args, browser):
+def embed(args, new_browser):
     '''
     :param args: parser args object
     '''
-    ipython_msg = ('Could not embed Ipython, falling back to ipdb'
-                   ' shell. Exception: %r')
-    ipdb_msg = ('Could not embed ipdb, falling back to pdb'
-                ' shell. Exception: %r')
-    b = browser
-    if args.dump_credentials:
-        dump_credentials(browser, args.dump_credentials, args.context_name, args.wipe_credentials)
-    if args.url:
-        b.get(args.url)
-    display_banner = ("XpathBrowser in 'b' or 'browser' variables\n"
-                      " Current url: %s" % b.current_url)
+    b = browser = new_browser()
     try:
         from IPython.terminal.embed import InteractiveShellEmbed
         # Now create the IPython shell instance. Put ipshell() anywhere in your code
         # where you want it to open.
-        ipshell = InteractiveShellEmbed(banner2=display_banner)
+        ipshell = InteractiveShellEmbed(banner2=("XpathBrowser in 'b' or 'browser' variables\n"
+                                                 f" Current url: {b.current_url}"))
         ipshell()
     except Exception as e:
+        ipython_msg = ('Could not embed Ipython, falling back to ipdb'
+                       ' shell. Exception: %r')
+        ipdb_msg = ('Could not embed ipdb, falling back to pdb'
+                    ' shell. Exception: %r')
         logger.w(ipython_msg % e)
         try:
             import ipdb
@@ -113,20 +108,33 @@ class XpathShellCommand(CommandMixin):
                 if os.environ.get(creds_env_var, None):
                     logger.warning('%s environment variable is set', creds_env_var)
                 logger.error('You are dumping webdriver credentials but at the same time'
-                             ' %r config var is set', creds_cfg_var)
-            else:
+                             f' {creds_cfg_var!r} config var is set')
+                return
+            shell_browsers = set()
+            def new_browser(url=None):
+                for b in shell_browsers.copy():
+                    if b._quit_failed_webdriver():
+                        shell_browsers.remove(b)
                 browser = None
                 try:
                     browser = ShellBrowser(logger=logger)
+                    if args.dump_credentials:
+                        logger.info('Dumping credentials')
+                        dump_credentials(browser, args.dump_credentials, args.context_name,
+                                         args.wipe_credentials)
+                    if url or args.url:
+                        browser.get(url or args.url)
                 except Exception:
                     logger.exception('Webdriver Browser')
                     logger.error('Could not create browser object. Are configuration settings ok?')
                     if solve_settings().get(creds_cfg_var):
-                        logger.warning('%r config var is set', creds_cfg_var)
+                        logger.warning(f'{creds_cfg_var!r} config var is set')
                     if os.environ.get(creds_env_var, None):
-                        logger.warning('%s environment variable is set', creds_env_var)
-                if browser:
-                    embed(args, browser)
+                        logger.warning(f'{creds_env_var} environment variable is set')
+                    raise
+                shell_browsers.add(browser)
+                return browser
+            embed(args, new_browser)
 
     def print_env_vars(self):
         print('\n# Available environment variables to override configuration (current values if declared): \n')

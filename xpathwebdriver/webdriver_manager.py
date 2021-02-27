@@ -282,7 +282,13 @@ class WebdriverManager(XpathWdBase):
                 remove(self._locked, wdriver)
                 remove(self._released, wdriver)
 
-    def _quit_failed_webdriver(self, wdriver, tested_once=False):
+    def _quit_failed_webdriver(self, wdriver):
+        failed = self._is_failed_webdriver(wdriver)
+        if failed:
+            self._quit_webdriver(wdriver)
+            return failed
+
+    def _is_failed_webdriver(self, wdriver, tested_once=False):
         # Test wether a webdriver is responding, if not quit it and
         # unregister it to avoid further usage.
         try:
@@ -293,11 +299,11 @@ class WebdriverManager(XpathWdBase):
             alert = wdriver.switch_to_alert()
             alert.accept()
             if not tested_once:
-                return self._quit_failed_webdriver(wdriver, tested_once=True)
+                return self._is_failed_webdriver(wdriver, tested_once=True)
+            # We were unable to determine it
+            raise
         except Exception as e:
-            self.log.e('Quitting webdriver %r due to exception %r:%s' %
-                       (wdriver, e, e))
-        self._quit_webdriver(wdriver)
+            return e
         return True
 
     @synchronized(_methods_lock)
