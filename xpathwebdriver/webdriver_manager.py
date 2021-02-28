@@ -176,13 +176,14 @@ class WebdriverManager(XpathWdBase):
             if (browser == 'Chrome'
             and self.global_settings.get('webdriver_browser_profile')
             and not args and 'chrome_options' not in kwargs):
-                self.log.w('Passing --no-sandbox flag to Chrome (running as root)')
                 from selenium.webdriver.chrome.options import Options
                 chrome_options = Options()
                 if os.name == 'posix' and os.geteuid() == 0:
+                    self.log.w('Passing --no-sandbox flag to Chrome (running as root)')
                     chrome_options.add_argument('--no-sandbox')
                 if self.global_settings.get('webdriver_browser_profile'):
                     profile_dir = self.global_settings.get('webdriver_browser_profile')
+                    profile_dir = os.path.abspath(profile_dir)
                     profile_dir = shlex.quote(profile_dir)
                     chrome_options.add_argument(f'--user-data-dir={profile_dir}')
                 #self.log.w('Adding --disable-application-cache')
