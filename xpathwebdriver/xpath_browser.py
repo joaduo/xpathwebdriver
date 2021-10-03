@@ -538,15 +538,20 @@ function extract_element(elem){
             e.msg += msg
             raise e
 
-    def sleep(self, timeout=None, condition='>'):
+    SLEEP_SHRINK='<'
+    SLEEP_GROW='>'
+    SLEEP_GROW_OR_SHRINK='><'
+    SLEEP_FROZEN='='
+    def sleep(self, timeout=None, condition=SLEEP_GROW):
         '''
         Useful sleep method (workaround for many webdriver's problem)
         :param timeout: if specified, amount of seconds to wait, else use settings default value.
-        :param condition: scaling condition, a string like '>','<', '><', '='
-                        >:   scales when mutiplier > 1 (grows time)
-                        <: scales when multiplier < 1 (shrinks time)
-                        ><: scales always
-                        =: no scaling allowed
+        :param condition: when to multiply time by `self._sleep_multiplier`
+                        can be a string like '>','<', '><', '='
+                        SLEEP_GROW:           multiply when mutiplier > 1 (grows time)
+                        SLEEP_SHRINK:         multiply when multiplier < 1 (shrinks time)
+                        SLEEP_GROW_OR_SHRINK: multiply always
+                        SLEEP_FROZEN:         never multiply/scale
         '''
         seconds = (timeout or self._sleep_time)
         mult = self._sleep_multiplier
