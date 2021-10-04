@@ -17,6 +17,6 @@ class TestXpathBrowserWipeAlerts(WebUnitTestBase):
             self.browser.wipe_alerts()
         else:
             self.fail('No alert wiped')
-            
+
 if __name__ == "__main__":
     unittest.main()
