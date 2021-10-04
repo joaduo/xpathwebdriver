@@ -32,6 +32,9 @@ class DefaultSettings(BaseSettings):
         doc='When using a relative path if starting with "/" means relative to the root of the server.'
             'If set to False, means all paths are appended to base_url no matter what',
         default=True)
+    xpathbrowser_implicit_max_wait = ConfigVar(
+        doc='Implicit max wait timeout (for xpath/css) methods',
+        default=0)
 
     # Virtual display, most options similar to pyvirtualdisplay.Display class:
     # https://pyvirtualdisplay.readthedocs.io/en/latest/#usage

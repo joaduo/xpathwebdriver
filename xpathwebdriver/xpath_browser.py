@@ -7,6 +7,7 @@ Code Licensed under MIT License. See LICENSE file.
 '''
 import rel_imp; rel_imp.init()
 import sys
+from functools import wraps
 if sys.version_info >= (3,):
     from urllib.parse import urlparse, urlunparse, urljoin, parse_qsl, unquote_plus
 else:
@@ -23,7 +24,7 @@ from .logger import Logger
 from .validators import is_valid_netloc
 
 
-class Url(object):
+class Url:
     '''A url object that can be compared with other url orbjects
     without regard to the vagaries of encoding, escaping, and ordering
     of parameters in query strings.
@@ -88,7 +89,21 @@ class Url(object):
         return self.get_original()
 
 
-class XpathBrowser(object):
+def implicit_xpath_wait(method):
+    return method
+    @wraps(method)
+    def wrapper(self, xpath, *a, **kw):
+        max_wait = wrapper._implicit_max_wait or self._implicit_max_wait
+        condition = wrapper._implicit_wait_condition or self._implicit_wait_condition
+        if max_wait:
+            self.wait_condition(condition(xpath), max_wait)
+        return method(self, xpath, *a, **kw)
+    wrapper._implicit_max_wait = None
+    wrapper._implicit_wait_condition = None
+    return wrapper
+
+
+class XpathBrowser:
     '''
     Class for making Webdriver more xpath-friendly.
     This class is designed to be framework independent, to be reused by other
@@ -114,6 +129,11 @@ class XpathBrowser(object):
         self._sleep_multiplier = self.settings.get('xpathbrowser_sleep_multiplier', 1)
         self._sleep_time = self.settings.get('xpathbrowser_sleep_default_time', 1)
         self._max_wait = self.settings.get('xpathbrowser_max_wait', 5)
+        self._implicit_max_wait = self.settings.get('xpathbrowser_implicit_max_wait', 0)
+
+    def _implicit_wait_condition(self, xpath):
+        condition = lambda b: self._select_xpath(xpath, single=False)
+        return condition
 
     @property
     def driver(self):
@@ -389,6 +409,7 @@ function extract_element(elem){
         '''
         return extract_element
 
+    @implicit_xpath_wait
     def xpath(self, xpath, single=False):
         '''
         Select HTML nodes given an xpath.
@@ -401,6 +422,7 @@ function extract_element(elem){
         '''
         return self._select_xpath(xpath, single=single)
 
+    @implicit_xpath_wait
     def select_xpath(self, xpath):
         '''
         Select HTML nodes given an xpath.
@@ -413,6 +435,7 @@ function extract_element(elem){
         '''
         return self._select_xpath(xpath, single=False)
 
+    @implicit_xpath_wait
     def select_xsingle(self, xpath):
         '''
         Select first node specified by xpath.
