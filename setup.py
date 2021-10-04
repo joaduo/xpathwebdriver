@@ -1,4 +1,3 @@
-import sys
 from setuptools import setup, find_packages
 
 
@@ -7,27 +6,17 @@ name = 'xpathwebdriver'
 reqs = '''pyvirtualdisplay>=0.2.1
 selenium>=3.0.2
 rel_imp>=0.2.4'''.splitlines()
-if sys.version_info < (2,7):
-    # importlib comes in python 2.7 and on
-    reqs.append('importlib>=1.0.4')
-
-
-def in_python3():
-    return sys.version_info[0] > 2
 
 
 def long_description():
     with open('README', 'r') as f:
-        if in_python3():
-            return f.read()
-        else:
-            return unicode(f.read())
+        return f.read()
 
 
 setup(
   name = name,
   packages = find_packages(),
-  version = '1.3.5',
+  version = '2.0.0',
   description = 'Simpler selenium/webdriver API through a wrapper',
   long_description=long_description(),
   long_description_content_type='text/x-rst',
