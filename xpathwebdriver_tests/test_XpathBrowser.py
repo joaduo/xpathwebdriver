@@ -5,12 +5,14 @@ Copyright (c) 2015 Juju. Inc
 
 Code Licensed under MIT License. See LICENSE file.
 '''
-from contextlib import contextmanager
-from selenium.webdriver.remote.webdriver import WebDriver
-import tempfile
 import shutil
 import unittest
-import os
+import threading
+from contextlib import contextmanager
+
+import bottle
+from selenium.webdriver.remote.webdriver import WebDriver
+
 from xpathwebdriver.browser import Browser
 from xpathwebdriver.default_settings import DefaultSettings
 from xpathwebdriver.solve_settings import register_settings_instance,\
@@ -19,11 +21,15 @@ from xpathwebdriver.solve_settings import register_settings_instance,\
 
 class WebUnitTestBase(unittest.TestCase):
 
-    def _path_to_url(self, path):
-        return 'file://' + path
+    port = 8080
+    host = 'localhost'
+    @classmethod
+    def _path_to_url(cls, path):
+        return f'http://{cls.host}:{cls.port}/{path}'
 
-    def get_local_page(self, path):
-        self.browser.get_url(self._path_to_url(path))
+    @classmethod
+    def get_local_page(cls, path):
+        cls.browser.get_url(cls._path_to_url(path))
 
     @contextmanager
     def create_html(self, name, body, **kwargs):
@@ -40,20 +46,15 @@ class WebUnitTestBase(unittest.TestCase):
 </html>
         '''
         jquery = ''
-        kwargs.update(locals())
-        html = templ.format(**kwargs)
-        if not self._tempdir:
-            self._tempdir = tempfile.mkdtemp(prefix='xpathwebdriver')
-        path = os.path.join(self._tempdir, name + '.html')
-        # Create html page in temporary dir
-        with open(path, 'w') as fh:
-            fh.write(html)
+        tmpl_vars = locals().copy()
+        tmpl_vars.update(kwargs)
         try:
-            yield  path
+            self._pages_cache[name] = templ.format(**tmpl_vars)
+            yield  name
         except:
             raise
         finally:
-            os.remove(path)
+            self._pages_cache.pop(name)
 
     @classmethod
     def setUpClass(cls):
@@ -62,16 +63,49 @@ class WebUnitTestBase(unittest.TestCase):
             xpathbrowser_sleep_default_time = 0.1
         register_settings_instance(Settings())
         cls.browser = Browser(settings=solve_settings())
-        cls._tempdir = None
+        cls._pages_cache = {}
+        cls.setup_http_server()
+
+    @classmethod
+    def setup_http_server(cls):
+        class MyServer(bottle.WSGIRefServer):
+            def run(self, app): # pragma: no cover
+                from wsgiref.simple_server import WSGIRequestHandler, WSGIServer
+                from wsgiref.simple_server import make_server
+                import socket
+                class FixedHandler(WSGIRequestHandler):
+                    def address_string(self): # Prevent reverse DNS lookups please.
+                        return self.client_address[0]
+                    def log_request(*args, **kw):
+                        if not self.quiet:
+                            return WSGIRequestHandler.log_request(*args, **kw)
+                handler_cls = self.options.get('handler_class', FixedHandler)
+                server_cls  = self.options.get('server_class', WSGIServer)
+                if ':' in self.host: # Fix wsgiref for IPv6 addresses.
+                    if getattr(server_cls, 'address_family') == socket.AF_INET:
+                        class server_cls(server_cls):
+                            address_family = socket.AF_INET6
+                srv = make_server(self.host, self.port, app, server_cls, handler_cls)
+                ### save tcp server so we can shut it down later
+                cls._tcp_server = srv
+                srv.serve_forever()
+        @bottle.route('/<name>')
+        def index(name):
+            if name == 'kill':
+                raise SystemExit()
+            if name in cls._pages_cache:
+                return bottle.template(cls._pages_cache[name])
+            return None
+
+        kwargs = dict(server=MyServer, host=cls.host, port=cls.port)
+        thread = threading.Thread(target=bottle.run, kwargs=kwargs)
+        thread.start()
+        cls._server_thread = thread
 
     @classmethod
     def tearDownClass(cls):
         del cls.browser
-
-    def tearDown(self):
-        if self._tempdir:
-            shutil.rmtree(self._tempdir, ignore_errors=True)
-            self._tempdir = None
+        cls._tcp_server.shutdown()
 
 
 class TestXpathBrowser(WebUnitTestBase):
@@ -95,8 +129,8 @@ class TestXpathBrowser(WebUnitTestBase):
         self.assertEqual(self.browser.build_url('example'), 'http://mepinta.com/example')
         with self.create_html('test_fill', body) as path:
             self.get_local_page(path)
-            self.assertTrue(self.browser.current_path.endswith('.html'))
-            self.assertTrue(self.browser.current_url.endswith('.html'))
+            self.assertTrue(self.browser.current_path.endswith('test_fill'))
+            self.assertTrue(self.browser.current_url.endswith('test_fill'))
             self.assertIsInstance(self.browser.get_driver(), WebDriver)
             self.browser.fill_form(firstname='John1', lastname='Doe1')
             self.browser.fill_form_attr('id', {1:'John2', 2:'Doe2'})
