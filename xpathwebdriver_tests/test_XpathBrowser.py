@@ -5,7 +5,6 @@ Copyright (c) 2015 Juju. Inc
 
 Code Licensed under MIT License. See LICENSE file.
 '''
-import shutil
 import unittest
 import threading
 from contextlib import contextmanager
