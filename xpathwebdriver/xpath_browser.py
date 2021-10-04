@@ -8,6 +8,7 @@ Code Licensed under MIT License. See LICENSE file.
 import rel_imp; rel_imp.init()
 import sys
 from functools import wraps
+from contextlib import contextmanager
 if sys.version_info >= (3,):
     from urllib.parse import urlparse, urlunparse, urljoin, parse_qsl, unquote_plus
 else:
@@ -90,7 +91,6 @@ class Url:
 
 
 def implicit_xpath_wait(method):
-    return method
     @wraps(method)
     def wrapper(self, xpath, *a, **kw):
         max_wait = wrapper._implicit_max_wait or self._implicit_max_wait
@@ -132,7 +132,8 @@ class XpathBrowser:
         self._implicit_max_wait = self.settings.get('xpathbrowser_implicit_max_wait', 0)
 
     def _implicit_wait_condition(self, xpath):
-        condition = lambda b: self._select_xpath(xpath, single=False)
+        def condition(browser):
+            return self._select_xpath(xpath, single=False)
         return condition
 
     @property
@@ -394,6 +395,9 @@ return eslist;
     def _get_extract_element(self):
         extract_element = '''
 function extract_element(elem){
+    if(!elem){
+        return elem;
+    }
     var elem = elem;
     //elem.noteType == 1 //web element
     if(elem.nodeType == 2){
@@ -409,7 +413,6 @@ function extract_element(elem){
         '''
         return extract_element
 
-    @implicit_xpath_wait
     def xpath(self, xpath, single=False):
         '''
         Select HTML nodes given an xpath.
@@ -420,9 +423,8 @@ function extract_element(elem){
         :param xpath: xpath's string eg:"/div[@id='example']/text()"
         :returns: list of selected Webelements or strings
         '''
-        return self._select_xpath(xpath, single=single)
+        return self.self._select_xpath(xpath, single=single)
 
-    @implicit_xpath_wait
     def select_xpath(self, xpath):
         '''
         Select HTML nodes given an xpath.
@@ -444,7 +446,10 @@ function extract_element(elem){
         :param xpath: xpath's string eg:"/div[@id='example']/text()"
         :returns: Webelement or string (depeding on the passed xpath)
         '''
-        return self._select_xpath(xpath, single=True)
+        result = self._select_xpath(xpath, single=True)
+        if result is None:
+            raise LookupError(f'Could no first element of xpath={xpath}')
+        return result
 
     def _select_xpath(self, xpath, single):
         '''
@@ -477,42 +482,6 @@ function extract_element(elem){
                     **locals()))
             raise LookupError(msg)
         return result
-
-    def has_xpath(self, xpath):
-        self.log.w('DEPRECATED METHOD has_xpath, use select_xpath')
-        return self.valid_xpath(xpath)
-
-    def valid_xpath(self, xpath):
-        '''
-        Returns True if xpath is present (won't check if it has content)
-
-        :param xpath: xpath's string eg:"/div[@id='example']/text()"
-        '''
-        self.log.w('DEPRECATED METHOD valid_xpath, use select_xpath')
-        return self._valid_xpath(xpath, single=False)
-
-    def has_xsingle(self, xpath):
-        self.log.w('DEPRECATED METHOD has_xsingle, use select_xpath')
-        return self.valid_xsingle(xpath)
-
-    def valid_xsingle(self, xpath):
-        '''
-        Returns True if there is at least 1 node in the resulting selection.
-
-        :param xpath: xpath's string eg:"/div[@id='example']/text()"
-        '''
-        self.log.w('DEPRECATED METHOD has_xsingle, use select_xpath')
-        return self._valid_xpath(xpath, single=True)
-
-    def _valid_xpath(self, xpath, single):
-        '''
-        Returns True if xpath exists. 
-        
-        :param xpath: xpath's string eg:"/div[@id='example']/text()"
-        :param single: if True, it makes sure there is at least 1 node in the
-            xpath selection.
-        '''
-        return self._select_xpath(xpath, single)
 
     def css(self, selectors):
         return self._select(selectors, single=False, select_type='css')
@@ -693,4 +662,31 @@ function extract_element(elem){
         drv = self.driver
         return dict(command_executor=drv.command_executor._url,
                     session_id=drv.session_id)
+
+    @implicit_xpath_wait
+    @contextmanager
+    def iframe(self, xpath, max_wait=None):
+        try:
+            iframe = self.select_xsingle(xpath)
+            self.driver.switch_to.frame(iframe)
+            yield iframe
+        finally:
+            self.driver.switch_to.default_content()
+
+    @contextmanager
+    def window(self, position=1, max_wait=5, orig_window=None):
+        try:
+            waiting = max_wait or 2 / 10
+            while len(self.driver.window_handles) <= position and not max_wait or waiting < max_wait:
+                self.sleep(waiting)
+                waiting += max_wait / 10
+            if len(self.driver.window_handles) <= position:
+                raise LookupError(f'Could not finde windows at position={position}')
+            win = self.driver.window_handles[position]
+            self.driver.switch_to.window(win)
+            yield win
+        finally:
+            self.driver.close()
+            orig_window = orig_window or self.driver.window_handles[position - 1]
+            self.driver.switch_to.window(orig_window)
 
