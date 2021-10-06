@@ -7,20 +7,20 @@ Code Licensed under MIT License. See LICENSE file.
 '''
 import rel_imp; rel_imp.init()
 import sys
-from functools import wraps
-from contextlib import contextmanager
-if sys.version_info >= (3,):
-    from urllib.parse import urlparse, urlunparse, urljoin, parse_qsl, unquote_plus
-else:
-    from urlparse import urlparse, urlunparse, urljoin, parse_qsl
-    from urllib import unquote_plus
 import time
 import os
+from functools import wraps
+from contextlib import contextmanager
+from urllib.parse import urlparse, urlunparse, urljoin, parse_qsl, unquote_plus
+
+import parsel
 from selenium import webdriver
+from selenium.webdriver.remote.webelement import WebElement
 from selenium.common.exceptions import WebDriverException,\
     TimeoutException
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions
+
 from .logger import Logger
 from .validators import is_valid_netloc
 
@@ -423,7 +423,7 @@ function extract_element(elem){
         :param xpath: xpath's string eg:"/div[@id='example']/text()"
         :returns: list of selected Webelements or strings
         '''
-        return self.self._select_xpath(xpath, single=single)
+        return self._select_xpath(xpath, single=single)
 
     def select_xpath(self, xpath):
         '''
@@ -460,7 +460,7 @@ function extract_element(elem){
         '''
         return self._select(xpath, single, select_type='xpath')
 
-    def _select(self, select_expr, single, select_type):
+    def _select(self, select_expr, single, select_type, with_selector=True):
         '''
         Select nodes specified by xpath
 
@@ -481,6 +481,11 @@ function extract_element(elem){
                 'for page {dr.current_url!r}\n Error:\n {e}'.format(
                     **locals()))
             raise LookupError(msg)
+        if with_selector:
+            if single:
+                result = self._add_selector(result)
+            else:
+                result = [self._add_selector(e) for e in result]
         return result
 
     def css(self, selectors):
@@ -663,7 +668,6 @@ function extract_element(elem){
         return dict(command_executor=drv.command_executor._url,
                     session_id=drv.session_id)
 
-    @implicit_xpath_wait
     @contextmanager
     def iframe(self, xpath, max_wait=None):
         try:
@@ -674,19 +678,56 @@ function extract_element(elem){
             self.driver.switch_to.default_content()
 
     @contextmanager
-    def window(self, position=1, max_wait=5, orig_window=None):
+    def window(self, index=1, timeout=5, switch_back_to=0, close=True):
+        """
+        :param index: index of the handle in driver.window_handles of the expected window
+        :param timeout: How much to wait for the new window (0 or None for no timeout)
+        :param switch_back_to: Switch back to this handle.
+            - you can pass the handle id
+            - or absolute index of the handle in driver.window_handles
+        :param close: close the expected window
+        """
         try:
-            waiting = max_wait or 2 / 10
-            while len(self.driver.window_handles) <= position and not max_wait or waiting < max_wait:
+            waiting = step = (timeout or 2) / 10
+            while len(self.driver.window_handles) <= index and (not timeout or waiting < timeout):
                 self.sleep(waiting)
-                waiting += max_wait / 10
-            if len(self.driver.window_handles) <= position:
-                raise LookupError(f'Could not finde windows at position={position}')
-            win = self.driver.window_handles[position]
+                waiting += step
+            if len(self.driver.window_handles) <= index:
+                raise LookupError(f'Could not finde windows at index={index}')
+            win = self.driver.window_handles[index]
             self.driver.switch_to.window(win)
             yield win
         finally:
-            self.driver.close()
-            orig_window = orig_window or self.driver.window_handles[position - 1]
-            self.driver.switch_to.window(orig_window)
+            if close:
+                self.driver.close()
+            if switch_back_to:
+                if isinstance(switch_back_to, int):
+                    switch_back_to = self.driver.window_handles[index + switch_back_to]
+                self.driver.switch_to.window(switch_back_to)
 
+    def _add_selector(self, element):
+        if isinstance(element, WebElement):
+            w = WebElementWrapper(element)
+            element.xpath = w.xpath
+            element.css = w.css
+            element.selector = w.selector
+        return element
+
+
+class WebElementWrapper:
+    def __init__(self, element):
+        self.__wrapped__ = element
+
+    def selector(self):
+        html = self.__wrapped__.get_attribute('outerHTML')
+        sel = parsel.Selector(html)
+        return sel
+
+    def xpath(self, xpath, namespaces=None, **kwargs):
+        return self.selector().xpath(xpath, namespaces, **kwargs)
+
+    def css(self, query):
+        return self.selector().css(query)
+
+    def __getattr__(self, name):
+        return getattr(self.__wrapped__, name)

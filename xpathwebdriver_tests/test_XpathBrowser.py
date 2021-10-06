@@ -32,6 +32,15 @@ class WebUnitTestBase(unittest.TestCase):
 
     @contextmanager
     def create_html(self, name, body, **kwargs):
+        try:
+            self.push_page(name, body, **kwargs)
+            yield  name
+        except:
+            raise
+        finally:
+            self.pop_page(name)
+
+    def push_page(self, name, body, **kwargs):
         templ = '''
 <!DOCTYPE html>
 <html>
@@ -47,13 +56,10 @@ class WebUnitTestBase(unittest.TestCase):
         jquery = ''
         tmpl_vars = locals().copy()
         tmpl_vars.update(kwargs)
-        try:
-            self._pages_cache[name] = templ.format(**tmpl_vars)
-            yield  name
-        except:
-            raise
-        finally:
-            self._pages_cache.pop(name)
+        self._pages_cache[name] = templ.format(**tmpl_vars)
+
+    def pop_page(self, name):
+        return self._pages_cache.pop(name)
 
     @classmethod
     def setUpClass(cls):
@@ -113,7 +119,6 @@ class TestXpathBrowser(WebUnitTestBase):
     - get_url (with condition)
     - get_path (with condition)
     '''
-
     def test_fill(self):
         body = '''
         <form>
@@ -135,14 +140,12 @@ class TestXpathBrowser(WebUnitTestBase):
             self.browser.fill_form_attr('id', {1:'John2', 2:'Doe2'})
             self.browser.fill_form_ordered([('firstname','John3'), ('lastname','Doe3')])
             self.browser.fill_form_xpath({'//form/input[1]':'John4','//form/input[2]':'Doe4'})
-
     def test_click(self):
         body = "<button id='example_button'>Example</button>"
         with self.create_html('test_click', body) as path:
             self.get_local_page(path)
             self.browser.click('.//button')
             self.browser.click(".//*[@id='example_button']")
-
     def test_sleep(self):
         self.browser.sleep()
         self.browser.sleep(0.1)
@@ -150,7 +153,6 @@ class TestXpathBrowser(WebUnitTestBase):
         self.browser.sleep(condition='<')
         self.browser.sleep(0.05, condition='=')
         self.browser.sleep(1, condition='><')
-
     def test_select(self):
         body = '''
           <div>
@@ -173,6 +175,17 @@ class TestXpathBrowser(WebUnitTestBase):
             # default condition
             found = self.browser.wait_condition()
             self.assertTrue(found)
+
+    def test_window(self):
+        body = "<h1>Example</h1>"
+        with self.create_html('test_target_window', body) as target:
+            body = f"<a href='{self._path_to_url(target)}' target='blank'>Example</a>"
+            with self.create_html('test_window', body) as path:
+                self.get_local_page(path)
+                self.browser.click('.//a')
+                with self.browser.window():
+                    self.assertTrue(self.browser.xpath('//h1/text()'))
+
 
 if __name__ == "__main__":
     unittest.main()

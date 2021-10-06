@@ -3,3 +3,4 @@ selenium>=3.0.2
 rel_imp>=0.2.4
 ipython>=5.8.0
 Pillow>=6.2.1
+parsel>=1.6.0
