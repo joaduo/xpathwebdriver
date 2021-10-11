@@ -42,7 +42,8 @@ class DuckDuckKeepOpenTest(unittest.TestCase):
                 print(link)
             print(browser.xpath('//a[contains(@href,"github.com/joaduo")]//text()'))
             browser.click('//a[contains(@href,"github.com/joaduo")]')
-            self.assertEqual(browser.xpath('//*[@id="readme"]/div[1]/h2/text()')[0].strip(), 'README.md')
+            browser.sleep(1)
+            self.assertTrue(browser.xpath('//a[contains(text(), "README.md")]'))
 
 
 if __name__ == "__main__":
