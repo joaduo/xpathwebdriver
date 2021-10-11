@@ -16,8 +16,10 @@ Main methods:
 * `get_page`
 * `get_page_once`
 * `wait_condition`
+* `xpath`
 * `select_xpath`
 * `select_xsingle`
+* `css`
 * `select_css`
 * `select_css_single`
 * `fill`

@@ -16,15 +16,17 @@ of the resulting objects.
 Also adds:
 
 - Interactive shell for testing XPath manually and easily against a live browser
+  - You can share the interactive shell with a script, to keep track of errors/debugging
 - Multiple browser management
 - Browser life management (wether to keep the browser open or kill it on exit)
-  - Management is done through python contexts (`with` statement)
+  - Management is done through python contexts (`with` statement) 
 - Useful settings for local and remote (headless) testing
   - Also supports environment variables as settings
   - Plus allowing custom settings that you can also push through environment variables
 - Screenshots comparison and diff management
 - Virtual display management (so you can run "headless" in a remote instance)
   - you can use VNC to access the remote Browser
+- Adding `xpath`, `css`, `selector` methods to returned `WebElement` objects, to keep the Xpath funcionality
 
 ### Ubuntu quick installation
 
