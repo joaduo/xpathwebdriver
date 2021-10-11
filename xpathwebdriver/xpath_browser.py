@@ -442,6 +442,7 @@ function extract_element(elem){
         '''
         Select first node specified by xpath.
         If xpath is empty, it will raise an exception
+        Implicitly wait for the xpath to appear (must have first item at list)
 
         :param xpath: xpath's string eg:"/div[@id='example']/text()"
         :returns: Webelement or string (depeding on the passed xpath)
@@ -678,7 +679,7 @@ function extract_element(elem){
             self.driver.switch_to.default_content()
 
     @contextmanager
-    def window(self, index=1, timeout=5, switch_back_to=0, close=True):
+    def window(self, index=1, timeout=5, switch_back_to=-1, close=True):
         """
         :param index: index of the handle in driver.window_handles of the expected window
         :param timeout: How much to wait for the new window (0 or None for no timeout)
@@ -707,14 +708,21 @@ function extract_element(elem){
 
     def _add_selector(self, element):
         if isinstance(element, WebElement):
-            w = WebElementWrapper(element)
+            w = WebElementSelector(element)
             element.xpath = w.xpath
             element.css = w.css
             element.selector = w.selector
         return element
 
+    def get_selector(self, element):
+        return WebElementSelector(element).selector()
 
-class WebElementWrapper:
+    def wait_xpath(self, xpath, condition=None, max_wait=None):
+        condition = condition or self._implicit_wait_condition(xpath)
+        return self.wait_condition(condition, max_wait)
+
+
+class WebElementSelector:
     def __init__(self, element):
         self.__wrapped__ = element
 
@@ -729,5 +737,3 @@ class WebElementWrapper:
     def css(self, query):
         return self.selector().css(query)
 
-    def __getattr__(self, name):
-        return getattr(self.__wrapped__, name)
