@@ -18,11 +18,12 @@ Also adds:
 - Interactive shell for testing XPath manually and easily against a live browser
 - Multiple browser management
 - Browser life management (wether to keep the browser open or kill it on exit)
+  - Management is done through python contexts (`with` statement)
 - Useful settings for local and remote (headless) testing
   - Also supports environment variables as settings
   - Plus allowing custom settings that you can also push through environment variables
 - Screenshots comparison and diff management
-- Virtual display management (so you cah run "headless" in a remote instance)
+- Virtual display management (so you can run "headless" in a remote instance)
   - you can use VNC to access the remote Browser
 
 ### Ubuntu quick installation
@@ -114,22 +115,13 @@ More `XpathBrowser` details at:
 
 ```python
 import unittest
-from xpathwebdriver.browser import Browser
+from xpathwebdriver.webdriver_manager import get_browser
 
 class SearchEnginesDemo(unittest.TestCase):
-    def setUp(self):
-        # Get Xpath browser
-        self.browser = Browser()
-
-    def tearDown(self):
-        # Make sure we quit those webdrivers created in this specific "level of life"
-        del self.browser
-
     def test_duckduckgo(self):
-        # Load a local page for the demo
-        self.browser.get_url('https://duckduckgo.com/')
-        # Type xpathwebdriver and press enter
-        self.browser.fill(".//*[@id='search_form_input_homepage']", 'xpathwebdriver\n')
+        with get_browser() as browser:
+            browser.get_url('https://duckduckgo.com/')
+            browser.fill('.//*[@id="search_form_input_homepage"]', 'xpathwebdriver\n')
 ```
 
 Check a more options in the `examples` directory.
@@ -141,7 +133,7 @@ To make sure you installed selenium and webdriver correctly use the code below:
 ```python
 from selenium import webdriver
 import time
-driver = webdriver.Chrome()
+driver = webdriver.Chrome() #or use another backend
 driver.maximize_window()
 driver.get('https://www.google.com')
 print('You have 10 secs to check the browser window...')
@@ -150,7 +142,7 @@ time.sleep(10)
 
 Find the easiest way to install selenium in your environment.
 
-Then install driver for chrome and gecko from:
+You can install driver for chrome and gecko from (OS like ubuntu do have .deb packages already)
 
 * https://www.seleniumhq.org/download/#thirdPartyDrivers
 * http://chromedriver.chromium.org/
