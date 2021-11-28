@@ -133,7 +133,7 @@ class XpathBrowser:
 
     def _implicit_wait_condition(self, xpath):
         def condition(browser):
-            return self._select_xpath(xpath, single=False)
+            return browser._select_xpath(xpath, single=False, wait=False)
         return condition
 
     @property
@@ -413,7 +413,7 @@ function extract_element(elem){
         '''
         return extract_element
 
-    def xpath(self, xpath, single=False):
+    def xpath(self, xpath, single=False, wait=False):
         '''
         Select HTML nodes given an xpath.
         May return:
@@ -421,11 +421,13 @@ function extract_element(elem){
             - strings (if xpath specifies @attribute or text())
 
         :param xpath: xpath's string eg:"/div[@id='example']/text()"
+        :param single: if True, returns only the first node
+        :param wait: if True wait using self._implicit_wait_condition, self._implicit_max_wait
         :returns: list of selected Webelements or strings
         '''
-        return self._select_xpath(xpath, single=single)
+        return self._select_xpath(xpath, single=single, wait=wait)
 
-    def select_xpath(self, xpath):
+    def select_xpath(self, xpath, wait=False):
         '''
         Select HTML nodes given an xpath.
         May return:
@@ -433,32 +435,38 @@ function extract_element(elem){
             - strings (if xpath specifies @attribute or text()) 
 
         :param xpath: xpath's string eg:"/div[@id='example']/text()"
+        :param wait: if True wait using self._implicit_wait_condition, self._implicit_max_wait
         :returns: list of selected Webelements or strings
         '''
-        return self._select_xpath(xpath, single=False)
+        return self._select_xpath(xpath, single=False, wait=wait)
 
     @implicit_xpath_wait
-    def select_xsingle(self, xpath):
+    def select_xsingle(self, xpath, wait=False):
         '''
         Select first node specified by xpath.
         If xpath is empty, it will raise an exception
         Implicitly wait for the xpath to appear (must have first item at list)
 
         :param xpath: xpath's string eg:"/div[@id='example']/text()"
+        :param wait: if True wait using self._implicit_wait_condition, self._implicit_max_wait
         :returns: Webelement or string (depeding on the passed xpath)
         '''
-        result = self._select_xpath(xpath, single=True)
+        result = self._select_xpath(xpath, single=True, wait=wait)
         if result is None:
             raise LookupError(f'Could no first element of xpath={xpath}')
         return result
 
-    def _select_xpath(self, xpath, single):
+    def _select_xpath(self, xpath, single, wait):
         '''
         Select nodes specified by xpath
 
         :param xpath: xpath's string eg:"/div[@id='example']/text()"
         :param single: if True, returns only the first node
+        :param wait: if True wait using self._implicit_wait_condition, self._implicit_max_wait
         '''
+        # Explicit wait flag
+        if wait and self._implicit_max_wait:
+            self.wait_condition(self._implicit_wait_condition(xpath), self._implicit_max_wait)
         return self._select(xpath, single, select_type='xpath')
 
     def _select(self, select_expr, single, select_type, with_selector=True):
@@ -468,6 +476,7 @@ function extract_element(elem){
         :param select_expr: xpath or css selector
         :param single: if True, returns only the first node
         :param select_type: type of select_expr passed, ie: 'xpath' or 'css'
+        :param with_selector: Wrapp elements with Xpath selector from parsel library
         '''
         dr = self.driver
         try:
