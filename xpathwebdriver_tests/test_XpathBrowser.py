@@ -175,7 +175,6 @@ class TestXpathBrowser(WebUnitTestBase):
             # default condition
             found = self.browser.wait_condition()
             self.assertTrue(found)
-
     def test_window(self):
         body = "<h1>Example</h1>"
         with self.create_html('test_target_window', body) as target:
