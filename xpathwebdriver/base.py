@@ -5,7 +5,9 @@ xpathwebdriver
 Copyright (c) 2014, Juju inc.
 Copyright (c) 2011-2013, Joaquin G. Duo
 '''
-import rel_imp; rel_imp.init()
+import rel_imp
+
+rel_imp.init()
 import logging
 import re
 import os
@@ -13,8 +15,8 @@ from .logger import Logger
 from .solve_settings import solve_settings, register_settings
 
 
+# FIXME Consider to use PascalCase for this Class or to implement a singleton function based.
 class singleton_decorator(object):
-
     '''
       Singleton pattern decorator.
       There will be only one instance of the decorated class.
@@ -31,6 +33,9 @@ class singleton_decorator(object):
 
 
 class XpathWdBase(object):
+    '''
+    XpathWdBase class
+    '''
     log = Logger('xpath root', color=solve_settings().get('log_color'))
 
     @property
@@ -38,7 +43,8 @@ class XpathWdBase(object):
         return solve_settings()
 
 
-module_regex = re.compile(r'^{mod}(?:\.{mod})*$'.format(mod=r'(?:[a-zA-Z_][a-zA-Z_0-9]*)')) 
+module_regex = re.compile(r'^{mod}(?:\.{mod})*$'.format(mod=r'(?:[a-zA-Z_][a-zA-Z_0-9]*)'))
+
 
 def is_valid_file(path):
     '''
@@ -89,7 +95,7 @@ class CommandMixin(object):
     }
 
     def _process_common_args(self, args):
-        letter_to_level = {n[0].lower():l for n,l in self.__log_name_to_level.items()}
+        letter_to_level = {n[0].lower(): l for n, l in self.__log_name_to_level.items()}
         logging.getLogger().setLevel(letter_to_level[args.debug_level[0].lower()])
         # Specific settings
         if args.settings:

@@ -1,6 +1,5 @@
 from setuptools import setup, find_packages
 
-
 name = 'xpathwebdriver'
 
 reqs = '''pyvirtualdisplay>=0.2.1
@@ -14,19 +13,19 @@ def long_description():
 
 
 setup(
-  name = name,
-  packages = find_packages(),
-  version = '2.0.1',
-  description = 'Simpler selenium/webdriver API through a wrapper',
-  long_description=long_description(),
-  long_description_content_type='text/x-rst',
-  author = 'Joaquin Duo',
-  author_email = 'joaduo@gmail.com',
-  license='MIT',
-  url = 'https://github.com/joaduo/'+name,
-  keywords = ['testing', 'automation', 'web', 'unittest', 'webdriver', 'selenium'],
-  install_requires=reqs,
-  scripts=[
-           'xpathwebdriver/commands/xpathshell',
-           ],
+    name=name,
+    packages=find_packages(),
+    version='2.0.1',
+    description='Simpler selenium/webdriver API through a wrapper',
+    long_description=long_description(),
+    long_description_content_type='text/x-rst',
+    author='Joaquin Duo',
+    author_email='joaduo@gmail.com',
+    license='MIT',
+    url='https://github.com/joaduo/' + name,
+    keywords=['testing', 'automation', 'web', 'unittest', 'webdriver', 'selenium'],
+    install_requires=reqs,
+    scripts=[
+        'xpathwebdriver/commands/xpathshell',
+    ],
 )
