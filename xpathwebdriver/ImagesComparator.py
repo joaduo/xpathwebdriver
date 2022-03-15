@@ -14,7 +14,6 @@ import shutil
 import os
 import shlex
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -61,23 +60,23 @@ class ImagesComparator(XpathWdBase):
                     if crop_threshold == 100:
                         raise ValueError('crop_threshold is 100 and images are from different sizes.')
                     # Calculate smaller common size
-                    w,h = min((aimg.size[0], bimg.size[0])), min((aimg.size[1], bimg.size[1]))
+                    w, h = min((aimg.size[0], bimg.size[0])), min((aimg.size[1], bimg.size[1]))
                     # Make sure we are within the crop threshold
-                    wratio = w/float(aimg.size[0])*100
-                    hratio = h/float(aimg.size[1])*100
+                    wratio = w / float(aimg.size[0]) * 100
+                    hratio = h / float(aimg.size[1]) * 100
                     if wratio < crop_threshold or hratio < crop_threshold:
                         raise ValueError('Cropping ratios %r are smaller than '
                                          'crop_threshold=%r.' % ((wratio, hratio), crop_threshold))
                     # If needed, crop reference image to common size
-                    if aimg.size != (w,h):
+                    if aimg.size != (w, h):
                         atempdir = tempfile.mkdtemp()
                         ref_img = self.crop_image(atempdir, ref_img, w, h)
                     # If needed, crop new image to common size
-                    if bimg.size != (w,h):
+                    if bimg.size != (w, h):
                         btempdir = tempfile.mkdtemp()
-                        new_img =self.crop_image(btempdir, new_img, w, h)
+                        new_img = self.crop_image(btempdir, new_img, w, h)
         # Run the image magick command
-        self.exec_cmd('compare %s %s %s'%(ref_img,new_img,diff),
+        self.exec_cmd('compare %s %s %s' % (ref_img, new_img, diff),
                       check_returncode=False)
         # Remove any created temp dir
         for tempdir in [atempdir, btempdir]:
@@ -111,4 +110,3 @@ class ImagesComparator(XpathWdBase):
         new_img = shlex.quote(new_img)
         command = f'findimagedupes -t={threshold} {ref_img} {new_img}'
         return bool(self.exec_cmd(command))
-

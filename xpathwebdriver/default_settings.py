@@ -50,7 +50,7 @@ class DefaultSettings(BaseSettings):
         parser=str)
     virtual_display_backend_kwargs = ConfigVar(
         doc='**kwargs passed to the virtualdisplay backend class.'
-        'Useful for passing rfbauth= file location to xvnc',
+            'Useful for passing rfbauth= file location to xvnc',
         default={},
         parser=eval)
     virtual_display_size = ConfigVar(
@@ -62,7 +62,7 @@ class DefaultSettings(BaseSettings):
         default=False)
 
     # Webdriver related settings
-    webdriver_browser =  ConfigVar(
+    webdriver_browser = ConfigVar(
         doc='Webdriver\'s browser: Firefox, Chrome, PhantomJs, etc...',
         default='Chrome')
     webdriver_browser_keep_open = ConfigVar(
@@ -88,13 +88,13 @@ class DefaultSettings(BaseSettings):
         default=(800, 600),
         parser=eval)
 
-    #Remote driver related settings
+    # Remote driver related settings
     webdriver_remote_credentials_path = ConfigVar(
         doc='Path to json file containing remote credentials (as dumped by "xpathshell -d path/to/credentials.json")',
         default=None,
         parser=str)
 
-    #Screenhot related settings
+    # Screenhot related settings
     screenshot_level = ConfigVar(
         doc='Similar to text logging level, but for screenshots (WIP)',
         default=logging.INFO,
@@ -102,12 +102,12 @@ class DefaultSettings(BaseSettings):
         experimental=True)
     screenshot_exceptions_dir = ConfigVar(
         doc='When an exception occurs during a test, where to save screenshots to',
-        default='/tmp/', #FIXME
+        default='/tmp/',  # FIXME
         parser=str,
         experimental=True)
     assert_screenshots_dir = ConfigVar(
         doc='When asserting/comparing an screenshot where to save taken screenshots to',
-        default='/tmp/', #FIXME
+        default='/tmp/',  # FIXME
         parser=str,
         experimental=True)
     assert_screenshots_learning = ConfigVar(
@@ -116,7 +116,7 @@ class DefaultSettings(BaseSettings):
         experimental=True)
     assert_screenshots_failed_dir = ConfigVar(
         doc='When asserting/comparing an screenshot where to save failing screenshots to',
-        default='/tmp/', #FIXME
+        default='/tmp/',  # FIXME
         parser=str,
         experimental=True)
 
@@ -124,7 +124,7 @@ class DefaultSettings(BaseSettings):
         doc='Log level of xpathwebdriver messages',
         default=logging.INFO,
         experimental=True)
-    
+
     log_color = ConfigVar(
         doc='If True use colors in logging messages (not working?)',
         default=logging.INFO,
@@ -133,4 +133,3 @@ class DefaultSettings(BaseSettings):
 
 # Soon to be deprecated
 Settings = DefaultSettings
-

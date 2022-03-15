@@ -5,11 +5,12 @@ Copyright (c) 2014 Juju. Inc
 
 Code Licensed under MIT License. See LICENSE file.
 '''
-import rel_imp; rel_imp.init()
+import rel_imp;
+
+rel_imp.init()
 import importlib
 import logging
 import os
-
 
 logger = logging.getLogger('solve_settings')
 
@@ -86,7 +87,7 @@ class BaseSettings(object):
     def _solve_config_var(cls, attr):
         cfg_var = getattr(cls, attr, None)
         if (not isinstance(cfg_var, ConfigVar)
-        and issubclass(cls.__bases__[0], BaseSettings)):
+                and issubclass(cls.__bases__[0], BaseSettings)):
             return cls.__bases__[0]._solve_config_var(attr)
         return cfg_var
 
@@ -97,6 +98,7 @@ class SettingsWrapper(object):
     attributes.
     Useful for configuration.
     '''
+
     def __init__(self, settings):
         self._settings = settings
 
@@ -135,6 +137,8 @@ def _register_settings_module(mod):
 
 
 global_settings = None
+
+
 def register_settings_instance(settings):
     global global_settings
     if not settings:
@@ -185,7 +189,7 @@ def smoke_test_module():
     global called_once
     called_once = True
     log_test(solve_settings())
-    #set_log_level()
+    # set_log_level()
 
 
 if __name__ == "__main__":

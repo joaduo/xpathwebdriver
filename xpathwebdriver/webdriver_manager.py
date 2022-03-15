@@ -3,7 +3,9 @@ Copyright (c) 2014 Juju. Inc
 
 Code Licensed under MIT License. See LICENSE file.
 '''
-import rel_imp; rel_imp.init()
+import rel_imp;
+
+rel_imp.init()
 
 from selenium import webdriver
 from pyvirtualdisplay import Display
@@ -28,12 +30,15 @@ def synchronized(lock):
     re-entrant lock)
     :param lock: lock object (from threading package for example)
     '''
+
     def wrap_method(method):
         @wraps(method)
         def newFunction(*args, **kw):
             with lock:
                 return method(*args, **kw)
+
         return newFunction
+
     return wrap_method
 
 
@@ -93,6 +98,7 @@ class WebdriverManager(XpathWdBase):
         '''
         :param level: webdriver's level of life we are exiting
         '''
+
         def quit_wdriver(wdriver, container):
             cfg = self._wdriver_pool[wdriver]
             if self._quit_failed_webdriver(wdriver):
@@ -100,15 +106,16 @@ class WebdriverManager(XpathWdBase):
                 container.remove(wdriver)
                 self._wdriver_pool.pop(wdriver)
             # Quit if exiting the level (but keep if shared browser, started by some other process)
-            elif (cfg.level >= level 
-            and not cfg.shared
-            and not self.global_settings.get('webdriver_browser_keep_open')):
+            elif (cfg.level >= level
+                  and not cfg.shared
+                  and not self.global_settings.get('webdriver_browser_keep_open')):
                 self.log.d('Quitting exited level webdriver %s', wdriver)
                 container.remove(wdriver)
                 self._quit_webdriver(wdriver)
                 self._wdriver_pool.pop(wdriver)
             else:
                 self.log.d('Keeping webdriver %s', wdriver)
+
         # Make copies of sets, we are going to modify them
         for wdriver in self._released.copy():
             quit_wdriver(wdriver, self._released)
@@ -144,7 +151,7 @@ class WebdriverManager(XpathWdBase):
         '''
         browser = self.get_browser_name(browser_name)
         browser_set = set([wdriver
-                           for wdriver,cfg in self._wdriver_pool.items()
+                           for wdriver, cfg in self._wdriver_pool.items()
                            if cfg.browser == browser and cfg.context == context_name])
         return (self._released & browser_set)
 
@@ -157,7 +164,7 @@ class WebdriverManager(XpathWdBase):
         credentials = self._load_credentials()
         shared = False
         if (context_name not in self._context_name_level
-        and context_name in credentials):
+                and context_name in credentials):
             driver = self._build_remote(**credentials[context_name])
             if driver:
                 shared = True
@@ -166,16 +173,17 @@ class WebdriverManager(XpathWdBase):
             if browser == 'PhantomJS':
                 self._append_service_arg('--ignore-ssl-errors=true', kwargs)
             if (browser == 'Firefox'
-            and self.global_settings.get('webdriver_browser_profile',
-                self.global_settings.get('webdriver_firefox_profile'))
-            and not args and 'firefox_profile' not in kwargs):
+                    and self.global_settings.get('webdriver_browser_profile',
+                                                 self.global_settings.get('webdriver_firefox_profile'))
+                    and not args and 'firefox_profile' not in kwargs):
                 # Update with profile specified from config
                 fp = webdriver.FirefoxProfile(self.global_settings.get('webdriver_browser_profile',
-                                              self.global_settings.get('webdriver_firefox_profile')))
+                                                                       self.global_settings.get(
+                                                                           'webdriver_firefox_profile')))
                 kwargs['firefox_profile'] = fp
             if (browser == 'Chrome'
-            and self.global_settings.get('webdriver_browser_profile')
-            and not args and 'chrome_options' not in kwargs):
+                    and self.global_settings.get('webdriver_browser_profile')
+                    and not args and 'chrome_options' not in kwargs):
                 from selenium.webdriver.chrome.options import Options
                 chrome_options = Options()
                 if os.name == 'posix' and os.geteuid() == 0:
@@ -186,14 +194,14 @@ class WebdriverManager(XpathWdBase):
                     profile_dir = os.path.abspath(profile_dir)
                     profile_dir = shlex.quote(profile_dir)
                     chrome_options.add_argument(f'--user-data-dir={profile_dir}')
-                #self.log.w('Adding --disable-application-cache')
-                #chrome_options.add_argument('--disable-application-cache')
-                #chrome_options.add_argument('--incognito')
+                # self.log.w('Adding --disable-application-cache')
+                # chrome_options.add_argument('--disable-application-cache')
+                # chrome_options.add_argument('--incognito')
                 kwargs['chrome_options'] = chrome_options
             driver = getattr(webdriver, browser)(*args, **kwargs)
         if self.global_settings.get('webdriver_window_size'):
-            h,w = self.global_settings.get('webdriver_window_size')
-            driver.set_window_size(h,w)
+            h, w = self.global_settings.get('webdriver_window_size')
+            driver.set_window_size(h, w)
         return driver, shared
 
     def _load_credentials(self):
@@ -206,6 +214,7 @@ class WebdriverManager(XpathWdBase):
     def _build_remote(self, command_executor, session_id):
         original_execute = WebDriver.execute
         non_local = dict(first_run=True)
+
         def _patched_execute(self, command, params=None):
             if command == "newSession" and non_local['first_run']:
                 non_local['first_run'] = False
@@ -213,6 +222,7 @@ class WebdriverManager(XpathWdBase):
                 return {'success': 0, 'value': None, 'sessionId': session_id}
             else:
                 return original_execute(self, command, params)
+
         # Patch the function before creating the driver object
         WebDriver.execute = _patched_execute
         driver = webdriver.Remote(command_executor=command_executor)
@@ -280,11 +290,11 @@ class WebdriverManager(XpathWdBase):
             self.log.d('Quitting webdriver %s', wdriver)
             wdriver.quit()
         except Exception as e:
-            self.log.w('Ignoring %r:%s' % (e,e))
+            self.log.w('Ignoring %r:%s' % (e, e))
 
     @synchronized(_methods_lock)
     def quit_all_failed_webdrivers(self):
-        remove = lambda s,e: e in s and s.remove(e)
+        remove = lambda s, e: e in s and s.remove(e)
         for wdriver in list(self._wdriver_pool):
             if self._quit_failed_webdriver(wdriver):
                 cfg = self._wdriver_pool.pop(wdriver)
@@ -322,13 +332,15 @@ class WebdriverManager(XpathWdBase):
         '''
         Create virtual display if set by configuration
         '''
+
         def get(name, default=None):
             return self.global_settings.get('virtual_display_' + name, default)
+
         if get('enabled') and not self._virtual_display:
             # We need to setup a new virtual display
             kwargs = get('backend_kwargs') or {}
             display = Display(backend=get('backend'), size=get('size', (800, 600)),
-                    visible=get('visible'), **kwargs)
+                              visible=get('visible'), **kwargs)
             self.log.d('Starting virtual display %r', display)
             display.start()
             self._virtual_display = display
@@ -357,7 +369,7 @@ class WebdriverManager(XpathWdBase):
         possible = ('all', 'released', 'locked')
         assert which in possible, 'Which must be one of %r' % possible
         # Choose the set to report
-        if which =='all':
+        if which == 'all':
             in_report = self._wdriver_pool
         elif which == 'released':
             in_report = self._released
@@ -408,10 +420,10 @@ class BrowserContextManager(XpathWdBase):
         self.name = context_name
         self.webdriver = None
         self.browser_name = browser_name
-        
+
     def __enter__(self):
         return self.get_xpathbrowser()
-    
+
     def __exit__(self, type=None, value=None, traceback=None):
         self.release_driver()
         self.parent.exit_level(self.level)
@@ -447,17 +459,17 @@ def get_browser(context_name='default', browser=None):
 def smoke_test_module():
     from .logger import log_test
     mngr = WebdriverManager()
-#    import ipdb; ipdb.set_trace()
+    #    import ipdb; ipdb.set_trace()
     lvl = mngr.enter_level(level=TEST_ROUND_LIFE)
     wd = lvl.acquire_driver()
     log_test(wd)
     lvl.release_driver()
     log_test(mngr.list_webdrivers())
-#    import ipdb; ipdb.set_trace()
+    #    import ipdb; ipdb.set_trace()
     xb = lvl.get_xpathbrowser()
     log_test(xb)
     lvl.exit_level()
-#    import ipdb; ipdb.set_trace()
+    #    import ipdb; ipdb.set_trace()
     mngr.stop_display()
     mngr.quit_all_webdrivers()
     # Wait some time for browser to quit

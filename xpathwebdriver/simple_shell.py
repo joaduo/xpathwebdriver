@@ -5,7 +5,9 @@ Copyright (c) 2015 Juju. Inc
 
 Code Licensed under MIT License. See LICENSE file.
 '''
-import rel_imp; rel_imp.init()
+import rel_imp;
+
+rel_imp.init()
 from argparse import ArgumentParser
 from .logger import Logger
 from .browser import Browser
@@ -16,7 +18,6 @@ import logging
 from xpathwebdriver.solve_settings import solve_settings
 from json.decoder import JSONDecodeError
 from urllib3.exceptions import MaxRetryError
-
 
 logger = Logger(level=logging.DEBUG, color=False)
 
@@ -77,20 +78,20 @@ class XpathShellCommand(CommandMixin):
     def get_parser(self):
         parser = ArgumentParser(description='Test XPaths via Selenium.')
         parser.add_argument('url', nargs='?')
-        parser.add_argument('-p','--print-credentials', action='store_true',
-            help='Print remote credentials just after starting.')
-        parser.add_argument('-d','--dump-credentials', type=str,
-            help='Dump webdriver\'s remote credentials to file.',
-            default=None,)
-        parser.add_argument('-w','--wipe-credentials', action='store_true',
-            help='Empty other credentials in file.')
-        parser.add_argument('-c','--context-name', type=str,
-            help='When dumping credentials, set this context name.',
-            default='default',)
-        parser.add_argument('-e','--environment-variables', action='store_true',
-            help='Print available environment variables for configuration.')
+        parser.add_argument('-p', '--print-credentials', action='store_true',
+                            help='Print remote credentials just after starting.')
+        parser.add_argument('-d', '--dump-credentials', type=str,
+                            help='Dump webdriver\'s remote credentials to file.',
+                            default=None, )
+        parser.add_argument('-w', '--wipe-credentials', action='store_true',
+                            help='Empty other credentials in file.')
+        parser.add_argument('-c', '--context-name', type=str,
+                            help='When dumping credentials, set this context name.',
+                            default='default', )
+        parser.add_argument('-e', '--environment-variables', action='store_true',
+                            help='Print available environment variables for configuration.')
         parser.add_argument('--settings-help', action='store_true',
-            help='Print settings help documentation.')
+                            help='Print settings help documentation.')
         self._add_common_args(parser)
         return parser
 
@@ -111,6 +112,7 @@ class XpathShellCommand(CommandMixin):
                              f' {creds_cfg_var!r} config var is set')
                 return
             shell_browsers = set()
+
             def new_browser(url=None):
                 for b in shell_browsers.copy():
                     if b._quit_failed_webdriver():
@@ -134,11 +136,12 @@ class XpathShellCommand(CommandMixin):
                     raise
                 shell_browsers.add(browser)
                 return browser
+
             embed(args, new_browser)
 
     def print_env_vars(self):
         print('\n# Available environment variables to override configuration (current values if declared): \n')
-        for n,cfg in sorted(solve_settings().get_config_vars().items()):
+        for n, cfg in sorted(solve_settings().get_config_vars().items()):
             if cfg.experimental:
                 continue
             print('%s=%s\t\t(default:%r)' % (n, cfg.value, cfg.default))
@@ -154,7 +157,7 @@ You can also export an environment variable to override any configuration.
 %s
         '''
         vars_doc = ''
-        for env_var,cfg in sorted(solve_settings().get_config_vars().items()):
+        for env_var, cfg in sorted(solve_settings().get_config_vars().items()):
             if cfg.experimental:
                 continue
             dc = '''
@@ -174,4 +177,3 @@ def main(argv=None):
 
 if __name__ == "__main__":
     main()
-

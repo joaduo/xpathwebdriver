@@ -2,9 +2,12 @@
 Copyright (c) 2014, Juju Inc.
 Copyright (c) 2011-2013, Joaquin G. Duo
 '''
-import rel_imp; rel_imp.init()
+import rel_imp;
+
+rel_imp.init()
 import logging
 from .ColorStreamHandler import ColorStreamHandler
+
 
 def log_test(msg, *args):
     if args:
@@ -141,6 +144,7 @@ def smoke_test_module():
     logger.info('info')
     logger.warning('warning')
     logger('Call')
+
 
 if __name__ == '__main__':
     smoke_test_module()

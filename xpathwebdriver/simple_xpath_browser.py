@@ -7,5 +7,5 @@ Code Licensed under MIT License. See LICENSE file.
 '''
 from .browser import Browser
 
-#Backward compatibility
+# Backward compatibility
 Browser = Browser

@@ -15,7 +15,7 @@ from .logger import Logger
 from .solve_settings import solve_settings, register_settings
 
 
-# FIXME Consider to use PascalCase for this Class or to implement a singleton function based.
+# TODO to consider to use PascalCase for this Class or to implement a singleton function based.
 class singleton_decorator(object):
     '''
       Singleton pattern decorator.
@@ -40,10 +40,11 @@ class XpathWdBase(object):
 
     @property
     def global_settings(self):
+        """Return solve settings"""
         return solve_settings()
 
 
-module_regex = re.compile(r'^{mod}(?:\.{mod})*$'.format(mod=r'(?:[a-zA-Z_][a-zA-Z_0-9]*)'))
+MODULE_REGEX = re.compile(r'^{mod}(?:\.{mod})*$'.format(mod=r'(?:[a-zA-Z_][a-zA-Z_0-9]*)'))
 
 
 def is_valid_file(path):
@@ -55,7 +56,7 @@ def is_valid_file(path):
     abspath = os.path.abspath(path)
     if not (os.path.exists(abspath)
             and os.path.isfile(abspath)
-            or module_regex.match(path)):
+            or MODULE_REGEX.match(path)):
         logging.warn('File %r does not exist.' % path)
     return path
 
