@@ -413,6 +413,7 @@ class BrowserContextManager(XpathWdBase):
         return self.get_xpathbrowser()
     
     def __exit__(self, type=None, value=None, traceback=None):
+        # save screenshot if exception
         self.release_driver()
         self.parent.exit_level(self.level)
 

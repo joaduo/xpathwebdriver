@@ -424,7 +424,7 @@ function extract_element(elem){
 
         :param xpath: xpath's string eg:"/div[@id='example']/text()"
         :param single: if True, returns only the first node
-        :param wait: if True wait using self._implicit_wait_condition, self._implicit_max_wait
+        :param wait: explicit wait using self._implicit_wait_condition method
         :returns: list of selected Webelements or strings
         '''
         return self._select_xpath(xpath, single=single, wait=wait)
@@ -437,7 +437,7 @@ function extract_element(elem){
             - strings (if xpath specifies @attribute or text()) 
 
         :param xpath: xpath's string eg:"/div[@id='example']/text()"
-        :param wait: if True wait using self._implicit_wait_condition, self._implicit_max_wait
+        :param wait: explicit wait using self._implicit_wait_condition method
         :returns: list of selected Webelements or strings
         '''
         return self._select_xpath(xpath, single=False, wait=wait)
@@ -450,12 +450,12 @@ function extract_element(elem){
         Implicitly wait for the xpath to appear (must have first item at list)
 
         :param xpath: xpath's string eg:"/div[@id='example']/text()"
-        :param wait: if True wait using self._implicit_wait_condition, self._implicit_max_wait
+        :param wait: explicit wait using self._implicit_wait_condition method
         :returns: Webelement or string (depeding on the passed xpath)
         '''
         result = self._select_xpath(xpath, single=True, wait=wait)
         if result is None:
-            raise LookupError(f'Could no first element of xpath={xpath}')
+            raise LookupError(f'Could not find first element of xpath={xpath}')
         return result
 
     def _select_xpath(self, xpath, single, wait):
@@ -464,7 +464,7 @@ function extract_element(elem){
 
         :param xpath: xpath's string eg:"/div[@id='example']/text()"
         :param single: if True, returns only the first node
-        :param wait: if True wait using self._implicit_wait_condition, self._implicit_max_wait
+        :param wait: explicit wait using self._implicit_wait_condition method
         '''
         # Explicit wait flag
         if wait and self._implicit_max_wait:
