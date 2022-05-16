@@ -5,7 +5,8 @@ name = 'xpathwebdriver'
 
 reqs = '''pyvirtualdisplay>=0.2.1
 selenium>=3.0.2
-rel_imp>=0.2.4'''.splitlines()
+rel_imp>=0.2.4
+parsel>=1.6.0'''.splitlines()
 
 
 def long_description():
