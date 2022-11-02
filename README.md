@@ -3,22 +3,22 @@
 [![Codeship Status for joaduo/xpathwebdriver](https://app.codeship.com/projects/a77b1220-ecf1-0137-98b2-4e2936dc9ea3/status?branch=master)](https://app.codeship.com/projects/374749)
 
 A python wrapper for interacting with Selenium through XPath and CSS selectors.
-The main difference is that you can use use XPaths like:
+You can now use XPaths like:
 
 ```
 //div/text()
 ```
 
-Which will return you a string, something webdriver API makes more complicated.
-Means you can write all your tests based on XPath without having to do heavy python manipulation
-of the resulting objects.
+Which will return you a string as expected. Something webdriver API makes more complicated.
+
+Means you can write all your tests based on XPath.
 
 Also adds:
 
 - Interactive shell for testing XPath manually and easily against a live browser
   - You can share the interactive shell with a script, to keep track of errors/debugging
 - Multiple browser management
-- Browser life management (wether to keep the browser open or kill it on exit)
+- Browser life management (whether to keep the browser open or kill it on exit)
   - Management is done through python contexts (`with` statement) 
 - Useful settings for local and remote (headless) testing
   - Also supports environment variables as settings
@@ -26,7 +26,7 @@ Also adds:
 - Screenshots comparison and diff management
 - Virtual display management (so you can run "headless" in a remote instance)
   - you can use VNC to access the remote Browser
-- Adding `xpath`, `css`, `selector` methods to returned `WebElement` objects, to keep the Xpath funcionality
+- Adding `xpath`, `css`, `selector` methods to returned `WebElement` objects, to keep the Xpath functionality
 
 ### Ubuntu quick installation
 
@@ -49,11 +49,11 @@ pip install xpathwebdriver
 
 1. Install xpathwebdriver using pip.
 2. Install google chrome.
-3. Download chromedriver for your chrome version and install it in your path.
+3. Download chromedriver for your Chrome version and install it in your path.
    https://chromedriver.chromium.org/downloads
 4. That generally should work on a modern Linux System (not tested but should also work on other oses).
    Try example in section below
-5. For image comparison install `pip install Pillow`,  `findimagedupes` and `imagemagick` packages for your OS. (they are not automatically installed to keep basic requirments low)
+5. For image comparison install `pip install Pillow`,  `findimagedupes` and `imagemagick` packages for your OS. (they are not automatically installed to keep basic requirements low)
    On ubuntu: `sudo apt install imagemagick findimagedupes`
 6. For interactive shell install `pip install ipython`
 
@@ -85,9 +85,8 @@ for idx, elem in enumerate(browser.select_css('.result__title')):
 
 ## IPython interactive shell
 
-For a faster development and debugging cycles you can run an interactive shell which will let access the browser. First install ipython `pip install ipython` (not automatically installed to keep basic requirements low)
-
-Then you can run the `xpathshell` in your terminal. You should see something like:
+First install ipython `pip install ipython` (not installed to keep basic requirements low)
+Run the `xpathshell` in your terminal, and you should see something like:
 
 ```
 $ xpathshell
@@ -101,6 +100,8 @@ In [1]: b.get('github.com/joaduo/xpathwebdriver/')
 INFO 05:53:35:  Current url: https://github.com/joaduo/xpathwebdriver/
 
 ```
+
+For a faster development and debugging cycles you can run an interactive shell which will let access the browser. 
 
 Or pass the url in the command arguments. Eg: `xpathshell github.com/joaduo/xpathwebdriver/`
 
@@ -130,7 +131,10 @@ Check a more options in the `examples` directory.
 
 ## Installing Selenium
 
-To make sure you installed selenium and webdriver correctly use the code below:
+Under Ubuntu you should easily install Selenium/Webdrivar with `sudo apt install chromium-browser chromium-chromedriver`
+Firefox seems to come with webdriver out of the box on ubuntu.
+
+Use the code below to  selenium and webdriver installation:
 
 ```python
 from selenium import webdriver
@@ -142,14 +146,14 @@ print('You have 10 secs to check the browser window...')
 time.sleep(10)
 ```
 
-Find the easiest way to install selenium in your environment.
+On other platforms find the easiest way to install selenium in your environment.
 
-You can install driver for chrome and gecko from (OS like ubuntu do have .deb packages already)
+Here some references:
 
 * https://www.seleniumhq.org/download/#thirdPartyDrivers
 * http://chromedriver.chromium.org/
 * https://github.com/mozilla/geckodriver/releases
-* PhantomJs: http://phantomjs.org/download.html (has the driver embedded)
+* ~~PhantomJs~~ (abandoned)
 
 Decompressed executables should be in yor PATH.
 If you update python's `webdriver` package make sure you update browsers and drivers.
@@ -163,7 +167,7 @@ If you update python's `webdriver` package make sure you update browsers and dri
 
 ## Killing processes hanging around
 
-Depeding on your configuration from virtualdisplay and browser, processes like:
+Depending on your configuration from virtualdisplay and browser, processes like:
 
 ```
 Xvnc
@@ -173,7 +177,7 @@ chromedriver
 ...
 ```
 
-may keep hanging arround. You may want to kill them
+may keep hanging around. You may want to kill them
 
 ```
 # check the wanted process is alive
