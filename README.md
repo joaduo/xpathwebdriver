@@ -134,7 +134,7 @@ Check a more options in the `examples` directory.
 Under Ubuntu you should easily install Selenium/Webdrivar with `sudo apt install chromium-browser chromium-chromedriver`
 Firefox seems to come with webdriver out of the box on ubuntu.
 
-Use the code below to  selenium and webdriver installation:
+Use the code below to test selenium and webdriver installation:
 
 ```python
 from selenium import webdriver
@@ -155,7 +155,7 @@ Here some references:
 * https://github.com/mozilla/geckodriver/releases
 * ~~PhantomJs~~ (abandoned)
 
-Decompressed executables should be in yor PATH.
+Decompressed executables should be in your PATH.
 If you update python's `webdriver` package make sure you update browsers and drivers.
 
 ## Useful links for working with XPath
@@ -166,7 +166,6 @@ If you update python's `webdriver` package make sure you update browsers and dri
 * http://xpath.alephzarro.com/content/cheatsheet.html
 
 ## Killing processes hanging around
-
 Depending on your configuration from virtualdisplay and browser, processes like:
 
 ```
@@ -177,7 +176,7 @@ chromedriver
 ...
 ```
 
-may keep hanging around. You may want to kill them
+may keep hanging around. You may want to kill them (on linux) with:
 
 ```
 # check the wanted process is alive
@@ -185,3 +184,5 @@ ps faux | grep Xvnc
 # and you can kill it. If you are running as root, make sure you are not killing someone else's process too 
 pkill Xvnc
 ```
+
+On other OS google on how to do it (on windows you can use the Task Manager)
