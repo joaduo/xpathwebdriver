@@ -160,10 +160,12 @@ If you update python's `webdriver` package make sure you update browsers and dri
 
 ## Useful links for working with XPath
 
-* https://addons.mozilla.org/es/firefox/addon/firebug/
-* https://addons.mozilla.org/es/firefox/addon/firepath/
-* http://ricostacruz.com/cheatsheets/xpath.html
-* http://xpath.alephzarro.com/content/cheatsheet.html
+* Xpath cheatsheets
+  * http://ricostacruz.com/cheatsheets/xpath.html
+  * https://web.archive.org/web/20200218033716/http://xpath.alephzarro.com/content/cheatsheet.html
+* Firefox addons
+  * https://addons.mozilla.org/es/firefox/addon/firebug/
+  * https://addons.mozilla.org/es/firefox/addon/firepath/
 
 ## Killing processes hanging around
 Depending on your configuration from virtualdisplay and browser, processes like:
