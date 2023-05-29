@@ -1,7 +1,5 @@
 # xpathwebdriver
 
-[![Codeship Status for joaduo/xpathwebdriver](https://app.codeship.com/projects/a77b1220-ecf1-0137-98b2-4e2936dc9ea3/status?branch=master)](https://app.codeship.com/projects/374749)
-
 A python wrapper for interacting with Selenium through XPath and CSS selectors.
 You can now use XPaths like:
 
