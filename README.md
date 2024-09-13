@@ -1,5 +1,8 @@
 # xpathwebdriver
 
+
+[![.github/workflows/xpwd_ci.yml](https://github.com/joaduo/xpathwebdriver/actions/workflows/xpwd_ci.yml/badge.svg)](https://github.com/joaduo/xpathwebdriver/actions/workflows/xpwd_ci.yml)
+
 A python wrapper for interacting with Selenium through XPath and CSS selectors.
 You can now use XPaths like:
 
