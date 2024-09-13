@@ -3,12 +3,10 @@ on:
 jobs:
   acquire_ec2:
     runs-on: ubuntu-22.04
-    name: Acquire EC2 CI instance
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
       - name: basic testing
         shell: bash
-        env:
         run: |
           ./run_gh_ci.sh
