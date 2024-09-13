@@ -5,8 +5,7 @@ set -e -x
 
 
 sudo apt-get install -y imagemagick findimagedupes xvfb chromium-browser
-
-# chromium-chromedriver (unneeded?)
+# chromium-chromedriver (unneeded and breaks things!)
 
 pip3 install -r requirements.tests.txt
 pip3 install -r requirements.txt
