@@ -1,5 +1,6 @@
 on:
-  workflow_dispatch:
+  workflow_dispatch
+  push
 jobs:
   run_ci_tests:
     runs-on: ubuntu-22.04
