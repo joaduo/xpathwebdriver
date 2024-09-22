@@ -81,7 +81,7 @@ class WebUnitTestBase(unittest.TestCase):
                 class FixedHandler(WSGIRequestHandler):
                     def address_string(self): # Prevent reverse DNS lookups please.
                         return self.client_address[0]
-                    def log_request(*args, **kw):
+                    def log_request(self, *args, **kw):
                         if not self.quiet:
                             return WSGIRequestHandler.log_request(*args, **kw)
                 handler_cls = self.options.get('handler_class', FixedHandler)
