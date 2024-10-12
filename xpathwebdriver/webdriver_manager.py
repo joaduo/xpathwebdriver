@@ -158,7 +158,7 @@ class WebdriverManager(XpathWdBase):
         shared = False
         if (context_name not in self._context_name_level
         and context_name in credentials):
-            driver = self._build_remote(**credentials[context_name])
+            driver = self._build_shared_driver(**credentials[context_name])
             if driver:
                 shared = True
                 self._context_name_level[context_name] = level
@@ -203,7 +203,7 @@ class WebdriverManager(XpathWdBase):
         with open(path) as fp:
             return json.load(fp)
 
-    def _build_remote(self, command_executor, session_id):
+    def _build_shared_driver(self, command_executor, session_id):
         original_execute = WebDriver.execute
         non_local = dict(first_run=True)
         def _patched_execute(self, command, params=None):

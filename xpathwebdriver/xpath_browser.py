@@ -113,10 +113,10 @@ class XpathBrowser:
 
     def __init__(self, webdriver, base_url=None, logger=None, settings=None):
         '''
-        :param base_url: common base url (e.g: http://example.com, http://example.com/some/common/path) 
-            Used to build URL for all methods accepting the "path" argument. 
         :param webdriver: selenium's webdriver object (connected to Firefox, Chrome, etc...)
-        :param logger: You can optionally pass a xpathwebdriver.Logger instance (or a child class's instance)  
+        :param base_url: common base url (e.g: http://example.com, http://example.com/some/common/path)
+            Used to build URL for all methods accepting the "path" argument.
+        :param logger: You can optionally pass a xpathwebdriver.Logger instance (or a child class's instance)
         :param settings: xpathwebdriver settings object.
         '''
         settings = settings or {}
