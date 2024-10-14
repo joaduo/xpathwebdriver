@@ -43,7 +43,8 @@ Also adds:
 
 You can opt to use Chromium to simplify installation:
 
-    sudo apt-get install -y python3-pip imagemagick findimagedupes tightvncserver xserver-xephyr xvfb unzip chromium-browser chromium-chromedriver
+    sudo apt-get install -y python3-pip imagemagick findimagedupes tightvncserver xserver-xephyr xvfb unzip chromium-browser
+    # chromium-chromedriver (from 22.04 and on you no longer need to install this package, seems it's obsolete and comes with chromium itself)
     sudo pip3 install xpathwebdriver Pillow ipython
 
 You can quickly test it running:
