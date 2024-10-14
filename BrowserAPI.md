@@ -2,8 +2,8 @@
 
 To get full details on the methods below you can use the `xpathshell` command. 
 
-* Once in the shell you can execute `b.wait_condition?` (note the `?` question mark).
-* IPython will print the correspoding method documentation.
+* Once in the shell you can execute `b.<method>?` eg: `b.wait_condition?` (note the `?` question mark).
+* IPython will print the corresponding method documentation.
 
 Main methods:
 
@@ -33,6 +33,13 @@ Main methods:
 * `quick_screenshot`
 * `save_screenshot`
 * `execute_script`
+
+Main attributes:
+
+* `driver`: direct access to the underlying webdriver object.
+* `base_url`: current `base_url`
+* `current_path`: current path from the driver
+* `current_url`: current url from the driver
 
 Other less important methods:
 
