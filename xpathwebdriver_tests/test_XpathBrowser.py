@@ -74,6 +74,10 @@ class WebUnitTestBase(unittest.TestCase):
     @classmethod
     def setup_http_server(cls):
         class MyServer(bottle.WSGIRefServer):
+            """
+            We need to start a server because browser no longer
+            support opening local files (security reason)
+            """
             def run(self, app): # pragma: no cover
                 from wsgiref.simple_server import WSGIRequestHandler, WSGIServer
                 from wsgiref.simple_server import make_server

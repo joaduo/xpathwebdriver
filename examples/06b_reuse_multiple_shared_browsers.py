@@ -1,12 +1,11 @@
 '''
 Dump credentials.json for the first browser
-By if not set --context-name will be 'default'
+If not set --context-name will be 'default'
     xpathshell -d credentials.json
 In another terminal run a second browser that will be shared
 Set the context name to something else ('firefox' in this case)
     export XPATHWD_WEBDRIVER_BROWSER="Firefox"; xpathshell -d credentials.json -c firefox
-Then run this test
-Fix webdriver_remote_credentials_path value in settings if needed
+Then run this file (Fix webdriver_remote_credentials_path value in settings if needed)
     python3 examples/06b_reuse_multiple_shared_browsers.py
 '''
 import unittest

@@ -11,11 +11,11 @@ class NewBrowserPerTest(unittest.TestCase):
 
     def test_duckduckgo(self):
         self.browser.get_url('https://duckduckgo.com/')
-        self.browser.fill(".//*[@id='search_form_input_homepage']", 'xpathwebdriver\n')
+        self.browser.fill('.//*[@name="q"]', 'xpathwebdriver\n')
 
-    def test_duckduckgo2(self):
+    def test_duckduckgo_rel_imp(self):
         self.browser.get_url('https://duckduckgo.com/')
-        self.browser.fill(".//*[@id='search_form_input_homepage']", 'Second test\n')
+        self.browser.fill('.//*[@name="q"]', 'rel_imp python\n')
 
 
 if __name__ == "__main__":
