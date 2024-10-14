@@ -4,10 +4,20 @@
 [![.github/workflows/xpwd_ci.yml](https://github.com/joaduo/xpathwebdriver/actions/workflows/xpwd_ci.yml/badge.svg)](https://github.com/joaduo/xpathwebdriver/actions/workflows/xpwd_ci.yml)
 
 A python wrapper for interacting with Selenium through XPath and CSS selectors.
-You can now use XPaths like:
+You can now use XPaths like `//div/text()`:
 
-```
-//div/text()
+```python
+from xpathwebdriver.browser import Browser
+
+browser = Browser()
+
+# xpath returns text
+for idx, t in enumerate(browser.select_xpath('//div/text()')):
+    print(idx, t)
+
+# css selector returns elements
+for idx, elem in enumerate(browser.select_css('.result__title')):
+    print(idx, elem.text)
 ```
 
 Which will return you a string as expected. Something webdriver API makes more complicated.
