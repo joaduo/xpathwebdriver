@@ -5,7 +5,7 @@ Copyright (c) 2015 Juju. Inc
 
 Code Licensed under MIT License. See LICENSE file.
 '''
-import rel_imp; rel_imp.init()
+
 from .webdriver_manager import WebdriverManager
 from .xpath_browser import XpathBrowser
 from .solve_settings import register_settings_instance, solve_settings

@@ -3,7 +3,7 @@ Copyright (c) 2014 Juju. Inc
 
 Code Licensed under MIT License. See LICENSE file.
 '''
-import rel_imp; rel_imp.init()
+
 
 from selenium import webdriver
 from pyvirtualdisplay import Display

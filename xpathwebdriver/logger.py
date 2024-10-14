@@ -2,7 +2,7 @@
 Copyright (c) 2014, Juju Inc.
 Copyright (c) 2011-2013, Joaquin G. Duo
 '''
-import rel_imp; rel_imp.init()
+
 import logging
 from .ColorStreamHandler import ColorStreamHandler
 

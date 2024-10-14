@@ -36,7 +36,7 @@ def is_valid_netloc(value):
 
 
 def smoke_test_module():
-    import rel_imp; rel_imp.init()
+    
     from .logger import log_test
     log_test(is_valid_netloc('ble'))
     log_test(is_valid_netloc('google.com'))
