@@ -386,14 +386,20 @@ class WebdriverManager(XpathWdBase):
             chrom -> Chrome
         :param browser: partial browser's name string
         '''
-        # TODO: add IE and Opera
-        char_browser = dict(f='Firefox',
-                            c='Chrome',
-                            p='PhantomJS',
-                            )
+        # partial matching on popular browsers
+        char_browser = dict(
+                c='Chrome',
+                e='Edge',
+                f='Firefox',                            
+                r='Remote',
+                s='Safari',
+                )
         char = browser.lower()[0]
-        assert char in char_browser, 'Could not find browser %r' % browser
-        return char_browser.get(char)
+        if char in char_browser:
+            return char_browser.get(char)
+        elif browser in webdriver.__all__:
+            return browser
+        raise LookupError(f'Unknown browser={browser!r}')
 
     def __del__(self):
         self.exit_level(MANAGER_LIFE)
@@ -457,7 +463,7 @@ def smoke_test_module():
 #    import ipdb; ipdb.set_trace()
     xb = lvl.get_xpathbrowser()
     log_test(xb)
-    lvl.exit_level()
+    lvl.__exit__()
 #    import ipdb; ipdb.set_trace()
     mngr.stop_display()
     mngr.quit_all_webdrivers()
