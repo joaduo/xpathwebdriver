@@ -5,6 +5,7 @@ Copyright (c) 2015 Juju. Inc
 
 Code Licensed under MIT License. See LICENSE file.
 '''
+import time
 import unittest
 import threading
 from contextlib import contextmanager
@@ -70,6 +71,8 @@ class WebUnitTestBase(unittest.TestCase):
         cls.browser = Browser(settings=solve_settings())
         cls._pages_cache = {}
         cls.setup_http_server()
+        # wait for the server to be up
+        time.sleep(1)
 
     @classmethod
     def setup_http_server(cls):
