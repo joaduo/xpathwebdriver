@@ -4,13 +4,17 @@ set -e -x
 
 export PYTHONPATH="$PYTHONPATH:./"
 
-pushd `dirname $0` > /dev/null
+FULL_DIRECTORY="$(cd "$(dirname "$0")" && pwd)"
+
+pushd "$FULL_DIRECTORY" > /dev/null
     if ! [ "$(uname)" = "Darwin" ]; then
         python3 xpathwebdriver_tests/test_ImagesComparator.py
     fi
+    echo $(pwd)
 popd > /dev/null
 
-pushd `dirname $0` > /dev/null
+pushd "$FULL_DIRECTORY" > /dev/null
+    ls xpathwebdriver_tests/
     python3 xpathwebdriver_tests/test_XPathBrowser.py
     python3 xpathwebdriver_tests/wipe_alerts.py
 popd > /dev/null
