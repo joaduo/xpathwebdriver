@@ -676,7 +676,15 @@ function extract_element(elem){
 
     def get_remote_credentials(self):
         drv = self.driver
-        return dict(command_executor=drv.command_executor._url,
+        # Extract the active URL (works on modern Remote connections)
+        if hasattr(drv.command_executor, '_url'):
+            executor_url = drv.command_executor._url
+        elif hasattr(drv.command_executor, '_client_config'):
+            executor_url = drv.command_executor._client_config.remote_server_addr
+        else:
+            raise ValueError("Could not determine remote executor URL")
+
+        return dict(command_executor=executor_url,
                     session_id=drv.session_id)
 
     @contextmanager

@@ -158,7 +158,11 @@ class WebdriverManager(XpathWdBase):
         shared = False
         if (context_name not in self._context_name_level
         and context_name in credentials):
-            driver = self._build_shared_driver(**credentials[context_name])
+            creds = credentials[context_name]
+            browser_name = creds.get('browser_name', 'Firefox')
+            driver = self._build_shared_driver(command_executor=creds['command_executor'], 
+                                               session_id=creds['session_id'],
+                                               browser_name=browser_name)
             if driver:
                 shared = True
                 self._context_name_level[context_name] = level
@@ -203,19 +207,40 @@ class WebdriverManager(XpathWdBase):
         with open(path) as fp:
             return json.load(fp)
 
-    def _build_shared_driver(self, command_executor, session_id):
+    def _build_shared_driver(self, command_executor, session_id, browser_name='Firefox'):
         original_execute = WebDriver.execute
         non_local = dict(first_run=True)
         def _patched_execute(self, command, params=None):
-            if command == "newSession" and non_local['first_run']:
+            if non_local['first_run']:
                 non_local['first_run'] = False
-                # Mock the response
-                return {'success': 0, 'value': None, 'sessionId': session_id}
+                # Mock the response for session initialization
+                # In Selenium 4+, the response format has changed
+                return {'value': {'sessionId': session_id}}
             else:
                 return original_execute(self, command, params)
         # Patch the function before creating the driver object
         WebDriver.execute = _patched_execute
-        driver = webdriver.Remote(command_executor=command_executor)
+        
+        # Create appropriate options based on browser name
+        browser_name = self.expand_browser_name(browser_name)
+        if browser_name == 'Firefox':
+            from selenium.webdriver.firefox.options import Options as FirefoxOptions
+            options = FirefoxOptions()
+        elif browser_name == 'Chrome':
+            from selenium.webdriver.chrome.options import Options as ChromeOptions
+            options = ChromeOptions()
+        elif browser_name == 'Edge':
+            from selenium.webdriver.edge.options import Options as EdgeOptions
+            options = EdgeOptions()
+        elif browser_name == 'Safari':
+            from selenium.webdriver.safari.options import Options as SafariOptions
+            options = SafariOptions()
+        else:
+            # Fallback to generic options
+            from selenium.webdriver.common.options import Options
+            options = Options()
+        
+        driver = webdriver.Remote(command_executor=command_executor, options=options)
         driver.session_id = session_id
         # Replace the patched function with original function
         WebDriver.execute = original_execute
