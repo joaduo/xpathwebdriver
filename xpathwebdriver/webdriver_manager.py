@@ -220,7 +220,7 @@ class WebdriverManager(XpathWdBase):
                 return original_execute(self, command, params)
         # Patch the function before creating the driver object
         WebDriver.execute = _patched_execute
-        
+
         # Create appropriate options based on browser name
         browser_name = self.expand_browser_name(browser_name)
         if browser_name == 'Firefox':
@@ -239,7 +239,7 @@ class WebdriverManager(XpathWdBase):
             # Fallback to generic options
             from selenium.webdriver.common.options import Options
             options = Options()
-        
+
         driver = webdriver.Remote(command_executor=command_executor, options=options)
         driver.session_id = session_id
         # Replace the patched function with original function
