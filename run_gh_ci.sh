@@ -4,8 +4,10 @@ set -e -x
 
 
 
-sudo apt-get install -y imagemagick findimagedupes xvfb chromium-browser
+sudo apt-get install -y imagemagick findimagedupes xvfb chromium-browser 2>&1 > installation.txt
 # chromium-chromedriver (unneeded and breaks things!)
+
+tail -n 100 installation.txt
 
 pip3 install -r requirements.tests.txt
 pip3 install -r requirements.txt

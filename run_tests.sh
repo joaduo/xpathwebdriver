@@ -15,6 +15,6 @@ popd > /dev/null
 
 pushd "$FULL_DIRECTORY" > /dev/null
     ls xpathwebdriver_tests/
-    python3 xpathwebdriver_tests/test_XPathBrowser.py
+    python3 xpathwebdriver_tests/test_XpathBrowser.py
     python3 xpathwebdriver_tests/wipe_alerts.py
 popd > /dev/null
