@@ -20,6 +20,8 @@ for idx, elem in enumerate(browser.select_css('.result__title')):
     print(idx, elem.text)
 ```
 
+See [xpathwebdriver/browser.py](xpathwebdriver/browser.py) for the main Browser class implementation.
+
 Which will return you a string as expected. Something webdriver API makes more complicated.
 
 Means you can write all your tests based on XPath.
@@ -34,7 +36,7 @@ Also adds:
 - Useful settings for local and remote (headless) testing
   - Also supports environment variables as settings
   - Plus allowing custom settings that you can also push through environment variables
-- Screenshots comparison and diff management
+- Screenshots comparison and diff management (see [xpathwebdriver/ImagesComparator.py](xpathwebdriver/ImagesComparator.py))
 - Virtual display management (so you can run "headless" in a remote instance)
   - you can use VNC to access the remote Browser
 - Adding `xpath`, `css`, `selector` methods to returned `WebElement` objects, to keep the Xpath functionality
@@ -89,16 +91,18 @@ for idx, elem in enumerate(browser.select_css('.result__title')):
 
 ## Documentation and tutorials
 
-* Check `examples` directory
-* The `BrowserAPI.md` file has a quick list of Browser's API
-* Use `xpathsell -e` to print available environment variables for settings
-* Use `xpathsell --settings-help` to print settings detailed documentation
-  - or optionally check `xpathwebdriver/default_settings.py`
+* Check [examples](examples/) directory for detailed usage examples
+* The [BrowserAPI.md](BrowserAPI.md) file has a quick list of Browser's API
+* Use `xpathshell -e` to print available environment variables for settings
+* Use `xpathshell --settings-help` to print settings detailed documentation
+  - or optionally check [xpathwebdriver/default_settings.py](xpathwebdriver/default_settings.py)
 
 ## IPython interactive shell
 
 First install ipython `pip install ipython` (not installed to keep basic requirements low)
 Run the `xpathshell` in your terminal, and you should see something like:
+
+See [xpathwebdriver/simple_shell.py](xpathwebdriver/simple_shell.py) for the interactive shell implementation.
 
 ```
 $ xpathshell
@@ -121,9 +125,10 @@ Inside IPython you can enter `browser.select_xpath?` to get documentation and ca
 
 More `XpathBrowser` details at:
 
-* https://github.com/joaduo/xpathwebdriver/blob/master/BrowserAPI.md
-* https://github.com/joaduo/xpathwebdriver/blob/master/xpathwebdriver/xpath_browser.py
-* https://github.com/joaduo/xpathwebdriver/blob/master/xpathwebdriver_tests/test_XpathBrowser.py
+* [BrowserAPI.md](BrowserAPI.md) - Quick API reference
+* [xpathwebdriver/xpath_browser.py](xpathwebdriver/xpath_browser.py) - Main implementation
+* [xpathwebdriver_tests/test_XpathBrowser.py](xpathwebdriver_tests/test_XpathBrowser.py) - Unit tests
+* [xpathwebdriver_tests/test_XpathBrowser_extended.py](xpathwebdriver_tests/test_XpathBrowser_extended.py) - Extended tests
 
 ### Using unittest library
 
@@ -139,7 +144,15 @@ class SearchEnginesDemo(unittest.TestCase):
             browser.fill('.//*[@id="search_form_input_homepage"]', 'xpathwebdriver\n')
 ```
 
-Check a more options in the `examples` directory.
+See [xpathwebdriver/webdriver_manager.py](xpathwebdriver/webdriver_manager.py) for browser lifecycle management.
+
+Check more options in the [examples](examples/) directory:
+- [examples/00_full_example.py](examples/00_full_example.py) - Complete usage example
+- [examples/01_duckduckgo_basic.py](examples/01_duckduckgo_basic.py) - Basic search example
+- [examples/02_using_settings_keep_open.py](examples/02_using_settings_keep_open.py) - Keeping browser open
+- [examples/03_new_browser_per_test.py](examples/03_new_browser_per_test.py) - Browser per test
+- [examples/06_reuse_shared_browser.py](examples/06_reuse_shared_browser.py) - Shared browser pattern
+- [examples/09_use_virtual_display.py](examples/09_use_virtual_display.py) - Virtual display setup
 
 ## Installing Selenium
 
