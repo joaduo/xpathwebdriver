@@ -70,7 +70,7 @@ class WebdriverManager(XpathWdBase):
         :param level: webdriver's level of life we are entering
         :param base_url: optional set a base url for the browser (to specify paths)
         :param name: optional level's name (mainly for logging purposes)
-        :param browser_name: optional browser name string (eg: 'Firefox', 'Chrome', 'PhantomJs')
+        :param browser_name: optional browser name string (eg: 'Firefox', 'Chrome')
         '''
         self.log.w('DEPRECATED method enter_level, use enter get_browser')
         # override level
@@ -83,7 +83,7 @@ class WebdriverManager(XpathWdBase):
     def get_browser(self, context_name='default', browser=None):
         '''
         :param name: optional context's name (mainly for logging purposes)
-        :param browser: optional browser name string (eg: 'Firefox', 'Chrome', 'PhantomJs')
+        :param browser: optional browser name string (eg: 'Firefox', 'Chrome')
         '''
         self._current_context_level += 1
         level = self._current_context_level
@@ -169,38 +169,56 @@ class WebdriverManager(XpathWdBase):
                 shared = True
                 self._context_name_level[context_name] = level
         if not shared:
-            if browser == 'PhantomJS':
-                self._append_service_arg('--ignore-ssl-errors=true', kwargs)
-            if (browser == 'Firefox'
-            and self.global_settings.get('webdriver_browser_profile',
-                self.global_settings.get('webdriver_firefox_profile'))
-            and not args and 'firefox_profile' not in kwargs):
-                # Update with profile specified from config
-                fp = webdriver.FirefoxProfile(self.global_settings.get('webdriver_browser_profile',
-                                              self.global_settings.get('webdriver_firefox_profile')))
-                kwargs['firefox_profile'] = fp
-            if (browser == 'Chrome'
-            and self.global_settings.get('webdriver_browser_profile')
-            and not args and 'chrome_options' not in kwargs):
-                from selenium.webdriver.chrome.options import Options
-                chrome_options = Options()
-                if os.name == 'posix' and os.geteuid() == 0:
-                    self.log.w('Passing --no-sandbox flag to Chrome (running as root)')
-                    chrome_options.add_argument('--no-sandbox')
-                if self.global_settings.get('webdriver_browser_profile'):
-                    profile_dir = self.global_settings.get('webdriver_browser_profile')
-                    profile_dir = os.path.abspath(profile_dir)
-                    profile_dir = shlex.quote(profile_dir)
-                    chrome_options.add_argument(f'--user-data-dir={profile_dir}')
-                #self.log.w('Adding --disable-application-cache')
-                #chrome_options.add_argument('--disable-application-cache')
-                #chrome_options.add_argument('--incognito')
-                kwargs['chrome_options'] = chrome_options
+            # Remove PhantomJS support (deprecated in Selenium 4)
+            if browser == 'Firefox' or browser == 'Chrome':
+                profile_dir = self.global_settings.get('webdriver_browser_profile',
+                                              self.global_settings.get('webdriver_firefox_profile'))
+                if profile_dir and not args and 'options' not in kwargs:
+                    kwargs['options'] = self._create_browser_options(browser, profile_dir)
             driver = getattr(webdriver, browser)(*args, **kwargs)
         if self.global_settings.get('webdriver_window_size'):
             h,w = self.global_settings.get('webdriver_window_size')
             driver.set_window_size(h,w)
         return driver, shared
+
+    def _create_browser_options(self, browser_name, profile_dir=None):
+        """
+        Create browser-specific Options object for the given browser.
+
+        :param browser_name: Browser name (Firefox, Chrome, Edge, Safari)
+        :param profile_dir: Optional profile directory path
+        :return: Options object for the specified browser
+        """
+        browser_name = self.expand_browser_name(browser_name)
+
+        if browser_name == 'Firefox':
+            from selenium.webdriver.firefox.options import Options as FirefoxOptions
+            options = FirefoxOptions()
+            if profile_dir:
+                options.add_argument('-profile')
+                options.add_argument(profile_dir)
+        elif browser_name == 'Chrome':
+            from selenium.webdriver.chrome.options import Options as ChromeOptions
+            options = ChromeOptions()
+            if os.name == 'posix' and os.geteuid() == 0:
+                self.log.w('Passing --no-sandbox flag to Chrome (running as root)')
+                options.add_argument('--no-sandbox')
+            if profile_dir:
+                profile_dir = os.path.abspath(profile_dir)
+                profile_dir = shlex.quote(profile_dir)
+                options.add_argument(f'--user-data-dir={profile_dir}')
+        elif browser_name == 'Edge':
+            from selenium.webdriver.edge.options import Options as EdgeOptions
+            options = EdgeOptions()
+        elif browser_name == 'Safari':
+            from selenium.webdriver.safari.options import Options as SafariOptions
+            options = SafariOptions()
+        else:
+            # Fallback to generic options
+            from selenium.webdriver.common.options import Options
+            options = Options()
+
+        return options
 
     def _load_credentials(self):
         path = self.global_settings.get('webdriver_remote_credentials_path')
@@ -225,23 +243,7 @@ class WebdriverManager(XpathWdBase):
         WebDriver.execute = _patched_execute
 
         # Create appropriate options based on browser name
-        browser_name = self.expand_browser_name(browser_name)
-        if browser_name == 'Firefox':
-            from selenium.webdriver.firefox.options import Options as FirefoxOptions
-            options = FirefoxOptions()
-        elif browser_name == 'Chrome':
-            from selenium.webdriver.chrome.options import Options as ChromeOptions
-            options = ChromeOptions()
-        elif browser_name == 'Edge':
-            from selenium.webdriver.edge.options import Options as EdgeOptions
-            options = EdgeOptions()
-        elif browser_name == 'Safari':
-            from selenium.webdriver.safari.options import Options as SafariOptions
-            options = SafariOptions()
-        else:
-            # Fallback to generic options
-            from selenium.webdriver.common.options import Options
-            options = Options()
+        options = self._create_browser_options(browser_name)
 
         driver = webdriver.Remote(command_executor=command_executor, options=options)
         driver.session_id = session_id
@@ -254,11 +256,6 @@ class WebdriverManager(XpathWdBase):
                            ' Creating new local browser...')
             driver = None
         return driver
-
-    def _append_service_arg(self, arg, kwargs):
-        service_args = kwargs.get('service_args', [])
-        service_args.append(arg)
-        kwargs['service_args'] = service_args
 
     @synchronized(_methods_lock)
     def acquire_driver(self, level, browser_name, context_name):
@@ -403,7 +400,7 @@ class WebdriverManager(XpathWdBase):
         '''
         Get the current browser name in usage
         If not set, we use the one specified in global settings
-        or PhantomJS as the final default
+        or Firefox as the final default
         '''
         browser = (browser_name
                    or self.global_settings.get('webdriver_browser'))
@@ -491,7 +488,7 @@ class BrowserContextManager(XpathWdBase):
 def get_browser(context_name='default', browser=None):
     '''
     :param name: optional context's name (mainly for logging purposes)
-    :param browser: optional browser name string (eg: 'Firefox', 'Chrome', 'PhantomJs')
+    :param browser: optional browser name string (eg: 'Firefox', 'Chrome')
     '''
     return WebdriverManager().get_browser(context_name, browser)
 

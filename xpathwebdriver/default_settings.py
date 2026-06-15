@@ -63,7 +63,7 @@ class DefaultSettings(BaseSettings):
 
     # Webdriver related settings
     webdriver_browser =  ConfigVar(
-        doc='Webdriver\'s browser: Firefox, Chrome, PhantomJs, etc...',
+        doc='Webdriver\'s browser: Firefox, Chrome, Edge, Safari, etc...',
         default='Chrome')
     webdriver_browser_keep_open = ConfigVar(
         doc='Keep browser open after process finishes. (for debugging purposes)',

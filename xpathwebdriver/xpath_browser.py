@@ -220,12 +220,6 @@ class XpathBrowser:
         :param condition: optional condition script or functor passed to the `wait_condition` method
         '''
         driver = self.driver
-        if (url.startswith('https')
-            and hasattr(webdriver, 'PhantomJS')
-            and isinstance(driver, webdriver.PhantomJS)):
-            self.log.d('PhantomJS may fail with https if you don\'t pass '
-                       'service_args=[\'--ignore-ssl-errors=true\']'
-                       ' Trying to fetch {url!r}'.format(url=url))
         self.log.d('Fetching page at {url!r}'.format(url=url))
         driver.get(url)
         # Errors
