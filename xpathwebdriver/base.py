@@ -29,6 +29,11 @@ class singleton_decorator(object):
             self.instance = self.class_(*a, **ad)
         return self.instance
 
+    def close(self):
+        if self.instance is not None and hasattr(self.instance, 'close'):
+            self.instance.close()
+            self.instance = None
+
 
 class XpathWdBase(object):
     log = Logger('xpath root', color=solve_settings().get('log_color'))

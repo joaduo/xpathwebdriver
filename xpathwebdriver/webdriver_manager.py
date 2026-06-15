@@ -209,10 +209,11 @@ class WebdriverManager(XpathWdBase):
 
     def _build_shared_driver(self, command_executor, session_id, browser_name='Firefox'):
         original_execute = WebDriver.execute
-        non_local = dict(first_run=True)
+        first_run = False
         def _patched_execute(self, command, params=None):
-            if non_local['first_run']:
-                non_local['first_run'] = False
+            nonlocal first_run
+            if not first_run:
+                first_run = True
                 # Mock the response for session initialization
                 # In Selenium 4+, the response format has changed
                 return {'value': {'sessionId': session_id}}
@@ -325,8 +326,11 @@ class WebdriverManager(XpathWdBase):
             return failed
 
     def _is_failed_webdriver(self, wdriver, tested_once=False):
-        # Test wether a webdriver is responding, if not quit it and
+        # Test whether a webdriver is responding, if not quit it and
         # unregister it to avoid further usage.
+        if not sys or sys.meta_path is None:
+            self.log.d('sys.meta_path is None, considering webdriver as not failed. Otherwise we would raise "ImportError: sys.meta_path is None, Python is likely shutting down"')
+            return False
         try:
             wdriver.current_url
             return False
@@ -426,9 +430,23 @@ class WebdriverManager(XpathWdBase):
             return browser
         raise LookupError(f'Unknown browser={browser!r}')
 
+    def close(self):
+        if sys and sys.meta_path:
+            self.log.d('WebdriverManager.close called during normal execution')
+            self.exit_level(MANAGER_LIFE)
+            self.stop_display()
+        else:
+            self.log.w('WebdriverManager.close called during python shutting down')
+            if not self.global_settings.get('webdriver_browser_keep_open'):
+                self.log.w('Quitting all webdrivers')
+                self.quit_all_webdrivers()
+                self.log.w('Stopping display')
+                self.stop_display()
+            else:
+                self.log.w('Keeping display and browser running (doing nothing on python shutting down)')
+
     def __del__(self):
-        self.exit_level(MANAGER_LIFE)
-        self.stop_display()
+        self.close()
 
 
 class BrowserContextManager(XpathWdBase):
@@ -474,6 +492,13 @@ def get_browser(context_name='default', browser=None):
     :param browser: optional browser name string (eg: 'Firefox', 'Chrome', 'PhantomJs')
     '''
     return WebdriverManager().get_browser(context_name, browser)
+
+
+def close_webdriver_manager():
+    '''
+    Close the global WebdriverManager instance.
+    '''
+    WebdriverManager().close()
 
 
 def smoke_test_module():
