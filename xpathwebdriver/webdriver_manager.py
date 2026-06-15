@@ -4,20 +4,22 @@ Copyright (c) 2014 Juju. Inc
 Code Licensed under MIT License. See LICENSE file.
 '''
 
-
-from selenium import webdriver
-from pyvirtualdisplay import Display
-from threading import RLock
-from functools import wraps
-from selenium.common.exceptions import UnexpectedAlertPresentException, WebDriverException
-from .base import XpathWdBase, singleton_decorator
-from xpathwebdriver.levels import TEST_ROUND_LIFE, MANAGER_LIFE
-from selenium.webdriver.remote.webdriver import WebDriver
-import os
-import logging
 import json
-from collections import namedtuple
+import logging
+import os
 import shlex
+import sys
+from collections import namedtuple
+from functools import wraps
+from threading import RLock
+
+from pyvirtualdisplay import Display
+from selenium import webdriver
+from selenium.common.exceptions import UnexpectedAlertPresentException, WebDriverException
+from selenium.webdriver.remote.webdriver import WebDriver
+from xpathwebdriver.levels import TEST_ROUND_LIFE, MANAGER_LIFE
+
+from .base import XpathWdBase, singleton_decorator
 
 logger = logging.getLogger(__name__)
 
