@@ -2,23 +2,17 @@
 
 set -e -x
 
-export PYTHONPATH="$PYTHONPATH:./"
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+RUNNER="$SCRIPT_DIR/test.sh"
 
-FULL_DIRECTORY="$(cd "$(dirname "$0")" && pwd)"
+if ! [ "$(uname)" = "Darwin" ]; then
+    $RUNNER xpathwebdriver_tests/test_ImagesComparator.py
+fi
 
-pushd "$FULL_DIRECTORY" > /dev/null
-    if ! [ "$(uname)" = "Darwin" ]; then
-        python3 xpathwebdriver_tests/test_ImagesComparator.py
-    fi
-    echo $(pwd)
-popd > /dev/null
-
-pushd "$FULL_DIRECTORY" > /dev/null
-    ls xpathwebdriver_tests/
-    python3 xpathwebdriver_tests/test_XpathBrowser.py
-    python3 xpathwebdriver_tests/wipe_alerts.py
-    python3 xpathwebdriver_tests/test_01_duckduckgo_basic.py
-    python3 xpathwebdriver_tests/test_03_new_browser_per_test.py
-    python3 xpathwebdriver_tests/test_04_mutiple_browsers.py
-    python3 xpathwebdriver_tests/test_XpathBrowser_extended.py
-popd > /dev/null
+$RUNNER xpathwebdriver_tests/test_XpathBrowser.py
+$RUNNER xpathwebdriver_tests/wipe_alerts.py
+$RUNNER xpathwebdriver_tests/test_01_duckduckgo_basic.py
+$RUNNER xpathwebdriver_tests/test_03_new_browser_per_test.py
+$RUNNER xpathwebdriver_tests/test_04_mutiple_browsers.py
+$RUNNER xpathwebdriver_tests/test_XpathBrowser_extended.py
+$RUNNER xpathwebdriver_tests/test_WebdrivrManager_browser_options.py

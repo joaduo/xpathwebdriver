@@ -88,6 +88,11 @@ class DefaultSettings(BaseSettings):
         default=(800, 600),
         parser=eval)
 
+    webdriver_headless = ConfigVar(
+        doc="Use headless mode for browsers that support it (Firefox, Chrome, Edge)",
+        default=False,
+        parser=bool)
+
     #Remote driver related settings
     webdriver_remote_credentials_path = ConfigVar(
         doc='Path to json file containing remote credentials (as dumped by "xpathshell -d path/to/credentials.json")',

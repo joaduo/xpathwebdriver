@@ -92,6 +92,7 @@ class WebUnitTestBase(unittest.TestCase):
         class Settings(DefaultSettings):
             xpathbrowser_sleep_multiplier = 0.1
             xpathbrowser_sleep_default_time = 0.1
+            xpathbrowser_implicit_max_wait = 1
         register_settings_instance(Settings())
         cls.browser = Browser(settings=solve_settings())
         cls._pages_cache = {}
@@ -110,6 +111,7 @@ class WebUnitTestBase(unittest.TestCase):
                 from wsgiref.simple_server import WSGIRequestHandler, WSGIServer
                 from wsgiref.simple_server import make_server
                 import socket
+                import socketserver
                 class FixedHandler(WSGIRequestHandler):
                     quiet = True
                     def address_string(self):  # Prevent reverse DNS lookups please.
@@ -117,13 +119,22 @@ class WebUnitTestBase(unittest.TestCase):
                     def log_request(self, *args, **kw):
                         if not self.quiet:
                             return WSGIRequestHandler.log_request(self, *args, **kw)
+                    def handle(self):
+                        try:
+                            return WSGIRequestHandler.handle(self)
+                        except (ConnectionResetError, BrokenPipeError):
+                            # Ignore connection errors from browsers closing connections
+                            pass
                 handler_cls = self.options.get('handler_class', FixedHandler)
                 server_cls = self.options.get('server_class', WSGIServer)
                 if ':' in self.host:  # Fix wsgiref for IPv6 addresses.
                     if getattr(server_cls, 'address_family') == socket.AF_INET:
                         class server_cls(server_cls):
                             address_family = socket.AF_INET6
-                srv = make_server(self.host, self.port, app, server_cls, handler_cls)
+                # Make server threaded to handle concurrent requests
+                class ThreadedServer(socketserver.ThreadingMixIn, server_cls):
+                    daemon_threads = True
+                srv = make_server(self.host, self.port, app, ThreadedServer, handler_cls)
                 ### save tcp server so we can shut it down later
                 cls._tcp_server = srv
                 srv.serve_forever()

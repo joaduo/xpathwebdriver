@@ -190,16 +190,21 @@ class WebdriverManager(XpathWdBase):
         :return: Options object for the specified browser
         """
         browser_name = self.expand_browser_name(browser_name)
+        headless = self.global_settings.get('webdriver_headless', False)
 
         if browser_name == 'Firefox':
             from selenium.webdriver.firefox.options import Options as FirefoxOptions
             options = FirefoxOptions()
+            if headless:
+                options.add_argument('--headless')
             if profile_dir:
                 options.add_argument('-profile')
                 options.add_argument(profile_dir)
         elif browser_name == 'Chrome':
             from selenium.webdriver.chrome.options import Options as ChromeOptions
             options = ChromeOptions()
+            if headless:
+                options.add_argument('--headless')
             if os.name == 'posix' and os.geteuid() == 0:
                 self.log.w('Passing --no-sandbox flag to Chrome (running as root)')
                 options.add_argument('--no-sandbox')
@@ -210,13 +215,20 @@ class WebdriverManager(XpathWdBase):
         elif browser_name == 'Edge':
             from selenium.webdriver.edge.options import Options as EdgeOptions
             options = EdgeOptions()
+            if headless:
+                options.add_argument('--headless')
         elif browser_name == 'Safari':
             from selenium.webdriver.safari.options import Options as SafariOptions
             options = SafariOptions()
+            # Safari does not support headless mode
+            if headless:
+                self.log.w('Safari does not support headless mode, ignoring webdriver_headless setting')
         else:
             # Fallback to generic options
             from selenium.webdriver.common.options import Options
             options = Options()
+            if headless:
+                options.add_argument('--headless')
 
         return options
 
