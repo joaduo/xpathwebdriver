@@ -622,6 +622,17 @@ function extract_element(elem){
         '''
         return self.driver.execute_script(script, *args)
 
+    def execute_async_script(self, script, timeout, *args):
+        '''
+        Execute javascript in the Browser.
+        Will return a value if the specified script returns a value.
+        :param script: javascript script to be executed. 
+        :param timeout: timeout in seconds
+        '''
+        if timeout:
+            self.driver.set_script_timeout(timeout)
+        return self.driver.execute_async_script(script, *args)
+
     def fill_form(self, clear=True, javascript_safe=True, **inputs):
         '''
         Fill a form given a {<input/textarea name>:<value>} dictionary
