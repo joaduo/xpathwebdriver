@@ -16,7 +16,7 @@ def long_description():
 setup(
   name = name,
   packages = find_packages(),
-  version = '2.0.6',
+  version = '2.1.0',
   description = 'Selenium/webdriver wrapper for XPath and CSS selection',
   long_description=long_description(),
   long_description_content_type='text/x-rst',
