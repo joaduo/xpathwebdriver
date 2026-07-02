@@ -8,5 +8,13 @@ if [ $# -eq 0 ]; then
     exit 1
 fi
 
+PYTHON=".venv/bin/python3"
+
+if [ ! -f "$PYTHON" ]; then
+    echo "Virtual environment not found, using system python"
+    PYTHON="python3"
+fi
+
 pushd "$SCRIPT_DIR" > /dev/null
-./.venv/bin/python3 $@
+    $PYTHON "$@"
+popd > /dev/null
